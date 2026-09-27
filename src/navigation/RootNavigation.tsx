@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { memo } from 'react';
 
 import { AddEditExpenseScreen } from '@/screens/AddEditExpense';
-import { HomeScreen } from '@/screens/Home';
 import { SplitDetailsScreen } from '@/screens/SplitDetails';
 import { colors } from '@/theme';
 import { RootRouteParams } from '@/types/navigation.types';
@@ -36,10 +35,18 @@ const RootNavigation = () => {
           contentStyle: { backgroundColor: colors.background },
         }}
       >
-        <Stack.Screen name={RootRoutes.MainTabs} component={BottomTabNavigation} />
-        <Stack.Screen name={RootRoutes.Home} component={HomeScreen} />
-        <Stack.Screen name={RootRoutes.AddEditExpense} component={AddEditExpenseScreen} />
-        <Stack.Screen name={RootRoutes.SplitDetails} component={SplitDetailsScreen} />
+        <Stack.Screen
+          name={RootRoutes.MainTabs}
+          component={BottomTabNavigation}
+        />
+        <Stack.Screen
+          name={RootRoutes.AddEditExpense}
+          component={AddEditExpenseScreen}
+        />
+        <Stack.Screen
+          name={RootRoutes.SplitDetails}
+          component={SplitDetailsScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
