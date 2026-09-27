@@ -1,1 +1,1 @@
-export * from './navigation.types';
+export * from './expense.types';
