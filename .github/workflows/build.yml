@@ -53,7 +53,13 @@ jobs:
       - name: Rename Android APK
         run: |
           mkdir -p release
-          cp android/app/build/outputs/apk/release/*.apk release/equisplit-${{ github.ref_name }}.apk
+          cp android/app/build/outputs/apk/release/*.apk "release/equisplit-${{ github.ref_name }}.apk"
+
+      - name: Verify APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "Release files:"
+          ls -lah release/
 
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
@@ -63,12 +69,22 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Upload APK to GitHub Release
+      - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: release/*.apk
+          tag_name: ${{ github.ref_name }}
+          name: EquiSplit ${{ github.ref_name }}
+          body: |
+            ## EquiSplit ${{ github.ref_name }}
+
+            Android APK release.
+
+            Download the APK below and install it on an Android device.
+          files: release/equisplit-${{ github.ref_name }}.apk
           generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-ios:
     name: Build iOS IPA
