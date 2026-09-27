@@ -11,6 +11,7 @@ export const assets = {
     ic_chart_filled: require('./icons/ic_chart_filled.png'),
     ic_credit_card: require('./icons/ic_credit_card.png'),
     ic_delete: require('./icons/ic_delete.png'),
+    ic_group: require('./icons/ic_group.png'),
     ic_home: require('./icons/ic_home.png'),
     ic_home_filled: require('./icons/ic_home_filled.png'),
     ic_members: require('./icons/ic_members.png'),
