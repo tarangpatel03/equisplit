@@ -1,9 +1,14 @@
 export const assets = {
   images: {},
   icons: {
+    ic_analysis: require('./icons/ic_analysis.png'),
+    ic_analytics: require('./icons/ic_analytics.png'),
+    ic_analytics_fill: require('./icons/ic_analytics_fill.png'),
     ic_app_logo: require('./icons/ic_app_logo.png'),
     ic_back: require('./icons/ic_back.png'),
     ic_calendar: require('./icons/ic_calendar.png'),
+    ic_chart: require('./icons/ic_chart.png'),
+    ic_chart_filled: require('./icons/ic_chart_filled.png'),
     ic_credit_card: require('./icons/ic_credit_card.png'),
     ic_delete: require('./icons/ic_delete.png'),
     ic_home: require('./icons/ic_home.png'),

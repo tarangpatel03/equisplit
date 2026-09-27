@@ -1,9 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { assets } from '@/assets';
+import { AnalyticsScreen } from '@/screens/Analytics';
 import { HomeScreen } from '@/screens/Home';
 import { MembersScreen } from '@/screens/Members';
 import { colors } from '@/theme';
@@ -16,6 +16,19 @@ const Tab = createBottomTabNavigator<BottomTabRouteParams>();
 const DashboardIcon = ({ focused }: { focused: boolean }) => (
   <Image
     source={focused ? assets.icons.ic_home_filled : assets.icons.ic_home}
+    style={[
+      styles.tabIcon,
+      { tintColor: focused ? colors.primary : colors.textSecondary },
+    ]}
+    resizeMode="contain"
+  />
+);
+
+const AnalyticsIcon = ({ focused }: { focused: boolean }) => (
+  <Image
+    source={
+      focused ? assets.icons.ic_analytics_fill : assets.icons.ic_analytics
+    }
     style={[
       styles.tabIcon,
       { tintColor: focused ? colors.primary : colors.textSecondary },
@@ -37,7 +50,7 @@ const MembersIcon = ({ focused }: { focused: boolean }) => (
 
 export const BottomTabNavigation = () => {
   const insets = useSafeAreaInsets();
-  const bottomInset = Math.max(insets.bottom, 16);
+  const bottomInset = Math.max(insets.bottom, 36);
 
   return (
     <Tab.Navigator
@@ -63,6 +76,14 @@ export const BottomTabNavigation = () => {
         options={{
           tabBarLabel: 'Dashboard',
           tabBarIcon: DashboardIcon,
+        }}
+      />
+      <Tab.Screen
+        name={BottomTabRoutes.Analytics}
+        component={AnalyticsScreen}
+        options={{
+          tabBarLabel: 'Analytics',
+          tabBarIcon: AnalyticsIcon,
         }}
       />
       <Tab.Screen
