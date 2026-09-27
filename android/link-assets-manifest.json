@@ -1,0 +1,45 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/IBMPlexSans-Bold.ttf",
+      "sha1": "73ca244ec7b02bca9c7ac07bc27ff44da5b913a1"
+    },
+    {
+      "path": "src/assets/fonts/IBMPlexSans-Light.ttf",
+      "sha1": "734d51ab82208ed43745a6f68bae0a91b05b5ca3"
+    },
+    {
+      "path": "src/assets/fonts/IBMPlexSans-Medium.ttf",
+      "sha1": "3ecdb89ad06afb5e3765fc2b24f7f72fbc70e847"
+    },
+    {
+      "path": "src/assets/fonts/IBMPlexSans-Regular.ttf",
+      "sha1": "6711c90aa2fb6ec2935d92d5183481290a430605"
+    },
+    {
+      "path": "src/assets/fonts/IBMPlexSans-SemiBold.ttf",
+      "sha1": "976602e2c2616e6783edeb597714a13478df9e83"
+    },
+    {
+      "path": "src/assets/fonts/Manrope-Bold.ttf",
+      "sha1": "dbc0b874ad8b9f3415d0e9b4e22907890ca72327"
+    },
+    {
+      "path": "src/assets/fonts/Manrope-Light.ttf",
+      "sha1": "27d7897032dc0615ace6c53fd292107ae53280e5"
+    },
+    {
+      "path": "src/assets/fonts/Manrope-Medium.ttf",
+      "sha1": "b5e2c6265e0919163142bb8eac9b6450fb91f920"
+    },
+    {
+      "path": "src/assets/fonts/Manrope-Regular.ttf",
+      "sha1": "3f36e4904a42d23273ac346047c1b6bcf067ccfc"
+    },
+    {
+      "path": "src/assets/fonts/Manrope-SemiBold.ttf",
+      "sha1": "f7a023cd6c102b2ffa8bf729579552445970d62d"
+    }
+  ]
+}
