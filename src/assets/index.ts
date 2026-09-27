@@ -2,6 +2,7 @@ export const assets = {
   images: {},
   icons: {
     ic_app_logo: require('./icons/ic_app_logo.png'),
+    ic_back: require('./icons/ic_back.png'),
     ic_calendar: require('./icons/ic_calendar.png'),
     ic_delete: require('./icons/ic_delete.png'),
     ic_home: require('./icons/ic_home.png'),

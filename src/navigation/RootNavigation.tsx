@@ -1,7 +1,9 @@
 import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { memo } from 'react';
+import { memo } from 'react';
 
+import { AddEditExpenseScreen } from '@/screens/AddEditExpense';
+import { HomeScreen } from '@/screens/Home';
 import { colors } from '@/theme';
 import { RootRouteParams } from '@/types/navigation.types';
 
@@ -34,6 +36,8 @@ const RootNavigation = () => {
         }}
       >
         <Stack.Screen name={RootRoutes.MainTabs} component={BottomTabNavigation} />
+        <Stack.Screen name={RootRoutes.Home} component={HomeScreen} />
+        <Stack.Screen name={RootRoutes.AddEditExpense} component={AddEditExpenseScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
