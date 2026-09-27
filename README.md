@@ -135,7 +135,7 @@ Make sure your machine is set up for React Native development:
 Clone the project and install dependencies:
 
 ```bash
-git clone https://github.com/your-username/equisplit.git
+git clone https://github.com/tarangpatel03/equisplit.git
 cd equisplit
 npm install
 ```
