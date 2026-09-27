@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { assets } from '@/assets';
 import { HomeScreen } from '@/screens/Home';
+import { MembersScreen } from '@/screens/Members';
 import { colors } from '@/theme';
 import { BottomTabRouteParams } from '@/types/navigation.types';
 
@@ -12,9 +13,20 @@ import { BottomTabRoutes } from './routes';
 
 const Tab = createBottomTabNavigator<BottomTabRouteParams>();
 
-const HomeIcon = ({ focused }: { focused: boolean }) => (
+const DashboardIcon = ({ focused }: { focused: boolean }) => (
   <Image
     source={focused ? assets.icons.ic_home_filled : assets.icons.ic_home}
+    style={[
+      styles.tabIcon,
+      { tintColor: focused ? colors.primary : colors.textSecondary },
+    ]}
+    resizeMode="contain"
+  />
+);
+
+const MembersIcon = ({ focused }: { focused: boolean }) => (
+  <Image
+    source={focused ? assets.icons.ic_members_filled : assets.icons.ic_members}
     style={[
       styles.tabIcon,
       { tintColor: focused ? colors.primary : colors.textSecondary },
@@ -46,11 +58,19 @@ export const BottomTabNavigation = () => {
       }}
     >
       <Tab.Screen
-        name={BottomTabRoutes.Home}
+        name={BottomTabRoutes.Dashboard}
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: HomeIcon,
+          tabBarLabel: 'Dashboard',
+          tabBarIcon: DashboardIcon,
+        }}
+      />
+      <Tab.Screen
+        name={BottomTabRoutes.Members}
+        component={MembersScreen}
+        options={{
+          tabBarLabel: 'Members',
+          tabBarIcon: MembersIcon,
         }}
       />
     </Tab.Navigator>
