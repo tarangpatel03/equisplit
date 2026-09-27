@@ -47,7 +47,7 @@ export const HomeScreen = () => {
 
   if (loadState === 'error') {
     return (
-      <AppScreen screenTitle="SplitWise Expense Tracker">
+      <AppScreen screenTitle="EquiSplit">
         <View style={styles.centerState}>
           <AppText style={styles.errorText}>{'Failed to load data.'}</AppText>
           <Pressable onPress={retry} style={styles.retryBtn}>
@@ -60,7 +60,7 @@ export const HomeScreen = () => {
 
   return (
     <AppScreen
-      screenTitle="SplitWise Expense Tracker"
+      screenTitle="EquiSplit"
       preset="fixed"
       safeAreaEdges={['top']}
     >
