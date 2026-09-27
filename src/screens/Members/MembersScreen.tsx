@@ -10,6 +10,7 @@ import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
 import { Member } from '@/types';
 
+import { MemberBalanceCard } from './components/MemberBalanceCard';
 import { useMembersScreen } from './hooks/useMembersScreen';
 import { styles } from './styles';
 
@@ -17,6 +18,7 @@ export const MembersScreen: FC = () => {
   const {
     members,
     balances,
+    pairwiseDetails,
     newName,
     setNewName,
     adding,
@@ -121,6 +123,42 @@ export const MembersScreen: FC = () => {
             })}
           </View>
         ) : null}
+      </View>
+
+      {/* ------------------------------------------------------------------- */}
+      {/* 3. BOTTOM: Member Balances (Reference Design)                       */}
+      {/* ------------------------------------------------------------------- */}
+      <View style={styles.balancesHeader}>
+        <View style={styles.balancesTitleRow}>
+          <Image
+            source={assets.icons.ic_credit_card}
+            style={styles.walletIcon}
+            resizeMode="contain"
+          />
+          <AppText style={styles.balancesTitle}>{'Member Balances'}</AppText>
+        </View>
+      </View>
+
+      <View style={styles.statusSummaryRow}>
+        <AppText style={styles.statusSummaryText}>
+          {'• Detailed breakdown of who owes whom'}
+        </AppText>
+      </View>
+
+      <View style={styles.cardsContainer}>
+        {pairwiseDetails.length > 0 ? (
+          pairwiseDetails.map(detail => (
+            <MemberBalanceCard key={detail.member.id} detail={detail} />
+          ))
+        ) : (
+          <View style={styles.emptyBalancesCard}>
+            <AppText style={styles.emptyBalancesText}>
+              {
+                'No member balances to display. Add members and expenses to track who owes whom.'
+              }
+            </AppText>
+          </View>
+        )}
       </View>
 
       {/* Confirmation Dialog for Member Deletion */}
