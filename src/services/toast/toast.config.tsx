@@ -1,64 +1,75 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { CircleAlert, CircleCheck, Info } from 'lucide-react-native';
 
-import { normalize } from '@/utils';
 import { AppText } from '@/components/ui/AppText';
+import { colors, radius, space } from '@/theme';
+import { normalize } from '@/utils';
 
-const toastColors = {
+type ToastType = 'success' | 'error' | 'info';
+
+type ToastVariantConfig = {
+  accent: string;
+  badgeBg: string;
+  borderColor: string;
+  Icon: FC<{ size?: number; color?: string; strokeWidth?: number }>;
+};
+
+const VARIANT_CONFIG: Record<ToastType, ToastVariantConfig> = {
   success: {
-    primary: '#22C55E',
-    background: '#052E1B',
-    text: '#86EFAC',
+    accent: colors.credit,
+    badgeBg: colors.primaryLight,
+    borderColor: 'rgba(32, 217, 178, 0.28)',
+    Icon: CircleCheck,
   },
   error: {
-    primary: '#EF4444',
-    background: '#2B0B0B',
-    text: '#FCA5A5',
+    accent: colors.error,
+    badgeBg: colors.debtLight,
+    borderColor: 'rgba(255, 107, 107, 0.28)',
+    Icon: CircleAlert,
   },
   info: {
-    primary: '#3B82F6',
-    background: '#0A1A33',
-    text: '#93C5FD',
+    accent: '#38BDF8',
+    badgeBg: 'rgba(56, 189, 248, 0.15)',
+    borderColor: 'rgba(56, 189, 248, 0.28)',
+    Icon: Info,
   },
 };
 
-const BaseToast = ({
-  text1,
-  type,
-}: {
-  text1: string;
-  type: 'success' | 'error' | 'info';
-}) => {
-  const getStyle = () => {
-    switch (type) {
-      case 'success':
-        return styles.successContainer;
-      case 'error':
-        return styles.errorContainer;
-      case 'info':
-        return styles.infoContainer;
-      default:
-        break;
-    }
-  };
+type BaseToastProps = {
+  text1?: string;
+  text2?: string;
+  type: ToastType;
+};
 
-  const getTextStyle = () => {
-    switch (type) {
-      case 'success':
-        return styles.successText;
-      case 'error':
-        return styles.errorText;
-      case 'info':
-        return styles.infoText;
-      default:
-        break;
-    }
-  };
+const BaseToast: FC<BaseToastProps> = ({ text1, text2, type }) => {
+  const config = VARIANT_CONFIG[type] ?? VARIANT_CONFIG.info;
+  const { Icon } = config;
 
   return (
-    <View style={[styles.container, getStyle()]}>
-      <View style={styles.content}>
-        <AppText style={[styles.text, getTextStyle()]}>{text1}</AppText>
+    <View style={[styles.container, { borderColor: config.borderColor }]}>
+      {/* Left status accent strip */}
+      <View style={[styles.accentStrip, { backgroundColor: config.accent }]} />
+
+      <View style={styles.body}>
+        {/* Themed Icon Capsule */}
+        <View style={[styles.iconCapsule, { backgroundColor: config.badgeBg }]}>
+          <Icon size={normalize(18)} color={config.accent} strokeWidth={2.4} />
+        </View>
+
+        {/* Text Content */}
+        <View style={styles.textContainer}>
+          {Boolean(text1) && (
+            <AppText style={styles.title} numberOfLines={2}>
+              {text1}
+            </AppText>
+          )}
+          {Boolean(text2) && (
+            <AppText style={styles.subtitle} numberOfLines={2}>
+              {text2}
+            </AppText>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -78,48 +89,59 @@ export const toastConfig = {
 
 const styles = StyleSheet.create({
   container: {
-    width: '90%',
-    borderRadius: 12,
-    padding: normalize(12),
-    borderLeftWidth: 4,
+    width: '92%',
+    maxWidth: 420,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    overflow: 'hidden',
     alignSelf: 'center',
 
     // Android elevation
-    elevation: 4,
+    elevation: 8,
 
     // iOS shadow
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
   },
-  content: {
+  accentStrip: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+  },
+  body: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: normalize(12),
+    paddingHorizontal: space.md,
+    paddingLeft: space.md + 4,
+    gap: space.md,
   },
-  text: {
+  iconCapsule: {
+    width: normalize(34),
+    height: normalize(34),
+    borderRadius: normalize(17),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  title: {
     fontSize: normalize(14),
-    fontWeight: '500',
+    fontWeight: '600',
+    color: colors.textPrimary,
+    lineHeight: normalize(19),
   },
-  successContainer: {
-    backgroundColor: toastColors.success.background,
-    borderLeftColor: toastColors.success.primary,
-  },
-  errorContainer: {
-    backgroundColor: toastColors.error.background,
-    borderLeftColor: toastColors.error.primary,
-  },
-  infoContainer: {
-    backgroundColor: toastColors.info.background,
-    borderLeftColor: toastColors.info.primary,
-  },
-  successText: {
-    color: toastColors.success.text,
-  },
-  errorText: {
-    color: toastColors.error.text,
-  },
-  infoText: {
-    color: toastColors.info.text,
+  subtitle: {
+    fontSize: normalize(12),
+    color: colors.textSecondary,
+    marginTop: 2,
+    lineHeight: normalize(16),
   },
 });
