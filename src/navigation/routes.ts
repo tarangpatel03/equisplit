@@ -9,6 +9,7 @@ export const BottomTabRoutes = {
   Dashboard: 'Dashboard',
   Analytics: 'Analytics',
   Members: 'Members',
+  Settings: 'Settings',
 } as const;
 
 // Root stack routes

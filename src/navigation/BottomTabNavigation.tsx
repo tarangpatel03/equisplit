@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Settings } from 'lucide-react-native';
 
 import { assets } from '@/assets';
 import { AnalyticsScreen } from '@/screens/Analytics';
@@ -48,6 +49,16 @@ const MembersIcon = ({ focused }: { focused: boolean }) => (
   />
 );
 
+const EmptyScreen = () => null;
+
+const SettingsIcon = ({ focused }: { focused: boolean }) => (
+  <Settings
+    size={22}
+    color={focused ? colors.primary : colors.textSecondary}
+    strokeWidth={focused ? 2.4 : 2}
+  />
+);
+
 export const BottomTabNavigation = () => {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 36);
@@ -92,6 +103,19 @@ export const BottomTabNavigation = () => {
         options={{
           tabBarLabel: 'Members',
           tabBarIcon: MembersIcon,
+        }}
+      />
+      <Tab.Screen
+        name={BottomTabRoutes.Settings}
+        component={EmptyScreen}
+        listeners={{
+          tabPress: e => {
+            e.preventDefault();
+          },
+        }}
+        options={{
+          tabBarLabel: 'Settings',
+          tabBarIcon: SettingsIcon,
         }}
       />
     </Tab.Navigator>

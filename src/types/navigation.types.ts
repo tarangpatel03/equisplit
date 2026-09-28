@@ -9,6 +9,7 @@ export type BottomTabRouteParams = {
   [BottomTabRoutes.Dashboard]: undefined;
   [BottomTabRoutes.Analytics]: undefined;
   [BottomTabRoutes.Members]: undefined;
+  [BottomTabRoutes.Settings]: undefined;
 };
 
 // ---------------------------------------------------------------------------

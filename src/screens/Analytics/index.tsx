@@ -38,6 +38,7 @@ export const AnalyticsScreen: FC = () => {
   return (
     <AppScreen
       screenTitle="Insights & Analytics"
+      showBackButton={false}
       preset="scroll"
       dismissKeyboardOnTouch={false}
       keyboardAvoiding={false}
