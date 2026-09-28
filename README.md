@@ -5,7 +5,7 @@
 **A modern, offline-first React Native mobile app that makes splitting expenses, tracking group balances, and settling debts effortless.**
 
 [![React Native](https://img.shields.io/badge/React_Native-0.87.1-61DAFB?logo=react&logoColor=black)](https://reactnative.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0.3-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-2.x-764ABC?logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-OP--SQLite_JSI-003B57?logo=sqlite&logoColor=white)](https://github.com/OP-Engineering/op-sqlite)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -63,7 +63,7 @@ EquiSplit is built with a clean, decoupled architecture designed for performance
                             │ React-Redux
 ┌───────────────────────────▼────────────────────────────┐
 │                 Redux Toolkit Store                    │
-│      expensesSlice  •  membersSlice  •  categoriesSlice │
+│     expensesSlice  •  membersSlice  •  categoriesSlice │
 └───────────────────────────┬────────────────────────────┘
                             │ Async Service layer
 ┌───────────────────────────▼────────────────────────────┐
