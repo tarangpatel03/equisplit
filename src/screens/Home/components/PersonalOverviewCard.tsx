@@ -5,7 +5,6 @@ import { ArrowDownLeft, ArrowUpRight, Scale } from 'lucide-react-native';
 import { AppText } from '@/components/ui/AppText';
 import { colors, radius, space } from '@/theme';
 import { Expense, Member, PersonalExpense } from '@/types';
-import { computeBalances } from '@/utils/balance';
 
 type Props = {
   personalExpenses: PersonalExpense[];
@@ -21,8 +20,7 @@ export const PersonalOverviewCard = memo(
       finalNet,
       personalIncome,
       personalSpend,
-      groupCredit,
-      groupDebt,
+      groupSpend,
     } = useMemo(() => {
       let income = 0;
       let spend = 0;
@@ -36,21 +34,22 @@ export const PersonalOverviewCard = memo(
       }
 
       const primaryMember = members.find(m => m.isPrimary);
-      let gCredit = 0;
-      let gDebt = 0;
+      let gSpend = 0;
 
       if (primaryMember) {
-        const balances = computeBalances(members, expenses);
-        const net = balances[primaryMember.id] ?? 0;
-        if (net > 0.005) {
-          gCredit = net;
-        } else if (net < -0.005) {
-          gDebt = Math.abs(net);
+        for (const exp of expenses) {
+          if (exp.splitMode === 'settlement') continue;
+          const participant = exp.participants.find(
+            p => p.memberId === primaryMember.id,
+          );
+          if (participant && participant.share > 0) {
+            gSpend += participant.share;
+          }
         }
       }
 
-      const inflow = income + gCredit;
-      const outflow = spend + gDebt;
+      const inflow = income;
+      const outflow = spend + gSpend;
       const netResult = inflow - outflow;
 
       return {
@@ -59,8 +58,7 @@ export const PersonalOverviewCard = memo(
         finalNet: Math.round(netResult * 100) / 100,
         personalIncome: income,
         personalSpend: spend,
-        groupCredit: gCredit,
-        groupDebt: gDebt,
+        groupSpend: gSpend,
       };
     }, [personalExpenses, expenses, members]);
 
@@ -104,11 +102,7 @@ export const PersonalOverviewCard = memo(
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {groupCredit > 0
-                ? `Income ₹${personalIncome.toFixed(
-                    0,
-                  )} · Owed ₹${groupCredit.toFixed(0)}`
-                : 'Personal Income'}
+              {'Personal Income'}
             </AppText>
           </View>
 
@@ -135,10 +129,10 @@ export const PersonalOverviewCard = memo(
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {groupDebt > 0
-                ? `Spend ₹${personalSpend.toFixed(
+              {groupSpend > 0
+                ? `Personal ₹${personalSpend.toFixed(
                     0,
-                  )} · Owe ₹${groupDebt.toFixed(0)}`
+                  )} · Group ₹${groupSpend.toFixed(0)}`
                 : 'Personal Spent'}
             </AppText>
           </View>

@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Users, Wallet, X } from 'lucide-react-native';
+import { HandCoins, Users, Wallet, X } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { colors, radius, space } from '@/theme';
@@ -11,6 +11,7 @@ type Props = {
   onClose: () => void;
   onSelectPersonal: () => void;
   onSelectGroup: () => void;
+  onSelectSettleUp?: () => void;
 };
 
 export const AddExpenseActionModal: FC<Props> = ({
@@ -18,6 +19,7 @@ export const AddExpenseActionModal: FC<Props> = ({
   onClose,
   onSelectPersonal,
   onSelectGroup,
+  onSelectSettleUp,
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -111,6 +113,35 @@ export const AddExpenseActionModal: FC<Props> = ({
                 </AppText>
               </View>
             </Pressable>
+
+            {onSelectSettleUp && (
+              <Pressable
+                style={({ pressed }) => [
+                  styles.optionCard,
+                  pressed && styles.optionCardPressed,
+                ]}
+                onPress={() => {
+                  onClose();
+                  onSelectSettleUp();
+                }}
+              >
+                <View
+                  style={[
+                    styles.optionIconContainer,
+                    { backgroundColor: 'rgba(46, 213, 115, 0.16)' },
+                  ]}
+                >
+                  <HandCoins size={24} color={colors.credit} strokeWidth={2.2} />
+                </View>
+
+                <View style={styles.optionContent}>
+                  <AppText style={styles.optionTitle}>{'Settle Up'}</AppText>
+                  <AppText style={styles.optionSubtitle}>
+                    {'Record a debt repayment between members'}
+                  </AppText>
+                </View>
+              </Pressable>
+            )}
           </View>
         </View>
       </View>

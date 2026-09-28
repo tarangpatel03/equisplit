@@ -1,36 +1,32 @@
 import { memo } from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { ChevronRight, Users } from 'lucide-react-native';
 
-import { assets } from '@/assets';
 import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
 import { RootState } from '@/store/store';
 import { colors, radius, space } from '@/theme';
-import { PersonalExpense } from '@/types';
+import { Expense } from '@/types';
 
 type Props = {
-  expense: PersonalExpense;
+  expense: Expense;
+  userShare: number;
+  payerLabel: string;
   onPress: () => void;
-  onDelete: () => void;
 };
 
-export const PersonalExpenseCard = memo(
-  ({ expense, onPress, onDelete }: Props) => {
+export const PersonalGroupExpenseCard = memo(
+  ({ expense, userShare, payerLabel, onPress }: Props) => {
     const categories = useSelector((s: RootState) => s.categories.categories);
     const category = getCategoryById(expense.categoryId, categories);
 
-    const isIncome = expense.type === 'income';
-
-    const date = new Date(expense.date).toLocaleDateString('en-IN', {
+    const date = new Date(expense.createdAt).toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
     });
-
-    const amountPrefix = isIncome ? '+' : '-';
-    const amountColor = isIncome ? colors.credit : colors.debt;
 
     return (
       <Pressable
@@ -56,7 +52,7 @@ export const PersonalExpenseCard = memo(
             {expense.title}
           </AppText>
           <AppText style={styles.meta} numberOfLines={1}>
-            {expense.note ? `${date}  ·  ${expense.note}` : date}
+            {`${date}  ·  ${payerLabel}`}
           </AppText>
           <View style={styles.badgeRow}>
             <View style={styles.categoryBadge}>
@@ -64,27 +60,21 @@ export const PersonalExpenseCard = memo(
                 {category.name}
               </AppText>
             </View>
+            <View style={styles.groupBadge}>
+              <Users size={10} color={colors.primary} strokeWidth={2.4} />
+              <AppText style={styles.groupBadgeText}>{'Group'}</AppText>
+            </View>
           </View>
         </View>
 
         <View style={styles.right}>
-          <AppText style={[styles.amount, { color: amountColor }]}>
-            {`${amountPrefix}₹${expense.amount.toFixed(2)}`}
+          <AppText style={styles.amount}>
+            {`-₹${userShare.toFixed(2)}`}
           </AppText>
-          <Pressable
-            onPress={onDelete}
-            hitSlop={8}
-            style={({ pressed }) => [
-              styles.deleteBtn,
-              pressed && styles.deleteBtnPressed,
-            ]}
-          >
-            <Image
-              source={assets.icons.ic_delete}
-              style={styles.deleteIcon}
-              resizeMode="contain"
-            />
-          </Pressable>
+          <View style={styles.shareRow}>
+            <AppText style={styles.shareSubtext}>{'Your share'}</AppText>
+            <ChevronRight size={14} color={colors.textSecondary} />
+          </View>
         </View>
       </Pressable>
     );
@@ -156,32 +146,43 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: colors.textSecondary,
   },
+  groupBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: space.xs + 3,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(32, 217, 178, 0.3)',
+  },
+  groupBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
+  },
   right: {
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingVertical: 2,
-    gap: space.md,
+    gap: space.sm,
     flexShrink: 0,
   },
   amount: {
     fontSize: 17,
     fontWeight: '700',
+    color: colors.debt,
   },
-  deleteBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceAlt,
+  shareRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 2,
   },
-  deleteBtnPressed: {
-    opacity: 0.7,
-    backgroundColor: colors.debtLight,
-  },
-  deleteIcon: {
-    width: 20,
-    height: 20,
-    tintColor: colors.debt,
+  shareSubtext: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    fontWeight: '500',
   },
 });

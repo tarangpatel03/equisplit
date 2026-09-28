@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -41,7 +41,9 @@ export const ExpenseCard = memo(
     }`;
 
     const modeLabel =
-      expense.splitMode === 'equally'
+      expense.splitMode === 'settlement'
+        ? 'Settlement'
+        : expense.splitMode === 'equally'
         ? 'Split equally'
         : expense.splitMode === 'shares'
         ? 'By shares'
@@ -50,7 +52,83 @@ export const ExpenseCard = memo(
         : 'Exact amount';
 
     const splitBadgeLabel =
-      participantCount > 0 ? `${modeLabel} • ${participantText}` : modeLabel;
+      expense.splitMode === 'settlement'
+        ? 'Settlement'
+        : participantCount > 0
+        ? `${modeLabel} • ${participantText}`
+        : modeLabel;
+
+    const primaryMember = members.find(m => m.isPrimary);
+    const primaryId = primaryMember?.id;
+
+    const stance = useMemo(() => {
+      if (!primaryId) return null;
+
+      if (expense.splitMode === 'settlement') {
+        const paid =
+          expense.payers.find(p => p.memberId === primaryId)?.amount ?? 0;
+        const received =
+          expense.participants.find(p => p.memberId === primaryId)?.share ?? 0;
+        if (paid > 0) {
+          return {
+            label: `You paid ₹${paid.toFixed(2)}`,
+            color: colors.credit,
+            bg: 'rgba(46, 213, 115, 0.12)',
+            borderColor: 'rgba(46, 213, 115, 0.35)',
+          };
+        }
+        if (received > 0) {
+          return {
+            label: `You received ₹${received.toFixed(2)}`,
+            color: colors.primary,
+            bg: 'rgba(32, 217, 178, 0.12)',
+            borderColor: 'rgba(32, 217, 178, 0.35)',
+          };
+        }
+        return {
+          label: 'Not involved',
+          color: colors.textSecondary,
+          bg: colors.surfaceAlt,
+          borderColor: colors.border,
+        };
+      }
+
+      const amountPaid =
+        expense.payers.find(p => p.memberId === primaryId)?.amount ?? 0;
+      const shareOwed =
+        expense.participants.find(p => p.memberId === primaryId)?.share ?? 0;
+      const net = Math.round((amountPaid - shareOwed) * 100) / 100;
+
+      if (net > 0.005) {
+        return {
+          label: `You lent ₹${net.toFixed(2)}`,
+          color: colors.credit,
+          bg: 'rgba(46, 213, 115, 0.12)',
+          borderColor: 'rgba(46, 213, 115, 0.35)',
+        };
+      } else if (net < -0.005) {
+        return {
+          label: `You owe ₹${Math.abs(net).toFixed(2)}`,
+          color: colors.debt,
+          bg: 'rgba(255, 107, 107, 0.12)',
+          borderColor: 'rgba(255, 107, 107, 0.35)',
+        };
+      } else if (amountPaid > 0) {
+        return {
+          label: 'You paid your share',
+          color: colors.primary,
+          bg: 'rgba(32, 217, 178, 0.12)',
+          borderColor: 'rgba(32, 217, 178, 0.35)',
+        };
+      } else {
+        return {
+          label: 'Not involved',
+          color: colors.textSecondary,
+          bg: colors.surfaceAlt,
+          borderColor: colors.border,
+        };
+      }
+    }, [expense, primaryId]);
 
     return (
       <Pressable
@@ -79,6 +157,23 @@ export const ExpenseCard = memo(
             {`Paid by ${payerNames || 'Unknown'}  ·  ${date}`}
           </AppText>
           <View style={styles.badgeRow}>
+            {stance && (
+              <View
+                style={[
+                  styles.stanceBadge,
+                  {
+                    backgroundColor: stance.bg,
+                    borderColor: stance.borderColor,
+                  },
+                ]}
+              >
+                <AppText
+                  style={[styles.stanceBadgeText, { color: stance.color }]}
+                >
+                  {stance.label}
+                </AppText>
+              </View>
+            )}
             <View style={styles.categoryBadge}>
               <AppText style={styles.categoryBadgeText}>
                 {category.name}
@@ -168,6 +263,17 @@ const styles = StyleSheet.create({
     gap: space.xs,
     marginTop: 2,
     flexWrap: 'wrap',
+  },
+  stanceBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: space.xs + 3,
+    paddingVertical: 2,
+    borderRadius: radius.full,
+    borderWidth: 1,
+  },
+  stanceBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '700',
   },
   categoryBadge: {
     alignSelf: 'flex-start',
