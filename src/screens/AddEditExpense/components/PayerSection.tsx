@@ -2,7 +2,7 @@ import { FC, useMemo } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors } from '@/theme';
+import { useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
 import { styles } from '../styles';
@@ -22,6 +22,7 @@ export const PayerSection: FC<Props> = ({
   onPayerAmountChange,
   onSelectSinglePayer,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const sumPaid = useMemo(() => {
     return members.reduce((acc, m) => {
       const val = parseFloat(payerContributions[m.id] ?? '0');
@@ -34,12 +35,24 @@ export const PayerSection: FC<Props> = ({
   const difference = totalAmount - sumPaid;
 
   return (
-    <View style={styles.section}>
+    <View
+      style={[
+        styles.section,
+        {
+          backgroundColor: themeColors.surface,
+          borderColor: themeColors.border,
+        },
+      ]}
+    >
       <View style={styles.sectionHeaderRow}>
-        <AppText style={styles.sectionTitle}>{'Who Paid?'}</AppText>
+        <AppText
+          style={[styles.sectionTitle, { color: themeColors.textPrimary }]}
+        >
+          {'Who Paid?'}
+        </AppText>
       </View>
 
-      <AppText style={styles.subText}>
+      <AppText style={[styles.subText, { color: themeColors.textSecondary }]}>
         {'Quick select who paid in full, or enter multiple amounts below:'}
       </AppText>
 
@@ -52,7 +65,9 @@ export const PayerSection: FC<Props> = ({
         {members.map(m => {
           const val = parseFloat(payerContributions[m.id] ?? '0') || 0;
           const isSinglePayer =
-            (val > 0 && totalAmount > 0 && Math.abs(val - totalAmount) < 0.01) ||
+            (val > 0 &&
+              totalAmount > 0 &&
+              Math.abs(val - totalAmount) < 0.01) ||
             (payerContributions[m.id] !== undefined &&
               Object.keys(payerContributions).length === 1 &&
               Object.keys(payerContributions)[0] === m.id);
@@ -61,14 +76,25 @@ export const PayerSection: FC<Props> = ({
               key={m.id}
               style={[
                 styles.payerChip,
-                isSinglePayer && styles.payerChipActive,
+                {
+                  backgroundColor: isSinglePayer
+                    ? themeColors.primaryLight
+                    : themeColors.surfaceAlt,
+                  borderColor: isSinglePayer
+                    ? themeColors.primary
+                    : themeColors.border,
+                },
               ]}
               onPress={() => onSelectSinglePayer(m.id)}
             >
               <AppText
                 style={[
                   styles.payerChipText,
-                  isSinglePayer && styles.payerChipTextActive,
+                  {
+                    color: isSinglePayer
+                      ? themeColors.primary
+                      : themeColors.textSecondary,
+                  },
                 ]}
               >
                 {m.name}
@@ -80,17 +106,38 @@ export const PayerSection: FC<Props> = ({
 
       {/* Member rows with amount inputs */}
       {members.map(m => (
-        <View key={m.id} style={styles.memberRow}>
-          <AppText style={styles.memberName}>{m.name}</AppText>
+        <View
+          key={m.id}
+          style={[styles.memberRow, { borderBottomColor: themeColors.divider }]}
+        >
+          <AppText
+            style={[styles.memberName, { color: themeColors.textPrimary }]}
+          >
+            {m.name}
+          </AppText>
           <View style={styles.memberInputContainer}>
-            <AppText style={styles.currencyPrefix}>{'₹'}</AppText>
+            <AppText
+              style={[
+                styles.currencyPrefix,
+                { color: themeColors.textSecondary },
+              ]}
+            >
+              {'₹'}
+            </AppText>
             <TextInput
-              style={styles.numberInput}
+              style={[
+                styles.numberInput,
+                {
+                  backgroundColor: themeColors.surfaceAlt,
+                  borderColor: themeColors.border,
+                  color: themeColors.textPrimary,
+                },
+              ]}
               keyboardType="decimal-pad"
               value={payerContributions[m.id] ?? ''}
               onChangeText={val => onPayerAmountChange(m.id, val)}
               placeholder="0.00"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={themeColors.textSecondary}
             />
           </View>
         </View>
@@ -108,8 +155,12 @@ export const PayerSection: FC<Props> = ({
             : totalAmount <= 0
             ? 'Enter a valid total amount above'
             : difference > 0
-            ? `Paid ₹${sumPaid.toFixed(2)} / ₹${totalAmount.toFixed(2)} (₹${difference.toFixed(2)} remaining)`
-            : `Paid ₹${sumPaid.toFixed(2)} / ₹${totalAmount.toFixed(2)} (₹${Math.abs(difference).toFixed(2)} overpaid)`}
+            ? `Paid ₹${sumPaid.toFixed(2)} / ₹${totalAmount.toFixed(
+                2,
+              )} (₹${difference.toFixed(2)} remaining)`
+            : `Paid ₹${sumPaid.toFixed(2)} / ₹${totalAmount.toFixed(
+                2,
+              )} (₹${Math.abs(difference).toFixed(2)} overpaid)`}
         </AppText>
       </View>
     </View>

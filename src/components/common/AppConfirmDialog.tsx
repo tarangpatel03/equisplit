@@ -4,7 +4,7 @@ import { Image, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { assets } from '@/assets';
 import { AppButton } from '@/components/ui/AppButton';
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 type Props = {
   visible: boolean;
@@ -32,13 +32,23 @@ export const AppConfirmDialog: FC<Props> = memo(
     onConfirm,
     onCancel,
   }) => {
+    const { colors: themeColors } = useAppTheme();
+
     if (!visible) return null;
 
     const dialogContent = (
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onCancel} />
 
-        <View style={styles.dialogCard}>
+        <View
+          style={[
+            styles.dialogCard,
+            {
+              backgroundColor: themeColors.surface,
+              borderColor: themeColors.border,
+            },
+          ]}
+        >
           {/* Warning Icon Badge */}
           <View style={styles.iconBadge}>
             <Image
@@ -48,8 +58,14 @@ export const AppConfirmDialog: FC<Props> = memo(
             />
           </View>
 
-          <AppText style={styles.title}>{title}</AppText>
-          <AppText style={styles.message}>{message}</AppText>
+          <AppText style={[styles.title, { color: themeColors.textPrimary }]}>
+            {title}
+          </AppText>
+          <AppText
+            style={[styles.message, { color: themeColors.textSecondary }]}
+          >
+            {message}
+          </AppText>
 
           {/* Action Buttons */}
           <View style={styles.buttonRow}>
@@ -114,6 +130,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 8,
+    borderWidth: 1,
   },
   iconBadge: {
     width: 48,

@@ -15,7 +15,7 @@ import { AppDatePicker } from '@/components/common';
 import { AppButton } from '@/components/ui/AppButton';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { Member } from '@/types';
 import { MemberBalanceDetail } from '@/utils';
 
@@ -48,6 +48,7 @@ export const SettleUpModal: FC<Props> = ({
   onClose,
   onSaveSettlement,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const insets = useSafeAreaInsets();
 
   const [payerId, setPayerId] = useState<string>('');
@@ -209,20 +210,26 @@ export const SettleUpModal: FC<Props> = ({
             <View
               style={[
                 styles.sheet,
-                { paddingBottom: Math.max(insets.bottom, space.md) },
+                {
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                  paddingBottom: Math.max(insets.bottom, space.md),
+                },
               ]}
             >
               {/* Handle Bar */}
-              <View style={styles.handleBar} />
+              <View style={[styles.handleBar, { backgroundColor: themeColors.border }]} />
 
               {/* Title Header */}
               <View style={styles.header}>
                 <View style={styles.headerIconBox}>
-                  <HandCoins size={22} color={colors.credit} strokeWidth={2.4} />
+                  <HandCoins size={22} color={themeColors.credit} strokeWidth={2.4} />
                 </View>
                 <View style={styles.headerTextCol}>
-                  <AppText style={styles.title}>{'Record Settlement'}</AppText>
-                  <AppText style={styles.subtitle}>
+                  <AppText style={[styles.title, { color: themeColors.textPrimary }]}>
+                    {'Record Settlement'}
+                  </AppText>
+                  <AppText style={[styles.subtitle, { color: themeColors.textSecondary }]}>
                     {'Log a cash or UPI payment between group members'}
                   </AppText>
                 </View>
@@ -235,26 +242,44 @@ export const SettleUpModal: FC<Props> = ({
                 showsVerticalScrollIndicator={false}
               >
                 {/* Visual Transfer Pill */}
-                <View style={styles.transferSummaryBox}>
+                <View
+                  style={[
+                    styles.transferSummaryBox,
+                    {
+                      backgroundColor: themeColors.surfaceAlt,
+                      borderColor: themeColors.border,
+                    },
+                  ]}
+                >
                   <View style={styles.memberAvatarBox}>
                     <AppText style={styles.memberAvatarText}>
                       {payer?.name.charAt(0).toUpperCase() ?? '?'}
                     </AppText>
                   </View>
                   <View style={styles.memberNameCol}>
-                    <AppText style={styles.transferRole}>{'Paid by'}</AppText>
-                    <AppText style={styles.transferName} numberOfLines={1}>
+                    <AppText style={[styles.transferRole, { color: themeColors.textSecondary }]}>
+                      {'Paid by'}
+                    </AppText>
+                    <AppText
+                      style={[styles.transferName, { color: themeColors.textPrimary }]}
+                      numberOfLines={1}
+                    >
                       {payer?.name ?? 'Select'}
                     </AppText>
                   </View>
 
                   <View style={styles.arrowBox}>
-                    <ArrowRight size={18} color={colors.primary} strokeWidth={2.4} />
+                    <ArrowRight size={18} color={themeColors.primary} strokeWidth={2.4} />
                   </View>
 
                   <View style={styles.memberNameCol}>
-                    <AppText style={styles.transferRole}>{'Received by'}</AppText>
-                    <AppText style={styles.transferName} numberOfLines={1}>
+                    <AppText style={[styles.transferRole, { color: themeColors.textSecondary }]}>
+                      {'Received by'}
+                    </AppText>
+                    <AppText
+                      style={[styles.transferName, { color: themeColors.textPrimary }]}
+                      numberOfLines={1}
+                    >
                       {receiver?.name ?? 'Select'}
                     </AppText>
                   </View>
@@ -267,7 +292,9 @@ export const SettleUpModal: FC<Props> = ({
 
                 {/* 1. Who Paid? */}
                 <View style={styles.section}>
-                  <AppText style={styles.sectionLabel}>{'Who paid?'}</AppText>
+                  <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                    {'Who paid?'}
+                  </AppText>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -280,14 +307,25 @@ export const SettleUpModal: FC<Props> = ({
                           key={`payer-${m.id}`}
                           style={[
                             styles.chip,
-                            isSelected && styles.chipActivePayer,
+                            {
+                              backgroundColor: isSelected
+                                ? themeColors.primary
+                                : themeColors.surfaceAlt,
+                              borderColor: isSelected
+                                ? themeColors.primary
+                                : themeColors.border,
+                            },
                           ]}
                           onPress={() => handleSelectPayer(m.id)}
                         >
                           <AppText
                             style={[
                               styles.chipText,
-                              isSelected && styles.chipTextActive,
+                              {
+                                color: isSelected
+                                  ? '#FFFFFF'
+                                  : themeColors.textSecondary,
+                              },
                             ]}
                           >
                             {m.name}
@@ -301,7 +339,9 @@ export const SettleUpModal: FC<Props> = ({
 
                 {/* 2. Who Received? */}
                 <View style={styles.section}>
-                  <AppText style={styles.sectionLabel}>{'Who received?'}</AppText>
+                  <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                    {'Who received?'}
+                  </AppText>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -315,7 +355,14 @@ export const SettleUpModal: FC<Props> = ({
                           key={`receiver-${m.id}`}
                           style={[
                             styles.chip,
-                            isSelected && styles.chipActiveReceiver,
+                            {
+                              backgroundColor: isSelected
+                                ? themeColors.credit
+                                : themeColors.surfaceAlt,
+                              borderColor: isSelected
+                                ? themeColors.credit
+                                : themeColors.border,
+                            },
                             isSameAsPayer && styles.chipDisabled,
                           ]}
                           onPress={() => handleSelectReceiver(m.id)}
@@ -323,8 +370,13 @@ export const SettleUpModal: FC<Props> = ({
                           <AppText
                             style={[
                               styles.chipText,
-                              isSelected && styles.chipTextActive,
-                              isSameAsPayer && styles.chipTextDisabled,
+                              {
+                                color: isSelected
+                                  ? '#FFFFFF'
+                                  : isSameAsPayer
+                                  ? themeColors.textSecondary
+                                  : themeColors.textSecondary,
+                              },
                             ]}
                           >
                             {m.name}
@@ -339,7 +391,9 @@ export const SettleUpModal: FC<Props> = ({
                 {/* 3. Amount */}
                 <View style={styles.section}>
                   <View style={styles.amountLabelRow}>
-                    <AppText style={styles.sectionLabel}>{'Amount Paid'}</AppText>
+                    <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                      {'Amount Paid'}
+                    </AppText>
                     {activeDebt > 0 && (
                       <Pressable
                         style={styles.fullDebtBadge}
@@ -364,13 +418,26 @@ export const SettleUpModal: FC<Props> = ({
 
                 {/* 4. Date Picker Button */}
                 <View style={styles.section}>
-                  <AppText style={styles.sectionLabel}>{'Payment Date'}</AppText>
+                  <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                    {'Payment Date'}
+                  </AppText>
                   <Pressable
-                    style={styles.dateSelector}
+                    style={[
+                      styles.dateSelector,
+                      {
+                        backgroundColor: themeColors.surfaceAlt,
+                        borderColor: themeColors.border,
+                      },
+                    ]}
                     onPress={() => setIsDatePickerVisible(true)}
                   >
-                    <Calendar size={18} color={colors.primary} />
-                    <AppText style={styles.dateSelectorText}>
+                    <Calendar size={18} color={themeColors.primary} />
+                    <AppText
+                      style={[
+                        styles.dateSelectorText,
+                        { color: themeColors.textPrimary },
+                      ]}
+                    >
                       {formattedDate}
                     </AppText>
                   </Pressable>
@@ -378,7 +445,7 @@ export const SettleUpModal: FC<Props> = ({
 
                 {/* 5. Note / Payment Method */}
                 <View style={styles.section}>
-                  <AppText style={styles.sectionLabel}>
+                  <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
                     {'Note / Payment Method (Optional)'}
                   </AppText>
                   <AppInput
@@ -391,7 +458,12 @@ export const SettleUpModal: FC<Props> = ({
               </ScrollView>
 
               {/* Action Buttons */}
-              <View style={styles.footerRow}>
+              <View
+                style={[
+                  styles.footerRow,
+                  { borderTopColor: themeColors.border },
+                ]}
+              >
                 <AppButton
                   label="Cancel"
                   variant="ghost"

@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { assets } from '@/assets';
 import { navigateBack } from '@/navigation/navigation.service';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 import { AppText } from './AppText';
 
@@ -16,6 +16,7 @@ export const ScreenHeader = ({
   rightAction?: React.ReactNode;
   showBackButton?: boolean;
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const navigation = useNavigation();
   const canGoBack = (() => {
     if (showBackButton !== undefined) {
@@ -41,7 +42,7 @@ export const ScreenHeader = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <View style={styles.leftContainer}>
         {canGoBack && (
           <Pressable
@@ -59,7 +60,10 @@ export const ScreenHeader = ({
           style={styles.appLogo}
           resizeMode="contain"
         />
-        <AppText style={styles.headerText} numberOfLines={1}>
+        <AppText
+          style={[styles.headerText, { color: themeColors.textPrimary }]}
+          numberOfLines={1}
+        >
           {screenTitle}
         </AppText>
       </View>

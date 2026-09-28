@@ -4,6 +4,7 @@ import categoryReducer from './categorySlice';
 import expenseReducer from './expenseSlice';
 import memberReducer from './memberSlice';
 import personalExpenseReducer from './personalExpenseSlice';
+import themeReducer from './themeSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     expenses: expenseReducer,
     members: memberReducer,
     personalExpenses: personalExpenseReducer,
+    theme: themeReducer,
   },
 });
 

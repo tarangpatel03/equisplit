@@ -3,7 +3,7 @@ import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-nat
 
 import { assets } from '@/assets';
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
 type Props = {
@@ -17,6 +17,8 @@ export const MemberSelector: FC<Props> = ({
   selectedMemberId,
   onSelectMember,
 }) => {
+  const { colors: themeColors } = useAppTheme();
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -28,7 +30,14 @@ export const MemberSelector: FC<Props> = ({
         <TouchableOpacity
           style={[
             styles.card,
-            selectedMemberId === 'group' && styles.cardActive,
+            {
+              backgroundColor: themeColors.surface,
+              borderColor: themeColors.border,
+            },
+            selectedMemberId === 'group' && {
+              borderColor: themeColors.primary,
+              backgroundColor: themeColors.primaryLight,
+            },
           ]}
           onPress={() => onSelectMember('group')}
           activeOpacity={0.8}
@@ -36,7 +45,10 @@ export const MemberSelector: FC<Props> = ({
           <View
             style={[
               styles.avatar,
-              selectedMemberId === 'group' && styles.avatarActive,
+              { backgroundColor: themeColors.surfaceAlt },
+              selectedMemberId === 'group' && {
+                backgroundColor: themeColors.primaryLight,
+              },
             ]}
           >
             <Image
@@ -46,8 +58,8 @@ export const MemberSelector: FC<Props> = ({
                 {
                   tintColor:
                     selectedMemberId === 'group'
-                      ? colors.primary
-                      : colors.textSecondary,
+                      ? themeColors.primary
+                      : themeColors.textSecondary,
                 },
               ]}
               resizeMode="contain"
@@ -56,7 +68,11 @@ export const MemberSelector: FC<Props> = ({
           <AppText
             style={[
               styles.name,
-              selectedMemberId === 'group' && styles.nameActive,
+              { color: themeColors.textPrimary },
+              selectedMemberId === 'group' && {
+                color: themeColors.primary,
+                fontWeight: '700',
+              },
             ]}
             numberOfLines={1}
           >
@@ -72,27 +88,46 @@ export const MemberSelector: FC<Props> = ({
           return (
             <TouchableOpacity
               key={m.id}
-              style={[styles.card, isSelected && styles.cardActive]}
+              style={[
+                styles.card,
+                {
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                },
+                isSelected && {
+                  borderColor: themeColors.primary,
+                  backgroundColor: themeColors.primaryLight,
+                },
+              ]}
               onPress={() => onSelectMember(m.id)}
               activeOpacity={0.8}
             >
               <View
                 style={[
                   styles.avatar,
-                  isSelected && styles.avatarActive,
+                  { backgroundColor: themeColors.surfaceAlt },
+                  isSelected && { backgroundColor: themeColors.primaryLight },
                 ]}
               >
                 <AppText
                   style={[
                     styles.avatarInitial,
-                    isSelected && styles.avatarInitialActive,
+                    { color: themeColors.textPrimary },
+                    isSelected && { color: themeColors.primary },
                   ]}
                 >
                   {initial}
                 </AppText>
               </View>
               <AppText
-                style={[styles.name, isSelected && styles.nameActive]}
+                style={[
+                  styles.name,
+                  { color: themeColors.textPrimary },
+                  isSelected && {
+                    color: themeColors.primary,
+                    fontWeight: '700',
+                  },
+                ]}
                 numberOfLines={1}
               >
                 {m.name}
@@ -107,22 +142,23 @@ export const MemberSelector: FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: space.md,
+    marginBottom: space.lg,
   },
   scrollContent: {
     paddingHorizontal: space.md,
     gap: space.sm,
   },
   card: {
+    width: 86,
+    height: 94,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    paddingVertical: space.sm,
+    paddingHorizontal: space.xs,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: space.sm,
-    paddingHorizontal: space.md,
-    borderRadius: radius.xl,
-    backgroundColor: colors.surface,
     borderWidth: 1.5,
     borderColor: colors.border,
-    minWidth: 80,
   },
   cardActive: {
     borderColor: colors.primary,
@@ -136,30 +172,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: space.xs,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   avatarActive: {
-    borderColor: colors.primary,
     backgroundColor: colors.primaryLight,
-  },
-  groupIcon: {
-    width: 22,
-    height: 22,
   },
   avatarInitial: {
     fontSize: 16,
     fontWeight: '700',
-    color: colors.textSecondary,
+    color: colors.textPrimary,
   },
   avatarInitialActive: {
     color: colors.primary,
   },
+  groupIcon: {
+    width: 24,
+    height: 24,
+  },
   name: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.textSecondary,
     textAlign: 'center',
+    width: '100%',
   },
   nameActive: {
     color: colors.primary,

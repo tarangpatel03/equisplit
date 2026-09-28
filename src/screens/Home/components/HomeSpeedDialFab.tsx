@@ -50,13 +50,13 @@ export const HomeSpeedDialFab = memo(
     };
 
     const handlePressPersonal = () => {
-      handleClose();
       onSelectPersonal();
+      handleClose();
     };
 
     const handlePressGroup = () => {
-      handleClose();
       onSelectGroup();
+      handleClose();
     };
 
     // Interpolations for main FAB rotation (+ into ×)
@@ -65,10 +65,10 @@ export const HomeSpeedDialFab = memo(
       outputRange: ['0deg', '45deg'],
     });
 
-    // Interpolations for TOP button (Group expense — pops upward)
+    // Interpolations for TOP button (Group expense — pops upward into place)
     const topTranslateY = animValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, -68],
+      outputRange: [24, 0],
     });
     const topScale = animValue.interpolate({
       inputRange: [0, 1],
@@ -79,10 +79,10 @@ export const HomeSpeedDialFab = memo(
       outputRange: [0, 0, 1],
     });
 
-    // Interpolations for LEFT button (Personal expense — pops leftward)
+    // Interpolations for LEFT button (Personal expense — pops leftward into place)
     const leftTranslateX = animValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, -68],
+      outputRange: [24, 0],
     });
     const leftScale = animValue.interpolate({
       inputRange: [0, 1],
@@ -94,87 +94,78 @@ export const HomeSpeedDialFab = memo(
     });
 
     return (
-      <>
+      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
         {/* Semi-transparent Backdrop when open to dismiss on outside tap */}
         {isOpen && <Pressable style={styles.backdrop} onPress={handleClose} />}
 
-        <View style={styles.container} pointerEvents="box-none">
-          {/* Top Button: Group Expense (Teal with Users icon) */}
-          <Animated.View
-            style={[
-              styles.actionItemTop,
-              {
-                opacity: topOpacity,
-                transform: [{ translateY: topTranslateY }, { scale: topScale }],
-              },
-            ]}
-            pointerEvents={isOpen ? 'auto' : 'none'}
-          >
-            <Pressable
-              style={({ pressed }) => [
-                styles.subFabCircle,
-                styles.groupFab,
-                pressed && styles.subFabPressed,
-              ]}
-              onPress={handlePressGroup}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel="Add group expense"
-            >
-              <Users size={22} color={colors.textOnPrimary} strokeWidth={2.4} />
-            </Pressable>
-          </Animated.View>
-
-          {/* Left Button: Personal Expense (Purple with Wallet icon) */}
-          <Animated.View
-            style={[
-              styles.actionItemLeft,
-              {
-                opacity: leftOpacity,
-                transform: [
-                  { translateX: leftTranslateX },
-                  { scale: leftScale },
-                ],
-              },
-            ]}
-            pointerEvents={isOpen ? 'auto' : 'none'}
-          >
-            <Pressable
-              style={({ pressed }) => [
-                styles.subFabCircle,
-                styles.personalFab,
-                pressed && styles.subFabPressed,
-              ]}
-              onPress={handlePressPersonal}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel="Add personal expense"
-            >
-              <Wallet
-                size={21}
-                color={colors.textOnPrimary}
-                strokeWidth={2.4}
-              />
-            </Pressable>
-          </Animated.View>
-
-          {/* Main FAB (+ button that rotates into ×) */}
+        {/* Top Button: Group Expense (Teal with Users icon) */}
+        <Animated.View
+          style={[
+            styles.actionItemTop,
+            {
+              opacity: topOpacity,
+              transform: [{ translateY: topTranslateY }, { scale: topScale }],
+            },
+          ]}
+          pointerEvents={isOpen ? 'auto' : 'none'}
+        >
           <Pressable
             style={({ pressed }) => [
-              styles.mainFab,
-              pressed && styles.mainFabPressed,
+              styles.subFabCircle,
+              styles.groupFab,
+              pressed && styles.subFabPressed,
             ]}
-            onPress={toggleOpen}
+            onPress={handlePressGroup}
             hitSlop={6}
             accessibilityRole="button"
-            accessibilityLabel={isOpen ? 'Close menu' : 'Add expense options'}
+            accessibilityLabel="Add group expense"
           >
-            <Animated.View style={{ transform: [{ rotate: plusRotation }] }}>
-              <Plus size={26} color={colors.textOnPrimary} strokeWidth={2.8} />
-            </Animated.View>
+            <Users size={22} color={colors.textOnPrimary} strokeWidth={2.4} />
           </Pressable>
-        </View>
-      </>
+        </Animated.View>
+
+        {/* Left Button: Personal Expense (Purple with Wallet icon) */}
+        <Animated.View
+          style={[
+            styles.actionItemLeft,
+            {
+              opacity: leftOpacity,
+              transform: [{ translateX: leftTranslateX }, { scale: leftScale }],
+            },
+          ]}
+          pointerEvents={isOpen ? 'auto' : 'none'}
+        >
+          <Pressable
+            style={({ pressed }) => [
+              styles.subFabCircle,
+              styles.personalFab,
+              pressed && styles.subFabPressed,
+            ]}
+            onPress={handlePressPersonal}
+            hitSlop={6}
+            accessibilityRole="button"
+            accessibilityLabel="Add personal expense"
+          >
+            <Wallet size={21} color={colors.textOnPrimary} strokeWidth={2.4} />
+          </Pressable>
+        </Animated.View>
+
+        {/* Main FAB (+ button that rotates into ×) */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.mainFab,
+            pressed && styles.mainFabPressed,
+          ]}
+          onPress={toggleOpen}
+          hitSlop={6}
+          accessibilityRole="button"
+          accessibilityLabel={isOpen ? 'Close menu' : 'Add expense options'}
+        >
+          <Animated.View style={{ transform: [{ rotate: plusRotation }] }}>
+            <Plus size={26} color={colors.textOnPrimary} strokeWidth={2.8} />
+          </Animated.View>
+        </Pressable>
+      </View>
     );
   },
 );
@@ -185,15 +176,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 22, 30, 0.45)',
     zIndex: 90,
   },
-  container: {
+  mainFab: {
     position: 'absolute',
     bottom: space.xl,
     right: space.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 100,
-  },
-  mainFab: {
     width: 56,
     height: 56,
     borderRadius: radius.full,
@@ -205,6 +191,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 8,
     elevation: 8,
+    zIndex: 102,
   },
   mainFabPressed: {
     opacity: 0.9,
@@ -212,15 +199,19 @@ const styles = StyleSheet.create({
   },
   actionItemTop: {
     position: 'absolute',
+    bottom: space.xl + 68,
+    right: space.md + 4,
     alignItems: 'center',
     justifyContent: 'center',
-    right: 4,
+    zIndex: 101,
   },
   actionItemLeft: {
     position: 'absolute',
+    bottom: space.xl + 4,
+    right: space.md + 68,
     alignItems: 'center',
     justifyContent: 'center',
-    bottom: 4,
+    zIndex: 101,
   },
   subFabCircle: {
     width: 48,

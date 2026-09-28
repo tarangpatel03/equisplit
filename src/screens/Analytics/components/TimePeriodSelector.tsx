@@ -1,9 +1,9 @@
-import { FC } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { FC } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppText } from "@/components/ui/AppText";
-import { colors, radius, space } from "@/theme";
-import { TimePeriod } from "@/utils/personalAnalytics";
+import { AppText } from '@/components/ui/AppText';
+import { colors, radius, space, useAppTheme } from '@/theme';
+import { TimePeriod } from '@/utils/personalAnalytics';
 
 type Props = {
   selectedPeriod: TimePeriod;
@@ -11,29 +11,53 @@ type Props = {
 };
 
 const PERIODS: { key: TimePeriod; label: string }[] = [
-  { key: "this_month", label: "This Month" },
-  { key: "last_month", label: "Last Month" },
-  { key: "all", label: "All Time" },
+  { key: 'this_month', label: 'This Month' },
+  { key: 'last_month', label: 'Last Month' },
+  { key: 'all', label: 'All Time' },
 ];
 
 export const TimePeriodSelector: FC<Props> = ({
   selectedPeriod,
   onSelectPeriod,
 }) => {
+  const { colors: themeColors } = useAppTheme();
+
   return (
     <View style={styles.container}>
-      <View style={styles.pillContainer}>
+      <View
+        style={[
+          styles.pillContainer,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+        ]}
+      >
         {PERIODS.map(period => {
           const isActive = selectedPeriod === period.key;
           return (
             <Pressable
               key={period.key}
-              style={[styles.pill, isActive && styles.pillActive]}
+              style={[
+                styles.pill,
+                isActive && {
+                  backgroundColor: themeColors.primaryLight,
+                  borderColor: themeColors.primary,
+                  borderWidth: 1,
+                },
+              ]}
               onPress={() => onSelectPeriod(period.key)}
               hitSlop={4}
             >
               <AppText
-                style={[styles.pillText, isActive && styles.pillTextActive]}
+                style={[
+                  styles.pillText,
+                  { color: themeColors.textSecondary },
+                  isActive && {
+                    color: themeColors.primary,
+                    fontWeight: '700',
+                  },
+                ]}
               >
                 {period.label}
               </AppText>
@@ -51,7 +75,7 @@ const styles = StyleSheet.create({
     marginBottom: space.sm,
   },
   pillContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     backgroundColor: colors.surface,
     borderRadius: radius.xl,
     padding: 3,
@@ -62,22 +86,13 @@ const styles = StyleSheet.create({
   pill: {
     flex: 1,
     paddingVertical: 7,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: radius.lg,
-  },
-  pillActive: {
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.primary,
   },
   pillText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: '600',
     color: colors.textSecondary,
-  },
-  pillTextActive: {
-    color: colors.primary,
-    fontWeight: "700",
   },
 });

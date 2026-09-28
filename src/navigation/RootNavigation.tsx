@@ -1,6 +1,10 @@
-import { useEffect, useState, memo } from 'react';
+import { useEffect, useMemo, useState, memo } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { DarkTheme, NavigationContainer } from '@react-navigation/native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  NavigationContainer,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AddEditExpenseScreen } from '@/screens/AddEditExpense';
@@ -9,7 +13,7 @@ import { OnboardingScreen } from '@/screens/Onboarding';
 import { SplitDetailsScreen } from '@/screens/SplitDetails';
 import { getPrimaryMemberId } from '@/services/database';
 import { hasCompletedOnboarding } from '@/services/onboarding';
-import { colors } from '@/theme';
+import { colors, useAppTheme } from '@/theme';
 import { RootRouteParams } from '@/types/navigation.types';
 
 import { BottomTabNavigation } from './BottomTabNavigation';
@@ -18,22 +22,26 @@ import { RootRoutes } from './routes';
 
 const Stack = createNativeStackNavigator<RootRouteParams>();
 
-const navigationTheme = {
-  ...DarkTheme,
-  colors: {
-    ...DarkTheme.colors,
-    background: colors.background,
-    card: colors.surface,
-    text: colors.textPrimary,
-    border: colors.border,
-    primary: colors.primary,
-  },
-};
-
 const RootNavigation = () => {
+  const { isDark, colors: themeColors } = useAppTheme();
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [initialRoute, setInitialRoute] = useState<keyof RootRouteParams>(
     RootRoutes.MainTabs,
+  );
+
+  const navigationTheme = useMemo(
+    () => ({
+      ...(isDark ? DarkTheme : DefaultTheme),
+      colors: {
+        ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+        background: themeColors.background,
+        card: themeColors.surface,
+        text: themeColors.textPrimary,
+        border: themeColors.border,
+        primary: themeColors.primary,
+      },
+    }),
+    [isDark, themeColors],
   );
 
   useEffect(() => {

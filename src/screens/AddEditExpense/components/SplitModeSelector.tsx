@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useAppTheme } from '@/theme';
 import { SplitMode } from '@/types';
 
 import { styles } from '../styles';
@@ -22,18 +23,38 @@ export const SplitModeSelector: FC<Props> = ({
   selectedMode,
   onSelectMode,
 }) => {
+  const { colors: themeColors } = useAppTheme();
+
   return (
-    <View style={styles.modeContainer}>
+    <View
+      style={[
+        styles.modeContainer,
+        { backgroundColor: themeColors.surfaceAlt },
+      ]}
+    >
       {MODES.map(item => {
         const isActive = selectedMode === item.key;
         return (
           <Pressable
             key={item.key}
-            style={[styles.modeTab, isActive && styles.modeTabActive]}
+            style={[
+              styles.modeTab,
+              isActive && [
+                styles.modeTabActive,
+                { backgroundColor: themeColors.surface },
+              ],
+            ]}
             onPress={() => onSelectMode(item.key)}
           >
             <AppText
-              style={[styles.modeTabText, isActive && styles.modeTabTextActive]}
+              style={[
+                styles.modeTabText,
+                { color: themeColors.textSecondary },
+                isActive && [
+                  styles.modeTabTextActive,
+                  { color: themeColors.primary },
+                ],
+              ]}
             >
               {item.label}
             </AppText>

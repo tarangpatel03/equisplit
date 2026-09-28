@@ -2,7 +2,8 @@ import { memo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
+import { Member } from '@/types';
 import { MemberBalanceDetail } from '@/utils';
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 
 export const MemberBalanceCard = memo(
   ({ detail, defaultExpanded = false, onSettleUp }: Props) => {
+    const { colors: themeColors } = useAppTheme();
     const [expanded, setExpanded] = useState(defaultExpanded);
     const { member, netBalance, status, breakdowns } = detail;
 
@@ -24,10 +26,10 @@ export const MemberBalanceCard = memo(
     const isDebt = netBalance < -0.005;
 
     const amountColor = isCredit
-      ? colors.credit
+      ? themeColors.credit
       : isDebt
-      ? colors.debt
-      : colors.textSecondary;
+      ? themeColors.debt
+      : themeColors.textSecondary;
 
     const statusLabel =
       status === 'to pay'
@@ -37,31 +39,63 @@ export const MemberBalanceCard = memo(
         : 'Settled Up';
 
     const statusColor = isCredit
-      ? colors.credit
+      ? themeColors.credit
       : isDebt
-      ? colors.debt
-      : colors.textSecondary;
+      ? themeColors.debt
+      : themeColors.textSecondary;
 
     return (
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+        ]}
+      >
         <Pressable
           style={styles.headerPressable}
           onPress={() => setExpanded(prev => !prev)}
           hitSlop={4}
         >
           <View style={styles.left}>
-            <View style={styles.avatar}>
-              <AppText style={styles.avatarText}>{initial}</AppText>
+            <View
+              style={[
+                styles.avatar,
+                {
+                  backgroundColor: themeColors.surfaceAlt,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
+              <AppText
+                style={[styles.avatarText, { color: themeColors.textPrimary }]}
+              >
+                {initial}
+              </AppText>
             </View>
 
             <View style={styles.nameCol}>
               <View style={styles.nameRow}>
-                <AppText style={styles.memberName} numberOfLines={1}>
+                <AppText
+                  style={[styles.memberName, { color: themeColors.textPrimary }]}
+                  numberOfLines={1}
+                >
                   {member.name}
                 </AppText>
                 {member.isPrimary && (
-                  <View style={styles.youBadge}>
-                    <AppText style={styles.youBadgeText}>{'You'}</AppText>
+                  <View
+                    style={[
+                      styles.youBadge,
+                      { backgroundColor: themeColors.primaryLight },
+                    ]}
+                  >
+                    <AppText
+                      style={[styles.youBadgeText, { color: themeColors.primary }]}
+                    >
+                      {'You'}
+                    </AppText>
                   </View>
                 )}
               </View>
@@ -75,8 +109,18 @@ export const MemberBalanceCard = memo(
             <AppText style={[styles.netAmount, { color: amountColor }]}>
               {`${sign}₹${absAmount.toFixed(2)}`}
             </AppText>
-            <View style={styles.chevronPill}>
-              <AppText style={styles.chevronText}>
+            <View
+              style={[
+                styles.chevronPill,
+                { backgroundColor: themeColors.surfaceAlt },
+              ]}
+            >
+              <AppText
+                style={[
+                  styles.chevronText,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
                 {expanded ? '▴' : '▾'}
               </AppText>
             </View>
@@ -84,8 +128,21 @@ export const MemberBalanceCard = memo(
         </Pressable>
 
         {expanded ? (
-          <View style={styles.breakdownContainer}>
-            <AppText style={styles.breakdownTitle}>
+          <View
+            style={[
+              styles.breakdownContainer,
+              {
+                backgroundColor: themeColors.surfaceAlt,
+                borderTopColor: themeColors.border,
+              },
+            ]}
+          >
+            <AppText
+              style={[
+                styles.breakdownTitle,
+                { color: themeColors.textSecondary },
+              ]}
+            >
               {'BALANCE BREAKDOWN'}
             </AppText>
 
@@ -97,17 +154,44 @@ export const MemberBalanceCard = memo(
                 const itemIsCredit = item.amount > 0;
                 const itemSign = item.amount > 0 ? '+' : '-';
                 const itemAbs = Math.abs(item.amount);
-                const itemColor = itemIsCredit ? colors.credit : colors.debt;
+                const itemColor = itemIsCredit
+                  ? themeColors.credit
+                  : themeColors.debt;
 
                 return (
-                  <View key={item.otherMemberId} style={styles.breakdownRow}>
+                  <View
+                    key={item.otherMemberId}
+                    style={[
+                      styles.breakdownRow,
+                      { borderBottomColor: themeColors.border },
+                    ]}
+                  >
                     <View style={styles.breakdownLeft}>
-                      <View style={styles.miniAvatar}>
-                        <AppText style={styles.miniAvatarText}>
+                      <View
+                        style={[
+                          styles.miniAvatar,
+                          {
+                            backgroundColor: themeColors.surface,
+                            borderColor: themeColors.border,
+                          },
+                        ]}
+                      >
+                        <AppText
+                          style={[
+                            styles.miniAvatarText,
+                            { color: themeColors.textPrimary },
+                          ]}
+                        >
                           {otherInitial}
                         </AppText>
                       </View>
-                      <AppText style={styles.otherName} numberOfLines={1}>
+                      <AppText
+                        style={[
+                          styles.otherName,
+                          { color: themeColors.textPrimary },
+                        ]}
+                        numberOfLines={1}
+                      >
                         {item.otherMemberName}
                       </AppText>
                     </View>
@@ -152,7 +236,12 @@ export const MemberBalanceCard = memo(
                 );
               })
             ) : (
-              <AppText style={styles.noBreakdownText}>
+              <AppText
+                style={[
+                  styles.noBreakdownText,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
                 {'All balances are settled up.'}
               </AppText>
             )}
@@ -167,15 +256,21 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    padding: space.md,
-    marginBottom: space.sm,
     borderWidth: 1,
     borderColor: colors.border,
+    marginBottom: space.sm,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   headerPressable: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    padding: space.md,
   },
   left: {
     flexDirection: 'row',
@@ -248,69 +343,71 @@ const styles = StyleSheet.create({
   chevronText: {
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: '700',
-    marginTop: -1,
+    lineHeight: 14,
   },
-
-  // Breakdown
   breakdownContainer: {
-    marginTop: space.sm + 2,
-    paddingTop: space.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.divider,
+    backgroundColor: colors.surfaceAlt,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingHorizontal: space.md,
+    paddingVertical: space.sm,
   },
   breakdownTitle: {
     fontSize: 11,
     fontWeight: '700',
-    letterSpacing: 0.6,
     color: colors.textSecondary,
-    marginBottom: space.sm,
+    letterSpacing: 0.5,
+    marginBottom: space.xs,
   },
   breakdownRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 5,
+    paddingVertical: space.xs + 2,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   breakdownLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space.sm,
+    gap: space.xs + 2,
     flex: 1,
   },
   miniAvatar: {
     width: 26,
     height: 26,
     borderRadius: radius.full,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   miniAvatarText: {
     fontSize: 11,
     fontWeight: '700',
-    color: colors.textSecondary,
+    color: colors.textPrimary,
   },
   otherName: {
     fontSize: 13,
-    fontWeight: '500',
     color: colors.textPrimary,
+    fontWeight: '500',
     flex: 1,
   },
   breakdownRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space.xs + 4,
+    gap: space.xs + 2,
   },
   breakdownAmount: {
     fontSize: 13,
     fontWeight: '700',
   },
   settleBtn: {
-    backgroundColor: 'rgba(32, 217, 178, 0.12)',
+    backgroundColor: 'rgba(32, 217, 178, 0.14)',
     borderWidth: 1,
     borderColor: 'rgba(32, 217, 178, 0.35)',
-    paddingVertical: 3,
+    paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: radius.full,
   },
@@ -322,7 +419,7 @@ const styles = StyleSheet.create({
   noBreakdownText: {
     fontSize: 12,
     color: colors.textSecondary,
+    paddingVertical: space.xs,
     fontStyle: 'italic',
-    paddingVertical: 4,
   },
 });

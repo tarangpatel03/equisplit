@@ -7,7 +7,7 @@ import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
 import { RootState } from '@/store/store';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { PersonalExpense } from '@/types';
 
 type Props = {
@@ -18,6 +18,7 @@ type Props = {
 
 export const PersonalExpenseCard = memo(
   ({ expense, onPress, onDelete }: Props) => {
+    const { colors: themeColors } = useAppTheme();
     const categories = useSelector((s: RootState) => s.categories.categories);
     const category = getCategoryById(expense.categoryId, categories);
 
@@ -30,11 +31,18 @@ export const PersonalExpenseCard = memo(
     });
 
     const amountPrefix = isIncome ? '+' : '-';
-    const amountColor = isIncome ? colors.credit : colors.debt;
+    const amountColor = isIncome ? themeColors.credit : themeColors.debt;
 
     return (
       <Pressable
-        style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+        style={({ pressed }) => [
+          styles.card,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+          pressed && { backgroundColor: themeColors.surfaceAlt },
+        ]}
         onPress={onPress}
       >
         <View
@@ -52,15 +60,34 @@ export const PersonalExpenseCard = memo(
         </View>
 
         <View style={styles.left}>
-          <AppText style={styles.title} numberOfLines={1}>
+          <AppText
+            style={[styles.title, { color: themeColors.textPrimary }]}
+            numberOfLines={1}
+          >
             {expense.title}
           </AppText>
-          <AppText style={styles.meta} numberOfLines={1}>
+          <AppText
+            style={[styles.meta, { color: themeColors.textSecondary }]}
+            numberOfLines={1}
+          >
             {expense.note ? `${date}  ·  ${expense.note}` : date}
           </AppText>
           <View style={styles.badgeRow}>
-            <View style={styles.categoryBadge}>
-              <AppText style={styles.categoryBadgeText}>
+            <View
+              style={[
+                styles.categoryBadge,
+                {
+                  backgroundColor: themeColors.surfaceAlt,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
+              <AppText
+                style={[
+                  styles.categoryBadgeText,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
                 {category.name}
               </AppText>
             </View>
@@ -140,7 +167,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: space.xs,
     marginTop: 2,
-    flexWrap: 'wrap',
   },
   categoryBadge: {
     alignSelf: 'flex-start',
@@ -153,35 +179,28 @@ const styles = StyleSheet.create({
   },
   categoryBadgeText: {
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: '600',
     color: colors.textSecondary,
   },
   right: {
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    paddingVertical: 2,
-    gap: space.md,
-    flexShrink: 0,
+    height: 52,
   },
   amount: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
   },
   deleteBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: space.xs,
+    marginTop: space.xs,
   },
   deleteBtnPressed: {
-    opacity: 0.7,
-    backgroundColor: colors.debtLight,
+    opacity: 0.5,
   },
   deleteIcon: {
-    width: 20,
-    height: 20,
-    tintColor: colors.debt,
+    width: 18,
+    height: 18,
+    tintColor: colors.error,
   },
 });

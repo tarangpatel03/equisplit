@@ -1,9 +1,9 @@
-import { FC } from "react";
-import { StyleSheet, View } from "react-native";
-import { ArrowDownLeft, ArrowUpRight, Scale } from "lucide-react-native";
+import { FC } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { ArrowDownLeft, ArrowUpRight, Scale } from 'lucide-react-native';
 
-import { AppText } from "@/components/ui/AppText";
-import { colors, radius, space } from "@/theme";
+import { AppText } from '@/components/ui/AppText';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 type Props = {
   totalInflow: number;
@@ -16,35 +16,56 @@ export const PersonalSummaryCards: FC<Props> = ({
   totalOutflow,
   netBalance,
 }) => {
-  const netSign = netBalance > 0 ? "+" : netBalance < 0 ? "-" : "";
+  const { colors: themeColors, isDark } = useAppTheme();
+  const netSign = netBalance > 0 ? '+' : netBalance < 0 ? '-' : '';
   const absNet = Math.abs(netBalance);
   const netColor =
     netBalance > 0.005
-      ? colors.credit
+      ? themeColors.credit
       : netBalance < -0.005
-      ? colors.debt
-      : colors.textPrimary;
+      ? themeColors.debt
+      : themeColors.textPrimary;
 
   return (
     <View style={styles.container}>
       {/* Side-by-Side Inflow & Outflow Cards */}
       <View style={styles.cardsRow}>
         {/* Total Inflow Card */}
-        <View style={[styles.card, styles.inflowCard]}>
+        <View
+          style={[
+            styles.card,
+            styles.inflowCard,
+            {
+              backgroundColor: isDark
+                ? 'rgba(32, 217, 178, 0.06)'
+                : 'rgba(32, 217, 178, 0.09)',
+              borderWidth: isDark ? 1 : 0,
+              borderColor: isDark ? 'rgba(32, 217, 178, 0.2)' : 'transparent',
+            },
+          ]}
+        >
           <View style={styles.headerRow}>
-            <View style={[styles.iconPill, styles.inflowIconPill]}>
+            <View
+              style={[
+                styles.iconPill,
+                { backgroundColor: themeColors.primaryLight },
+              ]}
+            >
               <ArrowDownLeft
                 size={13}
-                color={colors.credit}
+                color={themeColors.credit}
                 strokeWidth={2.4}
               />
             </View>
-            <AppText style={styles.label} numberOfLines={1}>
-              {"Total Inflow"}
+            <AppText
+              style={[styles.label, { color: themeColors.textSecondary }]}
+              numberOfLines={1}
+            >
+              {'Total Inflow'}
             </AppText>
           </View>
           <AppText
-            style={[styles.amount, { color: colors.credit }]}
+            style={[styles.amount, { color: themeColors.credit }]}
             numberOfLines={1}
           >
             {`+₹${totalInflow.toFixed(2)}`}
@@ -52,21 +73,41 @@ export const PersonalSummaryCards: FC<Props> = ({
         </View>
 
         {/* Total Outflow Card */}
-        <View style={[styles.card, styles.outflowCard]}>
+        <View
+          style={[
+            styles.card,
+            styles.outflowCard,
+            {
+              backgroundColor: isDark
+                ? 'rgba(255, 107, 107, 0.06)'
+                : 'rgba(255, 107, 107, 0.09)',
+              borderWidth: isDark ? 1 : 0,
+              borderColor: isDark ? 'rgba(255, 107, 107, 0.2)' : 'transparent',
+            },
+          ]}
+        >
           <View style={styles.headerRow}>
-            <View style={[styles.iconPill, styles.outflowIconPill]}>
+            <View
+              style={[
+                styles.iconPill,
+                { backgroundColor: themeColors.debtLight },
+              ]}
+            >
               <ArrowUpRight
                 size={13}
-                color={colors.debt}
+                color={themeColors.debt}
                 strokeWidth={2.4}
               />
             </View>
-            <AppText style={styles.label} numberOfLines={1}>
-              {"Total Outflow"}
+            <AppText
+              style={[styles.label, { color: themeColors.textSecondary }]}
+              numberOfLines={1}
+            >
+              {'Total Outflow'}
             </AppText>
           </View>
           <AppText
-            style={[styles.amount, { color: colors.debt }]}
+            style={[styles.amount, { color: themeColors.debt }]}
             numberOfLines={1}
           >
             {`-₹${totalOutflow.toFixed(2)}`}
@@ -75,12 +116,27 @@ export const PersonalSummaryCards: FC<Props> = ({
       </View>
 
       {/* Net Balance Footer */}
-      <View style={styles.netFooter}>
+      <View
+        style={[
+          styles.netFooter,
+          {
+            backgroundColor: themeColors.surfaceAlt,
+            borderColor: themeColors.border,
+          },
+        ]}
+      >
         <View style={styles.netLeft}>
-          <Scale size={14} color={colors.textSecondary} strokeWidth={2} />
-          <AppText style={styles.netLabel}>{"Net Balance"}</AppText>
+          <Scale size={14} color={themeColors.textSecondary} strokeWidth={2} />
+          <AppText
+            style={[styles.netLabel, { color: themeColors.textSecondary }]}
+          >
+            {'Net Balance'}
+          </AppText>
         </View>
-        <AppText style={[styles.netAmount, { color: netColor }]} numberOfLines={1}>
+        <AppText
+          style={[styles.netAmount, { color: netColor }]}
+          numberOfLines={1}
+        >
           {`${netSign}₹${absNet.toFixed(2)}`}
         </AppText>
       </View>
@@ -94,7 +150,7 @@ const styles = StyleSheet.create({
     marginBottom: space.md,
   },
   cardsRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: space.sm,
     marginBottom: space.xs + 2,
   },
@@ -102,29 +158,16 @@ const styles = StyleSheet.create({
     flex: 1,
     flexBasis: 0,
     minWidth: 0,
-    backgroundColor: colors.surface,
     borderRadius: radius.xl,
     paddingVertical: space.sm + 2,
     paddingHorizontal: space.sm + 2,
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 0,
   },
-  inflowCard: {
-    backgroundColor: "rgba(32, 217, 178, 0.05)",
-    borderColor: "rgba(32, 217, 178, 0.18)",
-  },
-  outflowCard: {
-    backgroundColor: "rgba(255, 107, 107, 0.05)",
-    borderColor: "rgba(255, 107, 107, 0.18)",
-  },
+  inflowCard: {},
+  outflowCard: {},
   headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
     marginBottom: 6,
   },
@@ -132,49 +175,43 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: radius.full,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  inflowIconPill: {
-    backgroundColor: colors.primaryLight,
-  },
-  outflowIconPill: {
-    backgroundColor: colors.debtLight,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   label: {
     fontSize: 11,
-    fontWeight: "700",
+    fontWeight: '700',
     color: colors.textSecondary,
     letterSpacing: 0.2,
   },
   amount: {
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: '800',
     letterSpacing: -0.2,
   },
   netFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.md,
     paddingVertical: 7,
     paddingHorizontal: space.sm + 2,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.04)",
+    borderColor: 'rgba(255, 255, 255, 0.04)',
   },
   netLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
   },
   netLabel: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: '600',
     color: colors.textSecondary,
   },
   netAmount: {
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 });

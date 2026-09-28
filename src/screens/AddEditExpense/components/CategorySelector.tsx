@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { RootState } from '@/store/store';
+import { useAppTheme } from '@/theme';
 import { ExpenseCategory } from '@/types';
 
 import { styles } from '../styles';
@@ -18,11 +19,14 @@ export const CategorySelector: FC<Props> = ({
   selectedCategoryId,
   onSelectCategory,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const categories = useSelector((s: RootState) => s.categories.categories);
 
   return (
     <View style={styles.categoryContainer}>
-      <AppText style={styles.categoryLabel}>{'Category'}</AppText>
+      <AppText style={[styles.categoryLabel, { color: themeColors.textSecondary }]}>
+        {'Category'}
+      </AppText>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -35,7 +39,14 @@ export const CategorySelector: FC<Props> = ({
               key={cat.id}
               style={[
                 styles.categoryChip,
-                isActive && styles.categoryChipActive,
+                {
+                  backgroundColor: isActive
+                    ? themeColors.primaryLight
+                    : themeColors.surface,
+                  borderColor: isActive
+                    ? themeColors.primary
+                    : themeColors.border,
+                },
               ]}
               onPress={() => onSelectCategory(cat)}
             >
@@ -48,6 +59,11 @@ export const CategorySelector: FC<Props> = ({
               <AppText
                 style={[
                   styles.categoryText,
+                  {
+                    color: isActive
+                      ? themeColors.primary
+                      : themeColors.textSecondary,
+                  },
                   isActive && styles.categoryTextActive,
                 ]}
               >

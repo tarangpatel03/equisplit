@@ -7,7 +7,7 @@ import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
 import { RootState } from '@/store/store';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { Expense } from '@/types';
 
 type Props = {
@@ -19,6 +19,7 @@ type Props = {
 
 export const PersonalGroupExpenseCard = memo(
   ({ expense, userShare, payerLabel, onPress }: Props) => {
+    const { colors: themeColors } = useAppTheme();
     const categories = useSelector((s: RootState) => s.categories.categories);
     const category = getCategoryById(expense.categoryId, categories);
 
@@ -30,7 +31,14 @@ export const PersonalGroupExpenseCard = memo(
 
     return (
       <Pressable
-        style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+        style={({ pressed }) => [
+          styles.card,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+          pressed && { backgroundColor: themeColors.surfaceAlt },
+        ]}
         onPress={onPress}
       >
         <View
@@ -48,32 +56,70 @@ export const PersonalGroupExpenseCard = memo(
         </View>
 
         <View style={styles.left}>
-          <AppText style={styles.title} numberOfLines={1}>
+          <AppText
+            style={[styles.title, { color: themeColors.textPrimary }]}
+            numberOfLines={1}
+          >
             {expense.title}
           </AppText>
-          <AppText style={styles.meta} numberOfLines={1}>
+          <AppText
+            style={[styles.meta, { color: themeColors.textSecondary }]}
+            numberOfLines={1}
+          >
             {`${date}  ·  ${payerLabel}`}
           </AppText>
           <View style={styles.badgeRow}>
-            <View style={styles.categoryBadge}>
-              <AppText style={styles.categoryBadgeText}>
+            <View
+              style={[
+                styles.categoryBadge,
+                {
+                  backgroundColor: themeColors.surfaceAlt,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
+              <AppText
+                style={[
+                  styles.categoryBadgeText,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
                 {category.name}
               </AppText>
             </View>
-            <View style={styles.groupBadge}>
-              <Users size={10} color={colors.primary} strokeWidth={2.4} />
-              <AppText style={styles.groupBadgeText}>{'Group'}</AppText>
+            <View
+              style={[
+                styles.groupBadge,
+                { backgroundColor: themeColors.primaryLight },
+              ]}
+            >
+              <Users size={10} color={themeColors.primary} strokeWidth={2.4} />
+              <AppText
+                style={[
+                  styles.groupBadgeText,
+                  { color: themeColors.primary },
+                ]}
+              >
+                {'Group'}
+              </AppText>
             </View>
           </View>
         </View>
 
         <View style={styles.right}>
-          <AppText style={styles.amount}>
+          <AppText style={[styles.amount, { color: themeColors.debt }]}>
             {`-₹${userShare.toFixed(2)}`}
           </AppText>
           <View style={styles.shareRow}>
-            <AppText style={styles.shareSubtext}>{'Your share'}</AppText>
-            <ChevronRight size={14} color={colors.textSecondary} />
+            <AppText
+              style={[
+                styles.shareSubtext,
+                { color: themeColors.textSecondary },
+              ]}
+            >
+              {'Your share'}
+            </AppText>
+            <ChevronRight size={14} color={themeColors.textSecondary} />
           </View>
         </View>
       </Pressable>
@@ -143,35 +189,31 @@ const styles = StyleSheet.create({
   },
   categoryBadgeText: {
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: '600',
     color: colors.textSecondary,
   },
   groupBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    alignSelf: 'flex-start',
     backgroundColor: colors.primaryLight,
     paddingHorizontal: space.xs + 3,
     paddingVertical: 3,
     borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(32, 217, 178, 0.3)',
   },
   groupBadgeText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     color: colors.primary,
+    textTransform: 'uppercase',
   },
   right: {
     alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    paddingVertical: 2,
-    gap: space.sm,
-    flexShrink: 0,
+    justifyContent: 'center',
+    gap: 4,
   },
   amount: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     color: colors.debt,
   },
@@ -183,6 +225,5 @@ const styles = StyleSheet.create({
   shareSubtext: {
     fontSize: 11,
     color: colors.textSecondary,
-    fontWeight: '500',
   },
 });

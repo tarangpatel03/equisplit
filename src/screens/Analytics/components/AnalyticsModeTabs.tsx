@@ -1,53 +1,76 @@
-import { FC } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
-import { Users, Wallet } from "lucide-react-native";
+import { FC } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Users, Wallet } from 'lucide-react-native';
 
-import { AppText } from "@/components/ui/AppText";
-import { colors, radius, space } from "@/theme";
+import { AppText } from '@/components/ui/AppText';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 type Props = {
-  activeTab: "personal" | "group";
-  onSelectTab: (tab: "personal" | "group") => void;
+  activeTab: 'personal' | 'group';
+  onSelectTab: (tab: 'personal' | 'group') => void;
 };
 
 export const AnalyticsModeTabs: FC<Props> = ({ activeTab, onSelectTab }) => {
-  const isPersonal = activeTab === "personal";
-  const isGroup = activeTab === "group";
+  const { colors: themeColors } = useAppTheme();
+  const isPersonal = activeTab === 'personal';
+  const isGroup = activeTab === 'group';
 
   return (
     <View style={styles.container}>
-      <View style={styles.tabBar}>
+      <View
+        style={[
+          styles.tabBar,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+        ]}
+      >
         <Pressable
-          style={[styles.tab, isPersonal && styles.tabActive]}
-          onPress={() => onSelectTab("personal")}
+          style={[
+            styles.tab,
+            isPersonal && { backgroundColor: themeColors.primaryLight },
+          ]}
+          onPress={() => onSelectTab('personal')}
           hitSlop={4}
         >
           <Wallet
             size={16}
-            color={isPersonal ? colors.primary : colors.textSecondary}
+            color={isPersonal ? themeColors.primary : themeColors.textSecondary}
             strokeWidth={2.2}
           />
           <AppText
-            style={[styles.tabLabel, isPersonal && styles.tabLabelActive]}
+            style={[
+              styles.tabLabel,
+              { color: themeColors.textSecondary },
+              isPersonal && { color: themeColors.primary, fontWeight: '700' },
+            ]}
           >
-            {"Personal"}
+            {'Personal'}
           </AppText>
         </Pressable>
 
         <Pressable
-          style={[styles.tab, isGroup && styles.tabActive]}
-          onPress={() => onSelectTab("group")}
+          style={[
+            styles.tab,
+            isGroup && { backgroundColor: themeColors.primaryLight },
+          ]}
+          onPress={() => onSelectTab('group')}
           hitSlop={4}
         >
           <Users
             size={16}
-            color={isGroup ? colors.primary : colors.textSecondary}
+            color={isGroup ? themeColors.primary : themeColors.textSecondary}
             strokeWidth={2.2}
           />
           <AppText
-            style={[styles.tabLabel, isGroup && styles.tabLabelActive]}
+            style={[
+              styles.tabLabel,
+              { color: themeColors.textSecondary },
+              isGroup && { color: themeColors.primary, fontWeight: '700' },
+            ]}
           >
-            {"Group Splits"}
+            {'Group Splits'}
           </AppText>
         </Pressable>
       </View>
@@ -62,7 +85,7 @@ const styles = StyleSheet.create({
     paddingBottom: space.sm,
   },
   tabBar: {
-    flexDirection: "row",
+    flexDirection: 'row',
     backgroundColor: colors.surface,
     borderRadius: radius.xl,
     padding: 4,
@@ -71,24 +94,17 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 9,
     paddingHorizontal: space.xs,
     borderRadius: radius.lg,
     gap: 6,
   },
-  tabActive: {
-    backgroundColor: colors.primaryLight,
-  },
   tabLabel: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: '600',
     color: colors.textSecondary,
-  },
-  tabLabelActive: {
-    color: colors.primary,
-    fontWeight: "700",
   },
 });

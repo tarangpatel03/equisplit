@@ -12,7 +12,7 @@ import { UserCheck, UserPlus } from 'lucide-react-native';
 import { AppButton } from '@/components/ui/AppButton';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
 type Props = {
@@ -32,6 +32,7 @@ export const ReplacePrimaryModal: FC<Props> = ({
   onConfirm,
   onCancel,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const insets = useSafeAreaInsets();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
@@ -79,23 +80,29 @@ export const ReplacePrimaryModal: FC<Props> = ({
         <View
           style={[
             styles.dialog,
-            { paddingBottom: Math.max(insets.bottom, space.md) },
+            {
+              backgroundColor: themeColors.surface,
+              borderColor: themeColors.border,
+              paddingBottom: Math.max(insets.bottom, space.md),
+            },
           ]}
         >
           {/* Header */}
           <View style={styles.headerIconContainer}>
-            <UserCheck size={28} color={colors.primary} strokeWidth={2.2} />
+            <UserCheck size={28} color={themeColors.primary} strokeWidth={2.2} />
           </View>
 
-          <AppText style={styles.title}>{'Assign New Primary Profile'}</AppText>
-          <AppText style={styles.subtitle}>
+          <AppText style={[styles.title, { color: themeColors.textPrimary }]}>
+            {'Assign New Primary Profile'}
+          </AppText>
+          <AppText style={[styles.subtitle, { color: themeColors.textSecondary }]}>
             {`"${memberToDelete?.name ?? 'This member'}" is your primary profile ("You"). Choose who will become "You" before deleting this profile.`}
           </AppText>
 
           {/* Option A: Select from existing members */}
           {otherMembers.length > 0 && (
             <View style={styles.section}>
-              <AppText style={styles.sectionLabel}>
+              <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
                 {'Select an existing member:'}
               </AppText>
               <ScrollView
@@ -110,14 +117,25 @@ export const ReplacePrimaryModal: FC<Props> = ({
                       key={m.id}
                       style={[
                         styles.memberChip,
-                        isSelected && styles.memberChipSelected,
+                        {
+                          backgroundColor: isSelected
+                            ? themeColors.primary
+                            : themeColors.surfaceAlt,
+                          borderColor: isSelected
+                            ? themeColors.primary
+                            : themeColors.border,
+                        },
                       ]}
                       onPress={() => handleSelectExisting(m.id)}
                     >
                       <AppText
                         style={[
                           styles.memberChipText,
-                          isSelected && styles.memberChipTextSelected,
+                          {
+                            color: isSelected
+                              ? '#FFFFFF'
+                              : themeColors.textPrimary,
+                          },
                         ]}
                       >
                         {m.name}
@@ -132,8 +150,8 @@ export const ReplacePrimaryModal: FC<Props> = ({
           {/* Option B: Create new profile */}
           <View style={styles.section}>
             <View style={styles.newProfileLabelRow}>
-              <UserPlus size={14} color={colors.textSecondary} />
-              <AppText style={styles.sectionLabel}>
+              <UserPlus size={14} color={themeColors.textSecondary} />
+              <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
                 {otherMembers.length > 0
                   ? 'Or create a new profile as "You":'
                   : 'Enter your new name to continue as "You":'}

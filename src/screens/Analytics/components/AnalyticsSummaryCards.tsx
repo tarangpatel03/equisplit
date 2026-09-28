@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 type Props = {
   totalPaid: number;
@@ -10,30 +10,62 @@ type Props = {
 };
 
 export const AnalyticsSummaryCards: FC<Props> = ({ totalPaid, totalShare }) => {
+  const { colors: themeColors } = useAppTheme();
+
   return (
     <View style={styles.container}>
       {/* Total Paid Card */}
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+        ]}
+      >
         <View style={styles.headerRow}>
           <View style={[styles.arrowBadge, styles.paidBadge]}>
             <AppText style={styles.paidArrow}>{'↑'}</AppText>
           </View>
-          <AppText style={styles.label}>{'Total Paid'}</AppText>
+          <AppText
+            style={[styles.label, { color: themeColors.textSecondary }]}
+          >
+            {'Total Paid'}
+          </AppText>
         </View>
-        <AppText style={styles.amount} numberOfLines={1}>
+        <AppText
+          style={[styles.amount, { color: themeColors.textPrimary }]}
+          numberOfLines={1}
+        >
           {`₹${totalPaid.toFixed(2)}`}
         </AppText>
       </View>
 
       {/* Total Share Card */}
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+        ]}
+      >
         <View style={styles.headerRow}>
           <View style={[styles.arrowBadge, styles.shareBadge]}>
             <AppText style={styles.shareArrow}>{'↓'}</AppText>
           </View>
-          <AppText style={styles.label}>{'Total Share'}</AppText>
+          <AppText
+            style={[styles.label, { color: themeColors.textSecondary }]}
+          >
+            {'Total Share'}
+          </AppText>
         </View>
-        <AppText style={styles.amount} numberOfLines={1}>
+        <AppText
+          style={[styles.amount, { color: themeColors.textPrimary }]}
+          numberOfLines={1}
+        >
           {`₹${totalShare.toFixed(2)}`}
         </AppText>
       </View>
@@ -99,6 +131,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginTop: 2,
   },
 });

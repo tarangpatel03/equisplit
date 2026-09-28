@@ -7,7 +7,8 @@ import { assets } from '@/assets';
 import { AnalyticsScreen } from '@/screens/Analytics';
 import { HomeScreen } from '@/screens/Home';
 import { MembersScreen } from '@/screens/Members';
-import { colors } from '@/theme';
+import { SettingsScreen } from '@/screens/Settings';
+import { colors, useAppTheme } from '@/theme';
 import { BottomTabRouteParams } from '@/types/navigation.types';
 
 import { BottomTabRoutes } from './routes';
@@ -49,8 +50,6 @@ const MembersIcon = ({ focused }: { focused: boolean }) => (
   />
 );
 
-const EmptyScreen = () => null;
-
 const SettingsIcon = ({ focused }: { focused: boolean }) => (
   <Settings
     size={22}
@@ -60,6 +59,7 @@ const SettingsIcon = ({ focused }: { focused: boolean }) => (
 );
 
 export const BottomTabNavigation = () => {
+  const { colors: themeColors } = useAppTheme();
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 36);
 
@@ -68,11 +68,13 @@ export const BottomTabNavigation = () => {
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: themeColors.primary,
+        tabBarInactiveTintColor: themeColors.textSecondary,
         tabBarStyle: [
           styles.tabBar,
           {
+            backgroundColor: themeColors.surface,
+            borderTopColor: themeColors.border,
             height: 56 + bottomInset,
             paddingBottom: bottomInset,
           },
@@ -107,12 +109,7 @@ export const BottomTabNavigation = () => {
       />
       <Tab.Screen
         name={BottomTabRoutes.Settings}
-        component={EmptyScreen}
-        listeners={{
-          tabPress: e => {
-            e.preventDefault();
-          },
-        }}
+        component={SettingsScreen}
         options={{
           tabBarLabel: 'Settings',
           tabBarIcon: SettingsIcon,

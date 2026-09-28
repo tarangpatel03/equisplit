@@ -1,11 +1,5 @@
 import { FC, useState } from 'react';
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -31,13 +25,13 @@ import {
 } from '@/store/categorySlice';
 import { setExpenses } from '@/store/expenseSlice';
 import { setPersonalExpenses } from '@/store/personalExpenseSlice';
-import { RootState } from '@/store/store';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { ExpenseCategory } from '@/types';
 
 import { AppConfirmDialog } from './AppConfirmDialog';
 import { CategoryFormModal } from './CategoryFormModal';
 import { CategoryIcon } from './CategoryIcon';
+import { RootState } from '@/store/store';
 
 type Props = {
   visible: boolean;
@@ -45,6 +39,7 @@ type Props = {
 };
 
 export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
+  const { colors: themeColors } = useAppTheme();
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
   const categories = useSelector((s: RootState) => s.categories.categories);
@@ -126,18 +121,45 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
           <View
             style={[
               styles.sheet,
-              { paddingBottom: Math.max(insets.bottom, space.md) },
+              {
+                backgroundColor: themeColors.surface,
+                borderTopColor: themeColors.border,
+                paddingBottom: Math.max(insets.bottom, space.md),
+              },
             ]}
           >
             {/* Top Handle */}
-            <View style={styles.handleBar} />
+            <View
+              style={[
+                styles.handleBar,
+                { backgroundColor: themeColors.border },
+              ]}
+            />
 
             {/* Header */}
             <View style={styles.header}>
-              <Pressable onPress={onClose} hitSlop={10} style={styles.closeBtn}>
-                <AppText style={styles.closeText}>{'✕'}</AppText>
+              <Pressable
+                onPress={onClose}
+                hitSlop={10}
+                style={[
+                  styles.closeBtn,
+                  { backgroundColor: themeColors.surfaceAlt },
+                ]}
+              >
+                <AppText
+                  style={[
+                    styles.closeText,
+                    { color: themeColors.textSecondary },
+                  ]}
+                >
+                  {'✕'}
+                </AppText>
               </Pressable>
-              <AppText style={styles.title}>{'Manage Categories'}</AppText>
+              <AppText
+                style={[styles.title, { color: themeColors.textPrimary }]}
+              >
+                {'Manage Categories'}
+              </AppText>
               <Pressable
                 onPress={handleOpenAdd}
                 hitSlop={8}
@@ -160,7 +182,15 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
                 const isDefault = Boolean(item.isDefault);
 
                 return (
-                  <View style={styles.itemCard}>
+                  <View
+                    style={[
+                      styles.itemCard,
+                      {
+                        backgroundColor: themeColors.surface,
+                        borderColor: themeColors.border,
+                      },
+                    ]}
+                  >
                     <View
                       style={[
                         styles.itemAvatar,
@@ -178,17 +208,38 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
                     </View>
 
                     <View style={styles.itemInfo}>
-                      <AppText style={styles.itemName} numberOfLines={1}>
+                      <AppText
+                        style={[
+                          styles.itemName,
+                          { color: themeColors.textPrimary },
+                        ]}
+                        numberOfLines={1}
+                      >
                         {item.name}
                       </AppText>
                       {isDefault ? (
-                        <View style={styles.defaultBadge}>
-                          <AppText style={styles.defaultBadgeText}>
+                        <View
+                          style={[
+                            styles.defaultBadge,
+                            { backgroundColor: themeColors.surfaceAlt },
+                          ]}
+                        >
+                          <AppText
+                            style={[
+                              styles.defaultBadgeText,
+                              { color: themeColors.textSecondary },
+                            ]}
+                          >
                             {'Default'}
                           </AppText>
                         </View>
                       ) : (
-                        <AppText style={styles.customBadgeText}>
+                        <AppText
+                          style={[
+                            styles.customBadgeText,
+                            { color: themeColors.primary },
+                          ]}
+                        >
                           {'Custom'}
                         </AppText>
                       )}
@@ -198,18 +249,29 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
                       <Pressable
                         style={({ pressed }) => [
                           styles.actionBtn,
+                          { backgroundColor: themeColors.surfaceAlt },
                           pressed && styles.actionBtnPressed,
                         ]}
                         onPress={() => handleOpenEdit(item)}
                         hitSlop={6}
                       >
-                        <AppText style={styles.editBtnText}>{'Edit'}</AppText>
+                        <AppText
+                          style={[
+                            styles.editBtnText,
+                            { color: themeColors.textPrimary },
+                          ]}
+                        >
+                          {'Edit'}
+                        </AppText>
                       </Pressable>
 
                       <Pressable
                         style={({ pressed }) => [
                           styles.deleteBtn,
-                          item.id === OTHERS_CATEGORY_ID && styles.deleteBtnDisabled,
+                          item.id === OTHERS_CATEGORY_ID && [
+                            styles.deleteBtnDisabled,
+                            { backgroundColor: themeColors.surfaceAlt },
+                          ],
                           pressed && styles.deleteBtnPressed,
                         ]}
                         onPress={() => handleDeletePress(item)}
@@ -220,8 +282,8 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
                           size={15}
                           color={
                             item.id === OTHERS_CATEGORY_ID
-                              ? colors.neutral
-                              : colors.error
+                              ? themeColors.textTertiary
+                              : themeColors.error
                           }
                           strokeWidth={2.2}
                         />
@@ -232,7 +294,12 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
               }}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
-                  <AppText style={styles.emptyText}>
+                  <AppText
+                    style={[
+                      styles.emptyText,
+                      { color: themeColors.textSecondary },
+                    ]}
+                  >
                     {'No categories found'}
                   </AppText>
                 </View>
@@ -276,13 +343,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sheet: {
-    backgroundColor: '#161A22',
     borderTopLeftRadius: radius['2xl'],
     borderTopRightRadius: radius['2xl'],
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderTopWidth: 1,
     maxHeight: '85%',
-    maxWidth: 600,
     width: '100%',
     alignSelf: 'center',
     paddingTop: space.sm,

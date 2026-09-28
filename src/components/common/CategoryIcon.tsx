@@ -1,5 +1,4 @@
 import { FC, memo } from 'react';
-import { LucideIcon } from 'lucide-react-native';
 
 import { CategoryIconKey, getCategoryLucideIcon } from '@/config';
 
@@ -15,11 +14,7 @@ export const CategoryIcon: FC<CategoryIconProps> = memo(
     const IconComponent = getCategoryLucideIcon(iconKey);
     if (!IconComponent) return null;
     return (
-      <IconComponent
-        size={size}
-        color={color}
-        strokeWidth={strokeWidth}
-      />
+      <IconComponent size={size} color={color} strokeWidth={strokeWidth} />
     );
   },
 );

@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors } from '@/theme';
+import { colors, useAppTheme } from '@/theme';
 
 import { CategorySpending } from '../hooks/useAnalytics';
 
@@ -20,9 +20,11 @@ export const DonutChart: FC<Props> = ({
   radius = 115,
   innerRadius = 72,
 }) => {
+  const { colors: themeColors } = useAppTheme();
+
   const chartData = useMemo(() => {
     if (totalSpending <= 0 || data.length === 0) {
-      return [{ value: 1, color: colors.surfaceAlt }];
+      return [{ value: 1, color: themeColors.surfaceAlt }];
     }
 
     return data.map(item => ({
@@ -33,7 +35,7 @@ export const DonutChart: FC<Props> = ({
       textSize: 10,
       fontWeight: '700',
     }));
-  }, [data, totalSpending]);
+  }, [data, totalSpending, themeColors]);
 
   return (
     <View style={styles.container}>
@@ -43,14 +45,21 @@ export const DonutChart: FC<Props> = ({
         radius={radius}
         innerRadius={innerRadius}
         strokeWidth={data.length > 1 ? 2.5 : 0}
-        strokeColor={colors.background}
-        innerCircleColor={colors.background}
+        strokeColor={themeColors.surface}
+        innerCircleColor={themeColors.surface}
         centerLabelComponent={() => (
           <View style={styles.centerContainer}>
-            <AppText style={styles.totalAmount} numberOfLines={1}>
+            <AppText
+              style={[styles.totalAmount, { color: themeColors.textPrimary }]}
+              numberOfLines={1}
+            >
               {`₹${totalSpending.toFixed(2)}`}
             </AppText>
-            <AppText style={styles.totalLabel}>{'Total'}</AppText>
+            <AppText
+              style={[styles.totalLabel, { color: themeColors.textSecondary }]}
+            >
+              {'Total'}
+            </AppText>
           </View>
         )}
       />

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Edge, SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors } from '@/theme';
+import { colors, useAppTheme } from '@/theme';
 
 import { ScreenHeader } from './ScreenHeader';
 
@@ -46,6 +46,8 @@ export const AppScreen = ({
   headerRight,
   scrollViewProps,
 }: ScreenProps) => {
+  const { colors: themeColors } = useAppTheme();
+
   const content =
     preset === 'scroll' ? (
       <ScrollView
@@ -59,13 +61,23 @@ export const AppScreen = ({
         {children}
       </ScrollView>
     ) : (
-      <View style={[styles.scrollView, contentContainerStyle]}>{children}</View>
+      <View
+        style={[
+          styles.scrollView,
+          { backgroundColor: themeColors.background },
+          contentContainerStyle,
+        ]}
+      >
+        {children}
+      </View>
     );
 
   const wrappedContent =
     dismissKeyboardOnTouch && preset === 'fixed' ? (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.scrollView}>{content}</View>
+        <View style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
+          {content}
+        </View>
       </TouchableWithoutFeedback>
     ) : (
       content
@@ -74,7 +86,7 @@ export const AppScreen = ({
   const finalContent =
     keyboardAvoiding && preset === 'fixed' ? (
       <KeyboardAvoidingView
-        style={styles.scrollView}
+        style={[styles.scrollView, { backgroundColor: themeColors.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {wrappedContent}
@@ -84,7 +96,14 @@ export const AppScreen = ({
     );
 
   return (
-    <SafeAreaView edges={safeAreaEdges} style={[styles.scrollView, style]}>
+    <SafeAreaView
+      edges={safeAreaEdges}
+      style={[
+        styles.scrollView,
+        { backgroundColor: themeColors.background },
+        style,
+      ]}
+    >
       <ScreenHeader
         screenTitle={screenTitle}
         rightAction={headerRight}

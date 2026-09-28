@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor } from '@/config';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 import { CategorySpending } from '../hooks/useAnalytics';
 
@@ -13,6 +13,7 @@ type Props = {
 };
 
 export const CategorySpendingList: FC<Props> = ({ data }) => {
+  const { colors: themeColors } = useAppTheme();
   if (data.length === 0) return null;
 
   return (
@@ -21,7 +22,16 @@ export const CategorySpendingList: FC<Props> = ({ data }) => {
         const bgColor = getCategoryBgColor(item.category.color, 0.16);
 
         return (
-          <View key={item.category.id} style={styles.card}>
+          <View
+            key={item.category.id}
+            style={[
+              styles.card,
+              {
+                backgroundColor: themeColors.surface,
+                borderColor: themeColors.border,
+              },
+            ]}
+          >
             {/* Category Avatar & Name */}
             <View style={styles.left}>
               <View style={[styles.iconContainer, { backgroundColor: bgColor }]}>
@@ -32,17 +42,31 @@ export const CategorySpendingList: FC<Props> = ({ data }) => {
                   strokeWidth={2}
                 />
               </View>
-              <AppText style={styles.categoryName} numberOfLines={1}>
+              <AppText
+                style={[
+                  styles.categoryName,
+                  { color: themeColors.textPrimary },
+                ]}
+                numberOfLines={1}
+              >
                 {item.category.name}
               </AppText>
             </View>
 
             {/* Amount & Percentage */}
             <View style={styles.right}>
-              <AppText style={styles.amount} numberOfLines={1}>
+              <AppText
+                style={[styles.amount, { color: themeColors.textPrimary }]}
+                numberOfLines={1}
+              >
                 {`₹${item.amount.toFixed(2)}`}
               </AppText>
-              <AppText style={styles.percentage}>
+              <AppText
+                style={[
+                  styles.percentage,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
                 {`${item.percentage.toFixed(1)}%`}
               </AppText>
             </View>
@@ -89,10 +113,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  icon: {
-    width: 24,
-    height: 24,
-  },
   categoryName: {
     fontSize: 15,
     fontWeight: '600',
@@ -101,18 +121,16 @@ const styles = StyleSheet.create({
   },
   right: {
     alignItems: 'flex-end',
-    justifyContent: 'center',
-    flexShrink: 0,
     gap: 2,
   },
   amount: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     color: colors.textPrimary,
   },
   percentage: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '600',
     color: colors.textSecondary,
   },
 });

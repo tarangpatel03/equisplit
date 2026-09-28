@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react';
 import { StyleSheet, Text, TextProps, TextStyle } from 'react-native';
 
-import { colors, resolveFontFamily } from '@/theme';
+import { colors, resolveFontFamily, useAppTheme } from '@/theme';
 
 type Props = TextProps & {
   /** Force numeric font (IBM Plex Sans). Auto-detected from children if not set. */
@@ -37,6 +37,7 @@ function isNumericContent(children: ReactNode): boolean {
 }
 
 export const AppText: FC<Props> = ({ children, style, numeric, ...rest }) => {
+  const { colors: themeColors } = useAppTheme();
   const flatStyle = StyleSheet.flatten(style) as TextStyle | undefined;
   const weight = String(flatStyle?.fontWeight ?? '400');
 
@@ -46,7 +47,12 @@ export const AppText: FC<Props> = ({ children, style, numeric, ...rest }) => {
   return (
     <Text
       {...rest}
-      style={[styles.text, style, { fontFamily, fontWeight: undefined }]}
+      style={[
+        { color: themeColors.textPrimary },
+        styles.text,
+        style,
+        { fontFamily, fontWeight: undefined },
+      ]}
     >
       {children}
     </Text>

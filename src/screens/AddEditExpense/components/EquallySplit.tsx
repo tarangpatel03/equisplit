@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
 import { styles } from '../styles';
@@ -23,6 +24,7 @@ export const EquallySplit: FC<Props> = ({
   onSelectAll,
   onDeselectAll,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const count = selectedMemberIds.length;
   const sharePerPerson =
     count > 0 && totalAmount > 0 ? (totalAmount / count).toFixed(2) : '0.00';
@@ -30,17 +32,27 @@ export const EquallySplit: FC<Props> = ({
   const allSelected = members.length > 0 && count === members.length;
 
   return (
-    <View style={styles.section}>
+    <View
+      style={[
+        styles.section,
+        {
+          backgroundColor: themeColors.surface,
+          borderColor: themeColors.border,
+        },
+      ]}
+    >
       <View style={styles.sectionHeaderRow}>
-        <AppText style={styles.sectionTitle}>{'Split Equally'}</AppText>
+        <AppText style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>
+          {'Split Equally'}
+        </AppText>
         <Pressable onPress={allSelected ? onDeselectAll : onSelectAll}>
-          <AppText style={styles.payerChipTextActive}>
+          <AppText style={[styles.payerChipTextActive, { color: themeColors.primary }]}>
             {allSelected ? 'Deselect All' : 'Select All'}
           </AppText>
         </Pressable>
       </View>
 
-      <AppText style={styles.subText}>
+      <AppText style={[styles.subText, { color: themeColors.textSecondary }]}>
         {count > 0
           ? `₹${sharePerPerson} / person (${count} of ${members.length} people)`
           : 'Select at least one person'}
@@ -51,11 +63,16 @@ export const EquallySplit: FC<Props> = ({
         return (
           <Pressable
             key={m.id}
-            style={styles.equalRow}
+            style={[
+              styles.equalRow,
+              { borderBottomColor: themeColors.divider },
+            ]}
             onPress={() => onToggleMember(m.id)}
           >
             <View style={styles.equalInfo}>
-              <AppText style={styles.memberName}>{m.name}</AppText>
+              <AppText style={[styles.memberName, { color: themeColors.textPrimary }]}>
+                {m.name}
+              </AppText>
               {isSelected ? (
                 <AppText style={styles.equalShareText}>
                   {`₹${sharePerPerson}`}
@@ -66,6 +83,7 @@ export const EquallySplit: FC<Props> = ({
             <View
               style={[
                 styles.checkbox,
+                { borderColor: themeColors.border },
                 isSelected && styles.checkboxChecked,
               ]}
             >

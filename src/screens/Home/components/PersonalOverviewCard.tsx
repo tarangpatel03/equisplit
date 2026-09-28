@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { ArrowDownLeft, ArrowUpRight, Scale } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { Expense, Member, PersonalExpense } from '@/types';
 
 type Props = {
@@ -14,6 +14,8 @@ type Props = {
 
 export const PersonalOverviewCard = memo(
   ({ personalExpenses, expenses, members }: Props) => {
+    const { colors: themeColors } = useAppTheme();
+
     const {
       totalInflow,
       totalOutflow,
@@ -66,13 +68,21 @@ export const PersonalOverviewCard = memo(
     const absNet = Math.abs(finalNet);
     const netColor =
       finalNet > 0.005
-        ? colors.credit
+        ? themeColors.credit
         : finalNet < -0.005
-        ? colors.debt
-        : colors.textPrimary;
+        ? themeColors.debt
+        : themeColors.textPrimary;
 
     return (
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+        ]}
+      >
         {/* Top: Side-by-Side Inflow & Outflow Cards */}
         <View style={styles.flowRow}>
           {/* Inflow Box */}
@@ -81,24 +91,27 @@ export const PersonalOverviewCard = memo(
               <View style={[styles.flowIconPill, styles.inflowIconPill]}>
                 <ArrowDownLeft
                   size={13}
-                  color={colors.credit}
+                  color={themeColors.credit}
                   strokeWidth={2.4}
                 />
               </View>
-              <AppText style={styles.flowLabel} numberOfLines={1}>
+              <AppText
+                style={[styles.flowLabel, { color: themeColors.textSecondary }]}
+                numberOfLines={1}
+              >
                 {'Total Inflow'}
               </AppText>
             </View>
 
             <AppText
-              style={[styles.flowAmount, { color: colors.credit }]}
+              style={[styles.flowAmount, { color: themeColors.credit }]}
               numberOfLines={1}
             >
               {`+₹${totalInflow.toFixed(2)}`}
             </AppText>
 
             <AppText
-              style={styles.flowSubtext}
+              style={[styles.flowSubtext, { color: themeColors.textSecondary }]}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -110,22 +123,29 @@ export const PersonalOverviewCard = memo(
           <View style={[styles.flowBox, styles.outflowBox]}>
             <View style={styles.flowHeader}>
               <View style={[styles.flowIconPill, styles.outflowIconPill]}>
-                <ArrowUpRight size={13} color={colors.debt} strokeWidth={2.4} />
+                <ArrowUpRight
+                  size={13}
+                  color={themeColors.debt}
+                  strokeWidth={2.4}
+                />
               </View>
-              <AppText style={styles.flowLabel} numberOfLines={1}>
+              <AppText
+                style={[styles.flowLabel, { color: themeColors.textSecondary }]}
+                numberOfLines={1}
+              >
                 {'Total Outflow'}
               </AppText>
             </View>
 
             <AppText
-              style={[styles.flowAmount, { color: colors.debt }]}
+              style={[styles.flowAmount, { color: themeColors.debt }]}
               numberOfLines={1}
             >
               {`-₹${totalOutflow.toFixed(2)}`}
             </AppText>
 
             <AppText
-              style={styles.flowSubtext}
+              style={[styles.flowSubtext, { color: themeColors.textSecondary }]}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -139,10 +159,16 @@ export const PersonalOverviewCard = memo(
         </View>
 
         {/* Bottom: Final Value (Net Balance) in Smaller Text */}
-        <View style={styles.netFooter}>
+        <View
+          style={[styles.netFooter, { borderTopColor: themeColors.border }]}
+        >
           <View style={styles.netLeft}>
-            <Scale size={14} color={colors.textSecondary} strokeWidth={2} />
-            <AppText style={styles.netLabel}>{'Net Balance'}</AppText>
+            <Scale size={14} color={themeColors.textSecondary} strokeWidth={2} />
+            <AppText
+              style={[styles.netLabel, { color: themeColors.textSecondary }]}
+            >
+              {'Net Balance'}
+            </AppText>
           </View>
 
           <View style={styles.netRight}>
@@ -209,27 +235,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inflowIconPill: {
-    backgroundColor: colors.primaryLight,
+    backgroundColor: 'rgba(32, 217, 178, 0.14)',
   },
   outflowIconPill: {
-    backgroundColor: colors.debtLight,
+    backgroundColor: 'rgba(255, 107, 107, 0.14)',
   },
   flowLabel: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '600',
     color: colors.textSecondary,
     letterSpacing: 0.2,
+    textTransform: 'uppercase',
   },
   flowAmount: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '800',
-    marginBottom: 3,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
+    marginBottom: 2,
   },
   flowSubtext: {
-    fontSize: 10.5,
-    color: colors.textSecondary,
+    fontSize: 10,
     fontWeight: '500',
+    color: colors.textSecondary,
   },
 
   // Bottom Net Footer
@@ -237,12 +264,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.md,
-    paddingVertical: 8,
-    paddingHorizontal: space.sm + 2,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.04)',
+    paddingTop: space.xs + 2,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
   netLeft: {
     flexDirection: 'row',
@@ -255,13 +279,10 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   netRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    alignItems: 'flex-end',
   },
   netAmount: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
-    letterSpacing: -0.2,
   },
 });

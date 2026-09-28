@@ -11,16 +11,22 @@ import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
 import { assets } from '@/assets';
-import { AppDatePicker, CategoryIcon } from '@/components/common';
+import {
+  AppDatePicker,
+  CategoryIcon,
+  CategoryModal,
+} from '@/components/common';
 import { AppButton } from '@/components/ui/AppButton';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
 import { RootState } from '@/store/store';
+import { useAppTheme } from '@/theme';
+import { BottomTabRoutes, RootRoutes } from '@/navigation/routes';
+import { NavType } from '@/navigation/navigation.service';
 
 import { AmountSplit } from './components/AmountSplit';
-import { CategoryModal } from './components/CategoryModal';
 import { EquallySplit } from './components/EquallySplit';
 import { PayerSection } from './components/PayerSection';
 import { PerItemSplit } from './components/PerItemSplit';
@@ -28,10 +34,9 @@ import { SharesSplit } from './components/SharesSplit';
 import { SplitModeSelector } from './components/SplitModeSelector';
 import { useAddEditExpense } from './hooks/useAddEditExpense';
 import { styles } from './styles';
-import { BottomTabRoutes, RootRoutes } from '@/navigation/routes';
-import { NavType } from '@/navigation/navigation.service';
 
 export const AddEditExpenseScreen: FC = () => {
+  const { colors: themeColors } = useAppTheme();
   const navigation = useNavigation<NavType>();
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const categories = useSelector((s: RootState) => s.categories.categories);
@@ -86,10 +91,16 @@ export const AddEditExpenseScreen: FC = () => {
         <View style={styles.emptyContainer}>
           <Image
             source={assets.icons.ic_members_filled}
-            style={styles.emptyIcon}
+            style={[styles.emptyIcon, { tintColor: themeColors.primary }]}
           />
-          <AppText style={styles.emptyTitle}>{'No Group Members'}</AppText>
-          <AppText style={styles.emptySubtitle}>
+          <AppText
+            style={[styles.emptyTitle, { color: themeColors.textPrimary }]}
+          >
+            {'No Group Members'}
+          </AppText>
+          <AppText
+            style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}
+          >
             {
               'You need to add at least one member to your group before adding an expense.'
             }
@@ -132,7 +143,11 @@ export const AddEditExpenseScreen: FC = () => {
         >
           {/* Title Row with Category Icon on Left */}
           <View style={styles.titleSection}>
-            <AppText style={styles.titleLabel}>{'Expense Title'}</AppText>
+            <AppText
+              style={[styles.titleLabel, { color: themeColors.textSecondary }]}
+            >
+              {'Expense Title'}
+            </AppText>
             <View style={styles.titleRow}>
               <Pressable
                 style={({ pressed }) => [
@@ -180,29 +195,55 @@ export const AddEditExpenseScreen: FC = () => {
             error={amountError}
             prefix={
               <View style={styles.amountPrefixContainer}>
-                <AppText style={styles.amountPrefixText}>{'₹'}</AppText>
+                <AppText
+                  style={[
+                    styles.amountPrefixText,
+                    { color: themeColors.primary },
+                  ]}
+                >
+                  {'₹'}
+                </AppText>
               </View>
             }
             suffix={
               splitMode === 'perItem' ? (
-                <AppText style={styles.subText}>{' (from items)'}</AppText>
+                <AppText
+                  style={[styles.subText, { color: themeColors.textSecondary }]}
+                >
+                  {' (from items)'}
+                </AppText>
               ) : null
             }
           />
 
           {/* Date Selector */}
           <View style={styles.dateContainer}>
-            <AppText style={styles.dateLabel}>{'Date'}</AppText>
+            <AppText
+              style={[styles.dateLabel, { color: themeColors.textSecondary }]}
+            >
+              {'Date'}
+            </AppText>
             <Pressable
-              style={styles.dateButton}
+              style={[
+                styles.dateButton,
+                {
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                },
+              ]}
               onPress={() => setIsDatePickerVisible(true)}
             >
               <Image
                 source={assets.icons.ic_calendar}
-                style={styles.calendarIcon}
+                style={[
+                  styles.calendarIcon,
+                  { tintColor: themeColors.primary },
+                ]}
                 resizeMode="contain"
               />
-              <AppText style={styles.dateText}>
+              <AppText
+                style={[styles.dateText, { color: themeColors.textPrimary }]}
+              >
                 {date.toLocaleDateString('en-IN', {
                   day: 'numeric',
                   month: 'short',
@@ -222,7 +263,11 @@ export const AddEditExpenseScreen: FC = () => {
           />
 
           {/* Split Mode Selector */}
-          <AppText style={styles.sectionTitle}>{'Split Method'}</AppText>
+          <AppText
+            style={[styles.sectionTitle, { color: themeColors.textPrimary }]}
+          >
+            {'Split Method'}
+          </AppText>
           <SplitModeSelector
             selectedMode={splitMode}
             onSelectMode={handleSelectMode}
@@ -273,7 +318,15 @@ export const AddEditExpenseScreen: FC = () => {
         </ScrollView>
 
         {/* Persistent Save Button */}
-        <View style={styles.bottomBar}>
+        <View
+          style={[
+            styles.bottomBar,
+            {
+              backgroundColor: themeColors.surface,
+              borderTopColor: themeColors.border,
+            },
+          ]}
+        >
           <AppButton
             label={isEdit ? 'Update Expense' : 'Save Expense'}
             loading={saving}

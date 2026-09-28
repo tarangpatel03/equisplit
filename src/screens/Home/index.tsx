@@ -2,10 +2,8 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { LayoutGrid } from 'lucide-react-native';
-
 import { assets } from '@/assets';
-import { AppConfirmDialog, CategoryManagerModal } from '@/components/common';
+import { AppConfirmDialog } from '@/components/common';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
 import { NavType } from '@/navigation/navigation.service';
@@ -14,7 +12,7 @@ import { deleteExpense as deleteExpenseDb } from '@/services/database';
 import { showSuccessToast } from '@/services/toast/toast.service';
 import { deleteExpense } from '@/store/expenseSlice';
 import { RootState } from '@/store/store';
-import { colors } from '@/theme';
+import { useAppTheme } from '@/theme';
 import { Expense, PersonalExpense } from '@/types';
 
 import { HomeSpeedDialFab } from './components/HomeSpeedDialFab';
@@ -44,6 +42,7 @@ type PersonalFeedItem =
     };
 
 export const HomeScreen: FC = () => {
+  const { colors: themeColors } = useAppTheme();
   const navigation = useNavigation<NavType>();
   const dispatch = useDispatch();
   const categories = useSelector((s: RootState) => s.categories.categories);
@@ -53,7 +52,6 @@ export const HomeScreen: FC = () => {
   const [personalExpenseToDelete, setPersonalExpenseToDelete] =
     useState<PersonalExpense | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [categoryManagerVisible, setCategoryManagerVisible] = useState(false);
 
   // Search & Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -230,10 +228,14 @@ export const HomeScreen: FC = () => {
             source={assets.icons.ic_search}
             resizeMode="contain"
           />
-          <AppText style={styles.emptyTitle}>
+          <AppText
+            style={[styles.emptyTitle, { color: themeColors.textPrimary }]}
+          >
             {'No matching transactions'}
           </AppText>
-          <AppText style={styles.emptySubtitle}>
+          <AppText
+            style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}
+          >
             {'Try adjusting your search query or category filter.'}
           </AppText>
           <Pressable
@@ -258,12 +260,16 @@ export const HomeScreen: FC = () => {
           source={assets.icons.ic_receipt}
           resizeMode="contain"
         />
-        <AppText style={styles.emptyTitle}>
+        <AppText
+          style={[styles.emptyTitle, { color: themeColors.textPrimary }]}
+        >
           {type === 'personal'
             ? 'No personal transactions yet'
             : 'No group expenses yet'}
         </AppText>
-        <AppText style={styles.emptySubtitle}>
+        <AppText
+          style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}
+        >
           {type === 'personal'
             ? 'Tap + to add an expense or income.'
             : 'Tap + to add a split expense.'}
@@ -289,44 +295,35 @@ export const HomeScreen: FC = () => {
         onSelectTab={setActiveTab}
       />
 
-      {/* Sub-header with count badge and Category Manager Action */}
+      {/* Sub-header with count badge */}
       <View style={styles.listHeader}>
         <View style={styles.headerTitleRow}>
-          <AppText style={styles.sectionLabel}>
+          <AppText
+            style={[styles.sectionLabel, { color: themeColors.textPrimary }]}
+          >
             {isPersonal ? 'Personal Records' : 'Group Splits'}
           </AppText>
-          <View style={styles.expensesCountBadge}>
-            <AppText style={styles.expensesCountText}>
+          <View
+            style={[
+              styles.expensesCountBadge,
+              {
+                backgroundColor: themeColors.surfaceAlt,
+                borderColor: themeColors.border,
+              },
+            ]}
+          >
+            <AppText
+              style={[
+                styles.expensesCountText,
+                { color: themeColors.textSecondary },
+              ]}
+            >
               {isPersonal
                 ? filteredPersonalFeedItems.length
                 : filteredGroupExpenses.length}
             </AppText>
           </View>
         </View>
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.manageCategoriesBtn,
-            pressed && styles.manageCategoriesBtnPressed,
-          ]}
-          onPress={() => setCategoryManagerVisible(true)}
-          hitSlop={8}
-          accessibilityLabel="Manage Categories"
-        >
-          <LayoutGrid
-            size={15}
-            color={colors.textOnPrimary}
-            strokeWidth={2.4}
-          />
-          <AppText style={styles.manageCategoriesText}>{'Categories'}</AppText>
-          {categories.length > 0 && (
-            <View style={styles.categoriesCountBadge}>
-              <AppText style={styles.categoriesCountText}>
-                {categories.length}
-              </AppText>
-            </View>
-          )}
-        </Pressable>
       </View>
 
       {/* Search and Category Filter Bar */}
@@ -437,12 +434,6 @@ export const HomeScreen: FC = () => {
         loading={deleting}
         onConfirm={handleConfirmDeletePersonal}
         onCancel={() => setPersonalExpenseToDelete(null)}
-      />
-
-      {/* Global Category Manager Modal */}
-      <CategoryManagerModal
-        visible={categoryManagerVisible}
-        onClose={() => setCategoryManagerVisible(false)}
       />
     </AppScreen>
   );

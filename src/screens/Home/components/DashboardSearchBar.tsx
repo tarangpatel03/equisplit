@@ -9,7 +9,7 @@ import {
 import { Search, X } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { ExpenseCategory } from '@/types';
 
 type Props = {
@@ -28,15 +28,25 @@ export const DashboardSearchBar: FC<Props> = memo(
     onSelectCategory,
     categories,
   }) => {
+    const { colors: themeColors } = useAppTheme();
+
     return (
       <View style={styles.container}>
         {/* Search Input Bar */}
-        <View style={styles.inputBox}>
-          <Search size={16} color={colors.textSecondary} strokeWidth={2.2} />
+        <View
+          style={[
+            styles.inputBox,
+            {
+              backgroundColor: themeColors.surface,
+              borderColor: themeColors.border,
+            },
+          ]}
+        >
+          <Search size={16} color={themeColors.textSecondary} strokeWidth={2.2} />
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: themeColors.textPrimary }]}
             placeholder="Search by title, note, or payer..."
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={themeColors.textSecondary}
             value={searchQuery}
             onChangeText={onChangeSearch}
             returnKeyType="search"
@@ -48,7 +58,7 @@ export const DashboardSearchBar: FC<Props> = memo(
               hitSlop={8}
               style={styles.clearBtn}
             >
-              <X size={14} color={colors.textSecondary} />
+              <X size={14} color={themeColors.textSecondary} />
             </Pressable>
           )}
         </View>
@@ -64,14 +74,25 @@ export const DashboardSearchBar: FC<Props> = memo(
             <Pressable
               style={[
                 styles.categoryChip,
-                selectedCategoryId === null && styles.categoryChipActive,
+                {
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                },
+                selectedCategoryId === null && {
+                  backgroundColor: themeColors.primaryLight,
+                  borderColor: themeColors.primary,
+                },
               ]}
               onPress={() => onSelectCategory(null)}
             >
               <AppText
                 style={[
                   styles.categoryChipText,
-                  selectedCategoryId === null && styles.categoryChipTextActive,
+                  { color: themeColors.textSecondary },
+                  selectedCategoryId === null && {
+                    color: themeColors.primary,
+                    fontWeight: '700',
+                  },
                 ]}
               >
                 {'All'}
@@ -86,7 +107,14 @@ export const DashboardSearchBar: FC<Props> = memo(
                   key={cat.id}
                   style={[
                     styles.categoryChip,
-                    isSelected && styles.categoryChipActive,
+                    {
+                      backgroundColor: themeColors.surface,
+                      borderColor: themeColors.border,
+                    },
+                    isSelected && {
+                      backgroundColor: themeColors.primaryLight,
+                      borderColor: themeColors.primary,
+                    },
                   ]}
                   onPress={() =>
                     onSelectCategory(isSelected ? null : cat.id)
@@ -98,7 +126,11 @@ export const DashboardSearchBar: FC<Props> = memo(
                   <AppText
                     style={[
                       styles.categoryChipText,
-                      isSelected && styles.categoryChipTextActive,
+                      { color: themeColors.textSecondary },
+                      isSelected && {
+                        color: themeColors.primary,
+                        fontWeight: '700',
+                      },
                     ]}
                   >
                     {cat.name}
@@ -140,8 +172,7 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   categoryScroll: {
-    flexDirection: 'row',
-    gap: space.xs + 2,
+    gap: space.xs,
     paddingVertical: 2,
   },
   categoryChip: {
@@ -149,14 +180,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: space.sm + 2,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: radius.full,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
   categoryChipActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryLight,
     borderColor: colors.primary,
   },
   colorDot: {
@@ -165,11 +196,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   categoryChipText: {
-    fontSize: 11.5,
+    fontSize: 12,
     fontWeight: '600',
     color: colors.textSecondary,
   },
   categoryChipTextActive: {
-    color: colors.textOnPrimary,
+    color: colors.primary,
+    fontWeight: '700',
   },
 });

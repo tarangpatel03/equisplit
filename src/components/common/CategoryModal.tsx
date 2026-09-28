@@ -1,11 +1,5 @@
 import { FC } from 'react';
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
@@ -13,7 +7,7 @@ import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
 import { RootState } from '@/store/store';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { ExpenseCategory } from '@/types';
 
 type Props = {
@@ -29,6 +23,7 @@ export const CategoryModal: FC<Props> = ({
   onSelectCategory,
   onClose,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const insets = useSafeAreaInsets();
   const categories = useSelector((s: RootState) => s.categories.categories);
 
@@ -52,20 +47,43 @@ export const CategoryModal: FC<Props> = ({
         <View
           style={[
             styles.sheet,
-            { paddingBottom: Math.max(insets.bottom, space.md) },
+            {
+              backgroundColor: themeColors.surface,
+              borderTopColor: themeColors.border,
+              paddingBottom: Math.max(insets.bottom, space.md),
+            },
           ]}
         >
           {/* Top Handle */}
-          <View style={styles.handleBar} />
+          <View
+            style={[styles.handleBar, { backgroundColor: themeColors.border }]}
+          />
 
           {/* Header Row */}
           <View style={styles.header}>
-            <Pressable onPress={onClose} hitSlop={10} style={styles.closeBtn}>
-              <AppText style={styles.closeText}>{'✕'}</AppText>
+            <Pressable
+              onPress={onClose}
+              hitSlop={10}
+              style={[
+                styles.closeBtn,
+                { backgroundColor: themeColors.surfaceAlt },
+              ]}
+            >
+              <AppText
+                style={[styles.closeText, { color: themeColors.textSecondary }]}
+              >
+                {'✕'}
+              </AppText>
             </Pressable>
             <View style={styles.titleContainer}>
-              <AppText style={styles.title}>{'Select Category'}</AppText>
-              <AppText style={styles.subtitle}>
+              <AppText
+                style={[styles.title, { color: themeColors.textPrimary }]}
+              >
+                {'Select Category'}
+              </AppText>
+              <AppText
+                style={[styles.subtitle, { color: themeColors.textSecondary }]}
+              >
                 {selectedCategory
                   ? selectedCategory.name
                   : 'No category selected'}
@@ -86,7 +104,10 @@ export const CategoryModal: FC<Props> = ({
                 <Pressable
                   style={({ pressed }) => [
                     styles.itemRow,
-                    isSelected && styles.itemRowSelected,
+                    isSelected && [
+                      styles.itemRowSelected,
+                      { backgroundColor: themeColors.surfaceAlt },
+                    ],
                     pressed && styles.itemRowPressed,
                   ]}
                   onPress={() => handleSelect(item)}
@@ -109,6 +130,7 @@ export const CategoryModal: FC<Props> = ({
                   <AppText
                     style={[
                       styles.itemName,
+                      { color: themeColors.textPrimary },
                       isSelected && styles.itemNameSelected,
                     ]}
                   >
@@ -119,7 +141,12 @@ export const CategoryModal: FC<Props> = ({
             }}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <AppText style={styles.emptyText}>
+                <AppText
+                  style={[
+                    styles.emptyText,
+                    { color: themeColors.textSecondary },
+                  ]}
+                >
                   {'No categories found'}
                 </AppText>
               </View>
@@ -147,7 +174,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     maxHeight: '80%',
-    maxWidth: 600,
+    borderTopWidth: 1,
     width: '100%',
     alignSelf: 'center',
     paddingTop: space.sm,

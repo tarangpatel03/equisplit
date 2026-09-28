@@ -4,7 +4,7 @@ import { Image, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { assets } from '@/assets';
 import { AppButton } from '@/components/ui/AppButton';
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 const MONTH_NAMES = [
   'January',
@@ -32,6 +32,7 @@ type Props = {
 
 export const AppDatePicker: FC<Props> = memo(
   ({ visible, value, onConfirm, onCancel }) => {
+    const { colors: themeColors } = useAppTheme();
     const [viewDate, setViewDate] = useState(() => new Date(value));
     const [selectedDate, setSelectedDate] = useState(() => new Date(value));
 
@@ -106,16 +107,39 @@ export const AppDatePicker: FC<Props> = memo(
         <View style={styles.overlay}>
           <Pressable style={styles.backdrop} onPress={onCancel} />
 
-          <View style={styles.card}>
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: themeColors.surface,
+                borderColor: themeColors.border,
+              },
+            ]}
+          >
             {/* Modal Title Header */}
-            <View style={styles.modalHeader}>
+            <View
+              style={[
+                styles.modalHeader,
+                { borderBottomColor: themeColors.border },
+              ]}
+            >
               <View style={styles.modalTitleRow}>
                 <Image
                   source={assets.icons.ic_calendar}
-                  style={styles.modalCalendarIcon}
+                  style={[
+                    styles.modalCalendarIcon,
+                    { tintColor: themeColors.primary },
+                  ]}
                   resizeMode="contain"
                 />
-                <AppText style={styles.modalTitle}>{'Select Date'}</AppText>
+                <AppText
+                  style={[
+                    styles.modalTitle,
+                    { color: themeColors.textPrimary },
+                  ]}
+                >
+                  {'Select Date'}
+                </AppText>
               </View>
             </View>
 
@@ -124,21 +148,37 @@ export const AppDatePicker: FC<Props> = memo(
               <Pressable
                 onPress={handlePrevMonth}
                 hitSlop={12}
-                style={styles.navBtn}
+                style={[
+                  styles.navBtn,
+                  { backgroundColor: themeColors.surfaceAlt },
+                ]}
               >
-                <AppText style={styles.navArrow}>{'‹'}</AppText>
+                <AppText
+                  style={[styles.navArrow, { color: themeColors.primary }]}
+                >
+                  {'‹'}
+                </AppText>
               </Pressable>
 
-              <AppText style={styles.monthTitle}>
+              <AppText
+                style={[styles.monthTitle, { color: themeColors.textPrimary }]}
+              >
                 {`${MONTH_NAMES[currentMonth]} ${currentYear}`}
               </AppText>
 
               <Pressable
                 onPress={handleNextMonth}
                 hitSlop={12}
-                style={styles.navBtn}
+                style={[
+                  styles.navBtn,
+                  { backgroundColor: themeColors.surfaceAlt },
+                ]}
               >
-                <AppText style={styles.navArrow}>{'›'}</AppText>
+                <AppText
+                  style={[styles.navArrow, { color: themeColors.primary }]}
+                >
+                  {'›'}
+                </AppText>
               </Pressable>
             </View>
 
@@ -146,7 +186,14 @@ export const AppDatePicker: FC<Props> = memo(
             <View style={styles.weekDaysRow}>
               {WEEK_DAYS.map(day => (
                 <View key={day} style={styles.dayCol}>
-                  <AppText style={styles.weekDayText}>{day}</AppText>
+                  <AppText
+                    style={[
+                      styles.weekDayText,
+                      { color: themeColors.textSecondary },
+                    ]}
+                  >
+                    {day}
+                  </AppText>
                 </View>
               ))}
             </View>
@@ -181,8 +228,13 @@ export const AppDatePicker: FC<Props> = memo(
                           <AppText
                             style={[
                               styles.dayText,
+                              { color: themeColors.textPrimary },
                               selected && styles.selectedDayText,
-                              current && !selected && styles.todayText,
+                              current &&
+                                !selected && [
+                                  styles.todayText,
+                                  { color: themeColors.primary },
+                                ],
                             ]}
                           >
                             {day.toString()}
@@ -196,9 +248,24 @@ export const AppDatePicker: FC<Props> = memo(
             </View>
 
             {/* Footer with Today, Cancel, and Confirm */}
-            <View style={styles.footerRow}>
-              <Pressable onPress={handleQuickToday} style={styles.todayPill}>
-                <AppText style={styles.todayPillText}>{'Today'}</AppText>
+            <View
+              style={[
+                styles.footerRow,
+                { borderTopColor: themeColors.divider },
+              ]}
+            >
+              <Pressable
+                onPress={handleQuickToday}
+                style={[
+                  styles.todayPill,
+                  { backgroundColor: themeColors.surfaceAlt },
+                ]}
+              >
+                <AppText
+                  style={[styles.todayPillText, { color: themeColors.primary }]}
+                >
+                  {'Today'}
+                </AppText>
               </Pressable>
 
               <View style={styles.actionBtns}>

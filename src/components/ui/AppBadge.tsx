@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 import { AppText } from './AppText';
 
@@ -29,21 +29,43 @@ export const AppBadge: FC<Props> = ({
   compact = true,
   style,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const resolvedVariant = variant ?? resolveVariant(amount);
   const absAmount = Math.abs(amount);
   const sign = amount > 0 ? '+' : amount < 0 ? '-' : '';
+
+  const variantStyles = {
+    credit: {
+      backgroundColor: themeColors.primaryLight,
+    },
+    debt: {
+      backgroundColor: themeColors.debtLight,
+    },
+    neutral: {
+      backgroundColor: themeColors.surfaceAlt,
+    },
+  };
+
+  const textColors = {
+    credit: themeColors.credit,
+    debt: themeColors.debt,
+    neutral: themeColors.neutral,
+  };
 
   return (
     <View
       style={[
         styles.container,
         compact && styles.containerCompact,
-        styles[resolvedVariant],
+        variantStyles[resolvedVariant],
         style,
       ]}
     >
       <AppText
-        style={[styles.name, compact && styles.nameCompact]}
+        style={[
+          styles.name,
+          compact && [styles.nameCompact, { color: themeColors.textPrimary }],
+        ]}
         numberOfLines={1}
       >
         {label}
@@ -52,7 +74,7 @@ export const AppBadge: FC<Props> = ({
         style={[
           styles.amount,
           compact && styles.amountCompact,
-          styles[`${resolvedVariant}Text`],
+          { color: textColors[resolvedVariant] },
         ]}
       >
         {`${sign}₹${absAmount.toFixed(2)}`}
@@ -78,7 +100,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
     borderRadius: radius.full,
   },
-  // Variant backgrounds
   credit: {
     backgroundColor: colors.primaryLight,
   },
@@ -108,7 +129,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
-  // Variant text colors
   creditText: {
     color: colors.credit,
   },

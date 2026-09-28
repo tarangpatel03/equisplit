@@ -13,7 +13,7 @@ import { AppConfirmDialog } from '@/components/common';
 import { AppButton } from '@/components/ui/AppButton';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppText } from '@/components/ui/AppText';
-import { borderRadius, colors, radius, space } from '@/theme';
+import { borderRadius, colors, radius, space, useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
 type Props = {
@@ -26,6 +26,7 @@ type Props = {
 
 export const MembersModal = memo(
   ({ visible, members, onClose, onAdd, onRemove }: Props) => {
+    const { colors: themeColors } = useAppTheme();
     const [name, setName] = useState('');
     const [adding, setAdding] = useState(false);
     const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
@@ -63,9 +64,20 @@ export const MembersModal = memo(
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <Pressable style={styles.overlay} onPress={onClose} />
-          <View style={styles.sheet}>
-            <View style={styles.handle} />
-            <AppText style={styles.title}>{'Manage Group'}</AppText>
+          <View
+            style={[
+              styles.sheet,
+              {
+                backgroundColor: themeColors.surface,
+                borderColor: themeColors.border,
+                borderTopWidth: 1,
+              },
+            ]}
+          >
+            <View style={[styles.handle, { backgroundColor: themeColors.border }]} />
+            <AppText style={[styles.title, { color: themeColors.textPrimary }]}>
+              {'Manage Group'}
+            </AppText>
 
             <View style={styles.addRow}>
               <AppInput
@@ -88,8 +100,20 @@ export const MembersModal = memo(
               data={members}
               keyExtractor={item => item.id}
               renderItem={({ item }) => (
-                <View style={styles.memberRow}>
-                  <AppText style={styles.memberName}>{item.name}</AppText>
+                <View
+                  style={[
+                    styles.memberRow,
+                    { borderBottomColor: themeColors.divider },
+                  ]}
+                >
+                  <AppText
+                    style={[
+                      styles.memberName,
+                      { color: themeColors.textPrimary },
+                    ]}
+                  >
+                    {item.name}
+                  </AppText>
                   <Pressable
                     onPress={() => setMemberToDelete(item)}
                     hitSlop={8}
@@ -100,7 +124,7 @@ export const MembersModal = memo(
                 </View>
               )}
               ListEmptyComponent={
-                <AppText style={styles.empty}>
+                <AppText style={[styles.empty, { color: themeColors.textSecondary }]}>
                   {'No members yet. Add people above.'}
                 </AppText>
               }

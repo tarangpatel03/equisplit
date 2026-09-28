@@ -17,7 +17,7 @@ import {
   CategoryIconKey,
   getCategoryBgColor,
 } from '@/config';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { ExpenseCategory } from '@/types';
 
 import { CategoryIcon } from './CategoryIcon';
@@ -37,10 +37,14 @@ export const CategoryFormModal: FC<Props> = ({
   onSave,
   onClose,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const insets = useSafeAreaInsets();
   const [name, setName] = useState('');
-  const [selectedIconKey, setSelectedIconKey] = useState<CategoryIconKey>('other');
-  const [selectedColor, setSelectedColor] = useState<string>(CATEGORY_PALETTE[0]);
+  const [selectedIconKey, setSelectedIconKey] =
+    useState<CategoryIconKey>('other');
+  const [selectedColor, setSelectedColor] = useState<string>(
+    CATEGORY_PALETTE[0],
+  );
   const [nameError, setNameError] = useState('');
 
   const isEditing = Boolean(categoryToEdit);
@@ -48,7 +52,9 @@ export const CategoryFormModal: FC<Props> = ({
   useEffect(() => {
     if (categoryToEdit) {
       setName(categoryToEdit.name);
-      setSelectedIconKey((categoryToEdit.iconKey as CategoryIconKey) || 'other');
+      setSelectedIconKey(
+        (categoryToEdit.iconKey as CategoryIconKey) || 'other',
+      );
       setSelectedColor(categoryToEdit.color || CATEGORY_PALETTE[0]);
       setNameError('');
     } else {
@@ -104,18 +110,35 @@ export const CategoryFormModal: FC<Props> = ({
         <View
           style={[
             styles.sheet,
-            { paddingBottom: Math.max(insets.bottom, space.md) },
+            {
+              backgroundColor: themeColors.surface,
+              borderTopColor: themeColors.border,
+              paddingBottom: Math.max(insets.bottom, space.md),
+            },
           ]}
         >
           {/* Top Handle */}
-          <View style={styles.handleBar} />
+          <View
+            style={[styles.handleBar, { backgroundColor: themeColors.border }]}
+          />
 
           {/* Header */}
           <View style={styles.header}>
-            <Pressable onPress={onClose} hitSlop={10} style={styles.closeBtn}>
-              <AppText style={styles.closeText}>{'✕'}</AppText>
+            <Pressable
+              onPress={onClose}
+              hitSlop={10}
+              style={[
+                styles.closeBtn,
+                { backgroundColor: themeColors.surfaceAlt },
+              ]}
+            >
+              <AppText
+                style={[styles.closeText, { color: themeColors.textSecondary }]}
+              >
+                {'✕'}
+              </AppText>
             </Pressable>
-            <AppText style={styles.title}>
+            <AppText style={[styles.title, { color: themeColors.textPrimary }]}>
               {isEditing ? 'Edit Category' : 'New Category'}
             </AppText>
             <View style={styles.headerSpacer} />
@@ -126,7 +149,15 @@ export const CategoryFormModal: FC<Props> = ({
             contentContainerStyle={styles.scrollBody}
           >
             {/* Live Preview Card */}
-            <View style={styles.previewContainer}>
+            <View
+              style={[
+                styles.previewContainer,
+                {
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
               <View
                 style={[
                   styles.previewAvatar,
@@ -140,21 +171,39 @@ export const CategoryFormModal: FC<Props> = ({
                   strokeWidth={2.2}
                 />
               </View>
-              <AppText style={styles.previewName} numberOfLines={1}>
+              <AppText
+                style={[styles.previewName, { color: themeColors.textPrimary }]}
+                numberOfLines={1}
+              >
                 {name.trim() || 'Category Name'}
               </AppText>
             </View>
 
             {/* Name Input */}
             <View style={styles.inputGroup}>
-              <AppText style={styles.fieldLabel}>{'Name'}</AppText>
+              <AppText
+                style={[
+                  styles.fieldLabel,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
+                {'Name'}
+              </AppText>
               <TextInput
                 style={[
                   styles.textInput,
-                  Boolean(nameError) && styles.textInputError,
+                  {
+                    backgroundColor: themeColors.surface,
+                    borderColor: themeColors.border,
+                    color: themeColors.textPrimary,
+                  },
+                  Boolean(nameError) && [
+                    styles.textInputError,
+                    { borderColor: themeColors.error },
+                  ],
                 ]}
                 placeholder="e.g. Subscriptions, Fitness, Pets"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={themeColors.textSecondary}
                 value={name}
                 onChangeText={val => {
                   setName(val);
@@ -164,13 +213,24 @@ export const CategoryFormModal: FC<Props> = ({
                 autoCorrect={false}
               />
               {nameError ? (
-                <AppText style={styles.errorText}>{nameError}</AppText>
+                <AppText
+                  style={[styles.errorText, { color: themeColors.error }]}
+                >
+                  {nameError}
+                </AppText>
               ) : null}
             </View>
 
             {/* Icon Picker */}
             <View style={styles.inputGroup}>
-              <AppText style={styles.fieldLabel}>{'Choose Icon'}</AppText>
+              <AppText
+                style={[
+                  styles.fieldLabel,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
+                {'Choose Icon'}
+              </AppText>
               <View style={styles.iconGrid}>
                 {CATEGORY_ICON_KEYS.map(key => {
                   const isSelected = selectedIconKey === key;
@@ -179,11 +239,18 @@ export const CategoryFormModal: FC<Props> = ({
                       key={key}
                       style={[
                         styles.iconChip,
+                        {
+                          backgroundColor: themeColors.surface,
+                          borderColor: themeColors.border,
+                        },
                         isSelected && [
                           styles.iconChipSelected,
                           {
                             borderColor: selectedColor,
-                            backgroundColor: getCategoryBgColor(selectedColor, 0.18),
+                            backgroundColor: getCategoryBgColor(
+                              selectedColor,
+                              0.18,
+                            ),
                           },
                         ],
                       ]}
@@ -192,7 +259,9 @@ export const CategoryFormModal: FC<Props> = ({
                       <CategoryIcon
                         iconKey={key}
                         size={21}
-                        color={isSelected ? selectedColor : colors.textSecondary}
+                        color={
+                          isSelected ? selectedColor : themeColors.textSecondary
+                        }
                         strokeWidth={2}
                       />
                     </Pressable>
@@ -203,10 +272,18 @@ export const CategoryFormModal: FC<Props> = ({
 
             {/* Color Palette Picker */}
             <View style={styles.inputGroup}>
-              <AppText style={styles.fieldLabel}>{'Choose Color'}</AppText>
+              <AppText
+                style={[
+                  styles.fieldLabel,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
+                {'Choose Color'}
+              </AppText>
               <View style={styles.colorPaletteRow}>
                 {CATEGORY_PALETTE.map(c => {
-                  const isSelected = selectedColor.toLowerCase() === c.toLowerCase();
+                  const isSelected =
+                    selectedColor.toLowerCase() === c.toLowerCase();
                   return (
                     <Pressable
                       key={c}
@@ -252,11 +329,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sheet: {
-    backgroundColor: '#161A22',
     borderTopLeftRadius: radius['2xl'],
     borderTopRightRadius: radius['2xl'],
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderTopWidth: 1,
     maxHeight: '85%',
     maxWidth: 600,
     width: '100%',

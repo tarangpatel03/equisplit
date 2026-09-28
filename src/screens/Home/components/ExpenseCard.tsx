@@ -1,13 +1,13 @@
-import { memo, useMemo } from 'react';
+import { FC, memo, useMemo } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { assets } from '@/assets';
-import { AppText } from '@/components/ui/AppText';
 import { CategoryIcon } from '@/components/common';
+import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
-import { colors, radius, space } from '@/theme';
 import { RootState } from '@/store/store';
+import { colors, radius, space, useAppTheme } from '@/theme';
 import { Expense, Member } from '@/types';
 
 type Props = {
@@ -17,79 +17,76 @@ type Props = {
   onDelete: () => void;
 };
 
-function getMemberName(members: Member[], id: string): string {
-  return members.find(m => m.id === id)?.name ?? 'Unknown';
-}
-
-export const ExpenseCard = memo(
-  ({ expense, members, onPress, onDelete }: Props) => {
+export const ExpenseCard: FC<Props> = memo(
+  ({ expense, members, onPress, onDelete }) => {
+    const { colors: themeColors } = useAppTheme();
     const categories = useSelector((s: RootState) => s.categories.categories);
     const category = getCategoryById(expense.categoryId, categories);
 
-    const payerNames = expense.payers
-      .map(p => getMemberName(members, p.memberId))
-      .join(', ');
+    const payerNames = useMemo(() => {
+      if (!expense.payers || expense.payers.length === 0) return '';
+      return expense.payers
+        .map(p => {
+          const m = members.find(mem => mem.id === p.memberId);
+          return m ? m.name : 'Unknown';
+        })
+        .join(', ');
+    }, [expense.payers, members]);
 
     const date = new Date(expense.createdAt).toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
+      year: 'numeric',
     });
 
-    const participantCount = expense.participants?.length ?? 0;
-    const participantText = `${participantCount} ${
-      participantCount === 1 ? 'member' : 'members'
-    }`;
-
-    const modeLabel =
-      expense.splitMode === 'settlement'
-        ? 'Settlement'
-        : expense.splitMode === 'equally'
-        ? 'Split equally'
-        : expense.splitMode === 'shares'
-        ? 'By shares'
-        : expense.splitMode === 'perItem'
-        ? 'Per item'
-        : 'Exact amount';
-
-    const splitBadgeLabel =
-      expense.splitMode === 'settlement'
-        ? 'Settlement'
-        : participantCount > 0
-        ? `${modeLabel} • ${participantText}`
-        : modeLabel;
+    const splitBadgeLabel = useMemo(() => {
+      switch (expense.splitMode) {
+        case 'shares':
+          return 'Shares';
+        case 'perItem':
+          return 'Itemized';
+        case 'amount':
+          return 'Exact';
+        case 'settlement':
+          return 'Settlement';
+        default:
+          return 'Equally';
+      }
+    }, [expense.splitMode]);
 
     const primaryMember = members.find(m => m.isPrimary);
     const primaryId = primaryMember?.id;
 
+    // Determine the user's stance on this expense
     const stance = useMemo(() => {
       if (!primaryId) return null;
 
       if (expense.splitMode === 'settlement') {
-        const paid =
-          expense.payers.find(p => p.memberId === primaryId)?.amount ?? 0;
-        const received =
-          expense.participants.find(p => p.memberId === primaryId)?.share ?? 0;
-        if (paid > 0) {
+        const isPayer = expense.payers.some(p => p.memberId === primaryId);
+        const isReceiver = expense.participants.some(
+          p => p.memberId === primaryId,
+        );
+        if (isPayer) {
           return {
-            label: `You paid ₹${paid.toFixed(2)}`,
-            color: colors.credit,
-            bg: 'rgba(46, 213, 115, 0.12)',
-            borderColor: 'rgba(46, 213, 115, 0.35)',
-          };
-        }
-        if (received > 0) {
-          return {
-            label: `You received ₹${received.toFixed(2)}`,
-            color: colors.primary,
+            label: 'You paid debt',
+            color: themeColors.primary,
             bg: 'rgba(32, 217, 178, 0.12)',
             borderColor: 'rgba(32, 217, 178, 0.35)',
           };
         }
+        if (isReceiver) {
+          return {
+            label: 'You received debt',
+            color: themeColors.credit,
+            bg: 'rgba(46, 213, 115, 0.12)',
+            borderColor: 'rgba(46, 213, 115, 0.35)',
+          };
+        }
         return {
-          label: 'Not involved',
-          color: colors.textSecondary,
-          bg: colors.surfaceAlt,
-          borderColor: colors.border,
+          label: 'Debt settlement',
+          color: themeColors.textSecondary,
+          bg: themeColors.surfaceAlt,
+          borderColor: themeColors.border,
         };
       }
 
@@ -102,37 +99,44 @@ export const ExpenseCard = memo(
       if (net > 0.005) {
         return {
           label: `You lent ₹${net.toFixed(2)}`,
-          color: colors.credit,
+          color: themeColors.credit,
           bg: 'rgba(46, 213, 115, 0.12)',
           borderColor: 'rgba(46, 213, 115, 0.35)',
         };
       } else if (net < -0.005) {
         return {
           label: `You owe ₹${Math.abs(net).toFixed(2)}`,
-          color: colors.debt,
+          color: themeColors.debt,
           bg: 'rgba(255, 107, 107, 0.12)',
           borderColor: 'rgba(255, 107, 107, 0.35)',
         };
       } else if (amountPaid > 0) {
         return {
           label: 'You paid your share',
-          color: colors.primary,
+          color: themeColors.primary,
           bg: 'rgba(32, 217, 178, 0.12)',
           borderColor: 'rgba(32, 217, 178, 0.35)',
         };
       } else {
         return {
           label: 'Not involved',
-          color: colors.textSecondary,
-          bg: colors.surfaceAlt,
-          borderColor: colors.border,
+          color: themeColors.textSecondary,
+          bg: themeColors.surfaceAlt,
+          borderColor: themeColors.border,
         };
       }
-    }, [expense, primaryId]);
+    }, [expense, primaryId, themeColors]);
 
     return (
       <Pressable
-        style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+        style={({ pressed }) => [
+          styles.card,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+          pressed && { backgroundColor: themeColors.surfaceAlt },
+        ]}
         onPress={onPress}
       >
         <View
@@ -150,10 +154,16 @@ export const ExpenseCard = memo(
         </View>
 
         <View style={styles.left}>
-          <AppText style={styles.title} numberOfLines={1}>
+          <AppText
+            style={[styles.title, { color: themeColors.textPrimary }]}
+            numberOfLines={1}
+          >
             {expense.title}
           </AppText>
-          <AppText style={styles.meta} numberOfLines={1}>
+          <AppText
+            style={[styles.meta, { color: themeColors.textSecondary }]}
+            numberOfLines={1}
+          >
             {`Paid by ${payerNames || 'Unknown'}  ·  ${date}`}
           </AppText>
           <View style={styles.badgeRow}>
@@ -174,21 +184,46 @@ export const ExpenseCard = memo(
                 </AppText>
               </View>
             )}
-            <View style={styles.categoryBadge}>
-              <AppText style={styles.categoryBadgeText}>
+            <View
+              style={[
+                styles.categoryBadge,
+                {
+                  backgroundColor: themeColors.surfaceAlt,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
+              <AppText
+                style={[
+                  styles.categoryBadgeText,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
                 {category.name}
               </AppText>
             </View>
-            <View style={styles.splitBadge}>
-              <AppText style={styles.splitBadgeText}>{splitBadgeLabel}</AppText>
+            <View
+              style={[
+                styles.splitBadge,
+                { backgroundColor: themeColors.surfaceAlt },
+              ]}
+            >
+              <AppText
+                style={[
+                  styles.splitBadgeText,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
+                {splitBadgeLabel}
+              </AppText>
             </View>
           </View>
         </View>
 
         <View style={styles.right}>
-          <AppText style={styles.amount}>{`₹${expense.totalAmount.toFixed(
-            2,
-          )}`}</AppText>
+          <AppText
+            style={[styles.amount, { color: themeColors.textPrimary }]}
+          >{`₹${expense.totalAmount.toFixed(2)}`}</AppText>
           <Pressable
             onPress={onDelete}
             hitSlop={8}
@@ -264,17 +299,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
     flexWrap: 'wrap',
   },
-  stanceBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: space.xs + 3,
-    paddingVertical: 2,
-    borderRadius: radius.full,
-    borderWidth: 1,
-  },
-  stanceBadgeText: {
-    fontSize: 10.5,
-    fontWeight: '700',
-  },
   categoryBadge: {
     alignSelf: 'flex-start',
     backgroundColor: colors.surfaceAlt,
@@ -286,48 +310,52 @@ const styles = StyleSheet.create({
   },
   categoryBadgeText: {
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: '600',
     color: colors.textSecondary,
   },
   splitBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.primaryLight,
-    paddingHorizontal: space.sm,
+    backgroundColor: colors.surfaceAlt,
+    paddingHorizontal: space.xs + 2,
     paddingVertical: 3,
     borderRadius: radius.full,
   },
   splitBadgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.textSecondary,
+  },
+  stanceBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: space.xs + 2,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    borderWidth: 1,
+  },
+  stanceBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
   },
   right: {
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    paddingVertical: 2,
-    gap: space.md,
-    flexShrink: 0,
+    height: 52,
   },
   amount: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     color: colors.textPrimary,
   },
   deleteBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: space.xs,
+    marginTop: space.xs,
   },
   deleteBtnPressed: {
-    opacity: 0.7,
-    backgroundColor: colors.debtLight,
+    opacity: 0.5,
   },
   deleteIcon: {
-    width: 20,
-    height: 20,
-    tintColor: colors.debt,
+    width: 18,
+    height: 18,
+    tintColor: colors.error,
   },
 });

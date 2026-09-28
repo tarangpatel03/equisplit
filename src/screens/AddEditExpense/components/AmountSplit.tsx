@@ -2,7 +2,7 @@ import { FC, useMemo } from 'react';
 import { TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors } from '@/theme';
+import { useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
 import { styles } from '../styles';
@@ -20,6 +20,7 @@ export const AmountSplit: FC<Props> = ({
   totalAmount,
   onAmountChange,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const sumAllocated = useMemo(() => {
     return members.reduce((sum, m) => {
       const val = parseFloat(memberAmounts[m.id] ?? '0');
@@ -32,27 +33,51 @@ export const AmountSplit: FC<Props> = ({
   const diff = totalAmount - sumAllocated;
 
   return (
-    <View style={styles.section}>
+    <View
+      style={[
+        styles.section,
+        {
+          backgroundColor: themeColors.surface,
+          borderColor: themeColors.border,
+        },
+      ]}
+    >
       <View style={styles.sectionHeaderRow}>
-        <AppText style={styles.sectionTitle}>{'Split by Exact Amount'}</AppText>
+        <AppText style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>
+          {'Split by Exact Amount'}
+        </AppText>
       </View>
 
-      <AppText style={styles.subText}>
+      <AppText style={[styles.subText, { color: themeColors.textSecondary }]}>
         {'Enter exact amounts owed by each person:'}
       </AppText>
 
       {members.map(m => (
-        <View key={m.id} style={styles.memberRow}>
-          <AppText style={styles.memberName}>{m.name}</AppText>
+        <View
+          key={m.id}
+          style={[styles.memberRow, { borderBottomColor: themeColors.divider }]}
+        >
+          <AppText style={[styles.memberName, { color: themeColors.textPrimary }]}>
+            {m.name}
+          </AppText>
           <View style={styles.memberInputContainer}>
-            <AppText style={styles.currencyPrefix}>{'₹'}</AppText>
+            <AppText style={[styles.currencyPrefix, { color: themeColors.textSecondary }]}>
+              {'₹'}
+            </AppText>
             <TextInput
-              style={styles.numberInput}
+              style={[
+                styles.numberInput,
+                {
+                  backgroundColor: themeColors.surfaceAlt,
+                  borderColor: themeColors.border,
+                  color: themeColors.textPrimary,
+                },
+              ]}
               keyboardType="decimal-pad"
               value={memberAmounts[m.id] ?? ''}
               onChangeText={val => onAmountChange(m.id, val)}
               placeholder="0.00"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={themeColors.textSecondary}
             />
           </View>
         </View>

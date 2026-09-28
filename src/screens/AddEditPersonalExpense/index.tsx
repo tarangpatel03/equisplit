@@ -1,19 +1,31 @@
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
+} from 'react-native';
 import { TrendingDown, TrendingUp } from 'lucide-react-native';
 
 import { assets } from '@/assets';
-import { AppDatePicker, CategoryIcon, CategoryModal } from '@/components/common';
+import {
+  AppDatePicker,
+  CategoryIcon,
+  CategoryModal,
+} from '@/components/common';
 import { AppButton } from '@/components/ui/AppButton';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
-import { colors } from '@/theme';
+import { useAppTheme } from '@/theme';
 
 import { useAddEditPersonalExpense } from './hooks/useAddEditPersonalExpense';
 import { styles } from './styles';
 
 export const AddEditPersonalExpenseScreen = () => {
+  const { colors: themeColors } = useAppTheme();
   const {
     isEdit,
     type,
@@ -72,22 +84,37 @@ export const AddEditPersonalExpenseScreen = () => {
           nestedScrollEnabled
         >
           {/* Expense vs Income Type Switcher */}
-          <View style={styles.typeSwitcher}>
+          <View
+            style={[
+              styles.typeSwitcher,
+              {
+                backgroundColor: themeColors.surfaceAlt,
+                borderColor: themeColors.border,
+              },
+            ]}
+          >
             <Pressable
               style={[
                 styles.typeTab,
-                !isIncome && styles.typeTabExpenseActive,
+                !isIncome && [
+                  styles.typeTabExpenseActive,
+                  { backgroundColor: themeColors.debtLight },
+                ],
               ]}
               onPress={() => setType('expense')}
             >
               <TrendingDown
                 size={16}
-                color={!isIncome ? colors.debt : colors.textSecondary}
+                color={!isIncome ? themeColors.debt : themeColors.textSecondary}
               />
               <AppText
                 style={[
                   styles.typeLabel,
-                  !isIncome && styles.typeLabelExpenseActive,
+                  { color: themeColors.textSecondary },
+                  !isIncome && [
+                    styles.typeLabelExpenseActive,
+                    { color: themeColors.debt },
+                  ],
                 ]}
               >
                 {'Expense (Outflow)'}
@@ -97,18 +124,27 @@ export const AddEditPersonalExpenseScreen = () => {
             <Pressable
               style={[
                 styles.typeTab,
-                isIncome && styles.typeTabIncomeActive,
+                isIncome && [
+                  styles.typeTabIncomeActive,
+                  { backgroundColor: themeColors.primaryLight },
+                ],
               ]}
               onPress={() => setType('income')}
             >
               <TrendingUp
                 size={16}
-                color={isIncome ? colors.credit : colors.textSecondary}
+                color={
+                  isIncome ? themeColors.credit : themeColors.textSecondary
+                }
               />
               <AppText
                 style={[
                   styles.typeLabel,
-                  isIncome && styles.typeLabelIncomeActive,
+                  { color: themeColors.textSecondary },
+                  isIncome && [
+                    styles.typeLabelIncomeActive,
+                    { color: themeColors.credit },
+                  ],
                 ]}
               >
                 {'Income (Inflow)'}
@@ -118,7 +154,9 @@ export const AddEditPersonalExpenseScreen = () => {
 
           {/* Title Row with Category Icon on Left */}
           <View style={styles.titleSection}>
-            <AppText style={styles.titleLabel}>
+            <AppText
+              style={[styles.titleLabel, { color: themeColors.textSecondary }]}
+            >
               {isIncome ? 'Income Source' : 'Expense Title'}
             </AppText>
             <View style={styles.titleRow}>
@@ -174,7 +212,11 @@ export const AddEditPersonalExpenseScreen = () => {
                 <AppText
                   style={[
                     styles.amountPrefixText,
-                    isIncome && { color: colors.credit },
+                    {
+                      color: isIncome
+                        ? themeColors.credit
+                        : themeColors.primary,
+                    },
                   ]}
                 >
                   {'₹'}
@@ -185,17 +227,32 @@ export const AddEditPersonalExpenseScreen = () => {
 
           {/* Date Selector */}
           <View style={styles.dateContainer}>
-            <AppText style={styles.dateLabel}>{'Date'}</AppText>
+            <AppText
+              style={[styles.dateLabel, { color: themeColors.textSecondary }]}
+            >
+              {'Date'}
+            </AppText>
             <Pressable
-              style={styles.dateButton}
+              style={[
+                styles.dateButton,
+                {
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                },
+              ]}
               onPress={() => setIsDatePickerVisible(true)}
             >
               <Image
                 source={assets.icons.ic_calendar}
-                style={styles.calendarIcon}
+                style={[
+                  styles.calendarIcon,
+                  { tintColor: themeColors.primary },
+                ]}
                 resizeMode="contain"
               />
-              <AppText style={styles.dateText}>
+              <AppText
+                style={[styles.dateText, { color: themeColors.textPrimary }]}
+              >
                 {date.toLocaleDateString('en-IN', {
                   day: 'numeric',
                   month: 'short',
@@ -219,7 +276,15 @@ export const AddEditPersonalExpenseScreen = () => {
         </ScrollView>
 
         {/* Persistent Save Button */}
-        <View style={styles.bottomBar}>
+        <View
+          style={[
+            styles.bottomBar,
+            {
+              backgroundColor: themeColors.surface,
+              borderTopColor: themeColors.border,
+            },
+          ]}
+        >
           <AppButton
             label={
               isEdit

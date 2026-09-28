@@ -7,7 +7,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 import { AppText } from './AppText';
 
@@ -30,19 +30,37 @@ export const AppInput: FC<Props> = ({
   suffix,
   ...rest
 }) => {
+  const { colors: themeColors } = useAppTheme();
+
   return (
     <View style={[styles.container, containerStyle]}>
-      {label ? <AppText style={styles.label}>{label}</AppText> : null}
-      <View style={[styles.inputRow, error ? styles.inputError : styles.inputNormal]}>
+      {label ? (
+        <AppText style={[styles.label, { color: themeColors.textSecondary }]}>
+          {label}
+        </AppText>
+      ) : null}
+      <View
+        style={[
+          styles.inputRow,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: error ? themeColors.error : themeColors.border,
+          },
+        ]}
+      >
         {prefix ?? null}
         <TextInput
-          style={[styles.input, style]}
-          placeholderTextColor={colors.textSecondary}
+          style={[{ color: themeColors.textPrimary }, styles.input, style]}
+          placeholderTextColor={themeColors.textSecondary}
           {...rest}
         />
         {suffix ?? null}
       </View>
-      {error ? <AppText style={styles.errorText}>{error}</AppText> : null}
+      {error ? (
+        <AppText style={[styles.errorText, { color: themeColors.error }]}>
+          {error}
+        </AppText>
+      ) : null}
     </View>
   );
 };

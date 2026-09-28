@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Users, Wallet } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, space, useAppTheme } from '@/theme';
 
 type Props = {
   activeTab: 'personal' | 'group';
@@ -18,24 +18,40 @@ export const DashboardTypeTabs: FC<Props> = ({
   groupCount,
   onSelectTab,
 }) => {
+  const { colors: themeColors } = useAppTheme();
   const isPersonal = activeTab === 'personal';
   const isGroup = activeTab === 'group';
 
   return (
     <View style={styles.container}>
-      <View style={styles.tabBar}>
+      <View
+        style={[
+          styles.tabBar,
+          {
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          },
+        ]}
+      >
         <Pressable
-          style={[styles.tab, isPersonal && styles.tabActive]}
+          style={[
+            styles.tab,
+            isPersonal && { backgroundColor: themeColors.primaryLight },
+          ]}
           onPress={() => onSelectTab('personal')}
           hitSlop={4}
         >
           <Wallet
             size={16}
-            color={isPersonal ? colors.primary : colors.textSecondary}
+            color={isPersonal ? themeColors.primary : themeColors.textSecondary}
             strokeWidth={2.2}
           />
           <AppText
-            style={[styles.tabLabel, isPersonal && styles.tabLabelActive]}
+            style={[
+              styles.tabLabel,
+              { color: themeColors.textSecondary },
+              isPersonal && { color: themeColors.primary, fontWeight: '700' },
+            ]}
           >
             {'Personal'}
           </AppText>
@@ -43,13 +59,15 @@ export const DashboardTypeTabs: FC<Props> = ({
             <View
               style={[
                 styles.countBadge,
-                isPersonal && styles.countBadgeActive,
+                { backgroundColor: themeColors.surfaceAlt },
+                isPersonal && { backgroundColor: themeColors.primary },
               ]}
             >
               <AppText
                 style={[
                   styles.countText,
-                  isPersonal && styles.countTextActive,
+                  { color: themeColors.textSecondary },
+                  isPersonal && { color: themeColors.textOnPrimary },
                 ]}
               >
                 {personalCount}
@@ -59,17 +77,24 @@ export const DashboardTypeTabs: FC<Props> = ({
         </Pressable>
 
         <Pressable
-          style={[styles.tab, isGroup && styles.tabActive]}
+          style={[
+            styles.tab,
+            isGroup && { backgroundColor: themeColors.primaryLight },
+          ]}
           onPress={() => onSelectTab('group')}
           hitSlop={4}
         >
           <Users
             size={16}
-            color={isGroup ? colors.primary : colors.textSecondary}
+            color={isGroup ? themeColors.primary : themeColors.textSecondary}
             strokeWidth={2.2}
           />
           <AppText
-            style={[styles.tabLabel, isGroup && styles.tabLabelActive]}
+            style={[
+              styles.tabLabel,
+              { color: themeColors.textSecondary },
+              isGroup && { color: themeColors.primary, fontWeight: '700' },
+            ]}
           >
             {'Group Splits'}
           </AppText>
@@ -77,13 +102,15 @@ export const DashboardTypeTabs: FC<Props> = ({
             <View
               style={[
                 styles.countBadge,
-                isGroup && styles.countBadgeActive,
+                { backgroundColor: themeColors.surfaceAlt },
+                isGroup && { backgroundColor: themeColors.primary },
               ]}
             >
               <AppText
                 style={[
                   styles.countText,
-                  isGroup && styles.countTextActive,
+                  { color: themeColors.textSecondary },
+                  isGroup && { color: themeColors.textOnPrimary },
                 ]}
               >
                 {groupCount}
@@ -120,17 +147,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     gap: 6,
   },
-  tabActive: {
-    backgroundColor: colors.primaryLight,
-  },
   tabLabel: {
     fontSize: 13,
     fontWeight: '600',
     color: colors.textSecondary,
-  },
-  tabLabelActive: {
-    color: colors.primary,
-    fontWeight: '700',
   },
   countBadge: {
     paddingHorizontal: 6,
@@ -141,15 +161,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  countBadgeActive: {
-    backgroundColor: colors.primary,
-  },
   countText: {
     fontSize: 11,
     fontWeight: '700',
     color: colors.textSecondary,
-  },
-  countTextActive: {
-    color: colors.textOnPrimary,
   },
 });
