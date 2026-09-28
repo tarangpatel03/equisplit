@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,26 +17,49 @@ import { RootState } from '@/store/store';
 import { colors } from '@/theme';
 import { Expense, PersonalExpense } from '@/types';
 
-import { AddExpenseActionModal } from './components/AddExpenseActionModal';
+import { HomeSpeedDialFab } from './components/HomeSpeedDialFab';
+import { DashboardSearchBar } from './components/DashboardSearchBar';
 import { DashboardTypeTabs } from './components/DashboardTypeTabs';
 import { ExpenseCard } from './components/ExpenseCard';
 import { PersonalExpenseCard } from './components/PersonalExpenseCard';
+import { PersonalGroupExpenseCard } from './components/PersonalGroupExpenseCard';
 import { PersonalOverviewCard } from './components/PersonalOverviewCard';
 import { useHomeScreen } from './hooks/useHomeScreen';
 import { styles } from './styles';
 
-export const HomeScreen = () => {
+type PersonalFeedItem =
+  | {
+      type: 'personal';
+      id: string;
+      date: number;
+      data: PersonalExpense;
+    }
+  | {
+      type: 'group';
+      id: string;
+      date: number;
+      data: Expense;
+      userShare: number;
+      payerLabel: string;
+    };
+
+export const HomeScreen: FC = () => {
   const navigation = useNavigation<NavType>();
   const dispatch = useDispatch();
   const categories = useSelector((s: RootState) => s.categories.categories);
 
   const [activeTab, setActiveTab] = useState<'personal' | 'group'>('personal');
-  const [addExpenseModalVisible, setAddExpenseModalVisible] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
   const [personalExpenseToDelete, setPersonalExpenseToDelete] =
     useState<PersonalExpense | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [categoryManagerVisible, setCategoryManagerVisible] = useState(false);
+
+  // Search & Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
 
   const {
     members,
@@ -71,6 +94,116 @@ export const HomeScreen = () => {
     }
   }, [personalExpenseToDelete, handleDeletePersonalExpense]);
 
+  const primaryMember = useMemo(
+    () => members.find(m => m.isPrimary),
+    [members],
+  );
+
+  const personalFeedItems = useMemo(() => {
+    const items: PersonalFeedItem[] = [];
+
+    // 1. Direct personal expenses/income
+    for (const pe of personalExpenses) {
+      items.push({
+        type: 'personal',
+        id: `personal_${pe.id}`,
+        date: pe.date,
+        data: pe,
+      });
+    }
+
+    // 2. Group expenses where primary member has an active share
+    if (primaryMember) {
+      for (const ge of expenses) {
+        if (ge.splitMode === 'settlement') continue;
+        const participant = ge.participants.find(
+          p => p.memberId === primaryMember.id,
+        );
+        if (participant && participant.share > 0) {
+          const isSolePayerPrimary =
+            ge.payers.length === 1 &&
+            ge.payers[0].memberId === primaryMember.id;
+          let payerLabel = 'Paid by You';
+          if (!isSolePayerPrimary) {
+            if (ge.payers.length === 1) {
+              const payerName =
+                members.find(m => m.id === ge.payers[0].memberId)?.name ??
+                'Member';
+              payerLabel = `Paid by ${payerName}`;
+            } else {
+              const userPayer = ge.payers.find(
+                p => p.memberId === primaryMember.id,
+              );
+              payerLabel = userPayer
+                ? 'Multiple (incl. You)'
+                : 'Multiple Payers';
+            }
+          }
+
+          items.push({
+            type: 'group',
+            id: `group_${ge.id}`,
+            date: ge.createdAt,
+            data: ge,
+            userShare: participant.share,
+            payerLabel,
+          });
+        }
+      }
+    }
+
+    // Sort descending by date
+    items.sort((a, b) => b.date - a.date);
+    return items;
+  }, [personalExpenses, expenses, primaryMember, members]);
+
+  const filteredPersonalFeedItems = useMemo<PersonalFeedItem[]>(() => {
+    let list = personalFeedItems;
+    if (selectedCategoryId) {
+      list = list.filter(item => {
+        const catId = item.data.categoryId ?? 'others';
+        return catId === selectedCategoryId;
+      });
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(item => {
+        const titleMatch = item.data.title.toLowerCase().includes(q);
+        const noteMatch =
+          item.type === 'personal' && item.data.note
+            ? item.data.note.toLowerCase().includes(q)
+            : false;
+        const payerMatch =
+          item.type === 'group'
+            ? item.payerLabel.toLowerCase().includes(q)
+            : false;
+        return titleMatch || noteMatch || payerMatch;
+      });
+    }
+    return list;
+  }, [personalFeedItems, selectedCategoryId, searchQuery]);
+
+  const filteredGroupExpenses = useMemo(() => {
+    let list = expenses;
+    if (selectedCategoryId) {
+      list = list.filter(item => item.categoryId === selectedCategoryId);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(item => {
+        const matchTitle = item.title.toLowerCase().includes(q);
+        const matchPayer = item.payers.some(p => {
+          const name = members.find(m => m.id === p.memberId)?.name ?? '';
+          return name.toLowerCase().includes(q);
+        });
+        return matchTitle || matchPayer;
+      });
+    }
+    return list;
+  }, [expenses, members, selectedCategoryId, searchQuery]);
+
+  const isFiltered = Boolean(searchQuery.trim() || selectedCategoryId);
+
   if (loadState === 'error') {
     return (
       <AppScreen screenTitle="EquiSplit" preset="fixed" safeAreaEdges={['top']}>
@@ -84,14 +217,74 @@ export const HomeScreen = () => {
     );
   }
 
+  const renderEmptyState = (
+    type: 'personal' | 'group',
+  ): React.JSX.Element | undefined => {
+    if (loadState === 'loading') return undefined;
+
+    if (isFiltered) {
+      return (
+        <View style={styles.emptyState}>
+          <Image
+            style={styles.emptyIcon}
+            source={assets.icons.ic_search}
+            resizeMode="contain"
+          />
+          <AppText style={styles.emptyTitle}>
+            {'No matching transactions'}
+          </AppText>
+          <AppText style={styles.emptySubtitle}>
+            {'Try adjusting your search query or category filter.'}
+          </AppText>
+          <Pressable
+            style={styles.clearFilterBtn}
+            onPress={() => {
+              setSearchQuery('');
+              setSelectedCategoryId(null);
+            }}
+          >
+            <AppText style={styles.clearFilterBtnText}>
+              {'Clear Filters'}
+            </AppText>
+          </Pressable>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyState}>
+        <Image
+          style={styles.emptyIcon}
+          source={assets.icons.ic_receipt}
+          resizeMode="contain"
+        />
+        <AppText style={styles.emptyTitle}>
+          {type === 'personal'
+            ? 'No personal transactions yet'
+            : 'No group expenses yet'}
+        </AppText>
+        <AppText style={styles.emptySubtitle}>
+          {type === 'personal'
+            ? 'Tap + to add an expense or income.'
+            : 'Tap + to add a split expense.'}
+        </AppText>
+      </View>
+    );
+  };
+
   const isPersonal = activeTab === 'personal';
 
   return (
-    <AppScreen screenTitle="EquiSplit" preset="fixed" safeAreaEdges={['top']}>
+    <AppScreen
+      screenTitle="EquiSplit"
+      showBackButton={false}
+      preset="fixed"
+      safeAreaEdges={['top']}
+    >
       {/* Top Segmented Tab Switcher */}
       <DashboardTypeTabs
         activeTab={activeTab}
-        personalCount={personalExpenses.length}
+        personalCount={personalFeedItems.length}
         groupCount={expenses.length}
         onSelectTab={setActiveTab}
       />
@@ -104,7 +297,9 @@ export const HomeScreen = () => {
           </AppText>
           <View style={styles.expensesCountBadge}>
             <AppText style={styles.expensesCountText}>
-              {isPersonal ? personalExpenses.length : expenses.length}
+              {isPersonal
+                ? filteredPersonalFeedItems.length
+                : filteredGroupExpenses.length}
             </AppText>
           </View>
         </View>
@@ -134,54 +329,65 @@ export const HomeScreen = () => {
         </Pressable>
       </View>
 
+      {/* Search and Category Filter Bar */}
+      <DashboardSearchBar
+        searchQuery={searchQuery}
+        onChangeSearch={setSearchQuery}
+        selectedCategoryId={selectedCategoryId}
+        onSelectCategory={setSelectedCategoryId}
+        categories={categories}
+      />
+
       {/* Conditional List Rendering */}
       {isPersonal ? (
-        <FlatList
+        <FlatList<PersonalFeedItem>
           style={styles.list}
-          data={personalExpenses}
+          data={filteredPersonalFeedItems}
           keyExtractor={item => item.id}
           ListHeaderComponent={
-            <PersonalOverviewCard
-              personalExpenses={personalExpenses}
-              expenses={expenses}
-              members={members}
-            />
+            !isFiltered ? (
+              <PersonalOverviewCard
+                personalExpenses={personalExpenses}
+                expenses={expenses}
+                members={members}
+              />
+            ) : undefined
           }
-          renderItem={({ item }) => (
-            <PersonalExpenseCard
-              expense={item}
-              onPress={() =>
-                navigation.navigate(RootRoutes.AddEditPersonalExpense, {
-                  personalExpenseId: item.id,
-                })
-              }
-              onDelete={() => setPersonalExpenseToDelete(item)}
-            />
-          )}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            loadState === 'loading' ? undefined : (
-              <View style={styles.emptyState}>
-                <Image
-                  style={styles.emptyIcon}
-                  source={assets.icons.ic_receipt}
-                  resizeMode="contain"
+          renderItem={({ item }) => {
+            if (item.type === 'personal') {
+              return (
+                <PersonalExpenseCard
+                  expense={item.data}
+                  onPress={() =>
+                    navigation.navigate(RootRoutes.AddEditPersonalExpense, {
+                      personalExpenseId: item.data.id,
+                    })
+                  }
+                  onDelete={() => setPersonalExpenseToDelete(item.data)}
                 />
-                <AppText style={styles.emptyTitle}>
-                  {'No personal transactions yet'}
-                </AppText>
-                <AppText style={styles.emptySubtitle}>
-                  {'Tap + to add an expense or income.'}
-                </AppText>
-              </View>
-            )
-          }
+              );
+            }
+            return (
+              <PersonalGroupExpenseCard
+                expense={item.data}
+                userShare={item.userShare}
+                payerLabel={item.payerLabel}
+                onPress={() =>
+                  navigation.navigate(RootRoutes.SplitDetails, {
+                    expenseId: item.data.id,
+                  })
+                }
+              />
+            );
+          }}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={renderEmptyState('personal')}
           showsVerticalScrollIndicator={false}
         />
       ) : (
-        <FlatList
+        <FlatList<Expense>
           style={styles.list}
-          data={expenses}
+          data={filteredGroupExpenses}
           keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <ExpenseCard
@@ -196,39 +402,13 @@ export const HomeScreen = () => {
             />
           )}
           contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            loadState === 'loading' ? undefined : (
-              <View style={styles.emptyState}>
-                <Image
-                  style={styles.emptyIcon}
-                  source={assets.icons.ic_receipt}
-                  resizeMode="contain"
-                />
-                <AppText style={styles.emptyTitle}>
-                  {'No group expenses yet'}
-                </AppText>
-                <AppText style={styles.emptySubtitle}>
-                  {'Tap + to add a split expense.'}
-                </AppText>
-              </View>
-            )
-          }
+          ListEmptyComponent={renderEmptyState('group')}
           showsVerticalScrollIndicator={false}
         />
       )}
 
-      {/* FAB: Opens Action Modal offering Personal vs Group split */}
-      <Pressable
-        style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
-        onPress={() => setAddExpenseModalVisible(true)}
-      >
-        <AppText style={styles.fabIcon}>{' + '}</AppText>
-      </Pressable>
-
-      {/* Add Expense Action Picker Modal */}
-      <AddExpenseActionModal
-        visible={addExpenseModalVisible}
-        onClose={() => setAddExpenseModalVisible(false)}
+      {/* Speed Dial Multi-Action FAB popping Left (Personal) and Top (Group) */}
+      <HomeSpeedDialFab
         onSelectPersonal={() =>
           navigation.navigate(RootRoutes.AddEditPersonalExpense)
         }

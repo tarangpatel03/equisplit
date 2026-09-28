@@ -102,6 +102,20 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
   },
+  clearFilterBtn: {
+    marginTop: space.md,
+    backgroundColor: 'rgba(32, 217, 178, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(32, 217, 178, 0.35)',
+    paddingVertical: 6,
+    paddingHorizontal: space.md,
+    borderRadius: radius.full,
+  },
+  clearFilterBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.primary,
+  },
 
   // Error state
   centerState: {
@@ -122,33 +136,5 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
     fontWeight: '600',
-  },
-
-  // FAB
-  fab: {
-    position: 'absolute',
-    bottom: space.xl,
-    right: space.md,
-    width: 56,
-    height: 56,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.primaryDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  fabPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.96 }],
-  },
-  fabIcon: {
-    fontSize: 28,
-    color: colors.textOnPrimary,
-    fontWeight: '300',
-    lineHeight: 32,
   },
 });
