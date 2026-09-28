@@ -1,6 +1,8 @@
 import { FC } from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
 
+import { HandCoins, Share2 } from 'lucide-react-native';
+
 import { assets } from '@/assets';
 import { AppConfirmDialog } from '@/components/common';
 import { AppBadge } from '@/components/ui/AppBadge';
@@ -8,9 +10,14 @@ import { AppButton } from '@/components/ui/AppButton';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
+import { colors } from '@/theme';
 import { Member } from '@/types';
 
-import { MemberBalanceCard } from './components/MemberBalanceCard';
+import {
+  MemberBalanceCard,
+  ReplacePrimaryModal,
+  SettleUpModal,
+} from './components';
 import { useMembersScreen } from './hooks/useMembersScreen';
 import { styles } from './styles';
 
@@ -24,15 +31,29 @@ export const MembersScreen: FC = () => {
     adding,
     memberToDelete,
     setMemberToDelete,
+    primaryMemberToDelete,
+    setPrimaryMemberToDelete,
+    unsettledMemberWarning,
+    setUnsettledMemberWarning,
     deleting,
+    settleModalVisible,
+    settleTarget,
+    savingSettlement,
     handleAddMember,
+    handleRequestDelete,
     handleConfirmDelete,
+    handleReplacePrimaryAndRemove,
     handleSetPrimary,
+    handleOpenSettleUp,
+    handleCloseSettleUp,
+    handleRecordSettlement,
+    handleShareSummary,
   } = useMembersScreen();
 
   return (
     <AppScreen
       screenTitle="Members & Balances"
+      showBackButton={false}
       preset="scroll"
       dismissKeyboardOnTouch={false}
       keyboardAvoiding={false}
@@ -129,7 +150,7 @@ export const MembersScreen: FC = () => {
                     <Pressable
                       hitSlop={8}
                       style={styles.deleteMemberBtn}
-                      onPress={() => setMemberToDelete(m)}
+                      onPress={() => handleRequestDelete(m)}
                     >
                       <Image
                         source={assets.icons.ic_delete}
@@ -157,6 +178,30 @@ export const MembersScreen: FC = () => {
           />
           <AppText style={styles.balancesTitle}>{'Member Balances'}</AppText>
         </View>
+
+        <View style={styles.headerActionsRight}>
+          {members.length > 0 && (
+            <Pressable
+              style={styles.shareHeaderBtn}
+              onPress={handleShareSummary}
+              hitSlop={6}
+            >
+              <Share2 size={13} color={colors.textSecondary} strokeWidth={2.2} />
+              <AppText style={styles.shareHeaderBtnText}>{'Share'}</AppText>
+            </Pressable>
+          )}
+
+          {members.length > 1 && (
+            <Pressable
+              style={styles.settleUpHeaderBtn}
+              onPress={() => handleOpenSettleUp()}
+              hitSlop={6}
+            >
+              <HandCoins size={14} color={colors.primary} strokeWidth={2.4} />
+              <AppText style={styles.settleUpHeaderBtnText}>{'Settle Up'}</AppText>
+            </Pressable>
+          )}
+        </View>
       </View>
 
       <View style={styles.statusSummaryRow}>
@@ -168,7 +213,11 @@ export const MembersScreen: FC = () => {
       <View style={styles.cardsContainer}>
         {pairwiseDetails.length > 0 ? (
           pairwiseDetails.map(detail => (
-            <MemberBalanceCard key={detail.member.id} detail={detail} />
+            <MemberBalanceCard
+              key={detail.member.id}
+              detail={detail}
+              onSettleUp={handleOpenSettleUp}
+            />
           ))
         ) : (
           <View style={styles.emptyBalancesCard}>
@@ -181,16 +230,55 @@ export const MembersScreen: FC = () => {
         )}
       </View>
 
-      {/* Confirmation Dialog for Member Deletion */}
+      {/* Warning Dialog for Unsettled Balances */}
+      <AppConfirmDialog
+        visible={Boolean(unsettledMemberWarning)}
+        title="Cannot Remove Member"
+        message={`"${unsettledMemberWarning?.member.name}" has an unsettled balance of ₹${Math.abs(
+          unsettledMemberWarning?.balance ?? 0,
+        ).toFixed(2)} (${
+          (unsettledMemberWarning?.balance ?? 0) > 0 ? 'is owed money' : 'owes money'
+        }). All balances must be settled before removing this member.`}
+        confirmLabel="Understood"
+        cancelLabel=""
+        confirmVariant="primary"
+        onConfirm={() => setUnsettledMemberWarning(null)}
+        onCancel={() => setUnsettledMemberWarning(null)}
+      />
+
+      {/* Confirmation Dialog for Standard Member Deletion */}
       <AppConfirmDialog
         visible={Boolean(memberToDelete)}
         title="Remove Member"
-        message={`Are you sure you want to remove "${memberToDelete?.name}"? Historical expense calculations involving this member may be affected.`}
+        message={`Are you sure you want to remove "${memberToDelete?.name}"?`}
         confirmLabel="Remove"
         cancelLabel="Cancel"
         loading={deleting}
         onConfirm={handleConfirmDelete}
         onCancel={() => setMemberToDelete(null)}
+      />
+
+      {/* Modal for Primary Member Removal and Reassignment */}
+      <ReplacePrimaryModal
+        visible={Boolean(primaryMemberToDelete)}
+        memberToDelete={primaryMemberToDelete}
+        otherMembers={members.filter(m => m.id !== primaryMemberToDelete?.id)}
+        loading={deleting}
+        onConfirm={handleReplacePrimaryAndRemove}
+        onCancel={() => setPrimaryMemberToDelete(null)}
+      />
+
+      {/* Settle Up Modal */}
+      <SettleUpModal
+        visible={settleModalVisible}
+        members={members}
+        pairwiseDetails={pairwiseDetails}
+        initialPayerId={settleTarget?.payer?.id}
+        initialReceiverId={settleTarget?.receiver?.id}
+        initialAmount={settleTarget?.amount}
+        loading={savingSettlement}
+        onClose={handleCloseSettleUp}
+        onSaveSettlement={handleRecordSettlement}
       />
     </AppScreen>
   );

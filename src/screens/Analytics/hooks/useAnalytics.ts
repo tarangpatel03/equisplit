@@ -50,6 +50,7 @@ export const useAnalytics = () => {
 
       if (selectedMemberId === "group") {
         expenses.forEach(exp => {
+          if (exp.splitMode === 'settlement') return;
           paid += exp.totalAmount;
           share += exp.totalAmount;
           const catId = exp.categoryId || OTHERS_CATEGORY_ID;
@@ -57,6 +58,7 @@ export const useAnalytics = () => {
         });
       } else {
         expenses.forEach(exp => {
+          if (exp.splitMode === 'settlement') return;
           // Calculate amount paid by selected member
           if (exp.payers && exp.payers.length > 0) {
             const payerContrib = exp.payers.find(

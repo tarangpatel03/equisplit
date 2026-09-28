@@ -12,6 +12,7 @@ type Props = {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  confirmVariant?: 'primary' | 'danger';
   loading?: boolean;
   useModal?: boolean;
   onConfirm: () => void;
@@ -25,6 +26,7 @@ export const AppConfirmDialog: FC<Props> = memo(
     message,
     confirmLabel = 'Delete',
     cancelLabel = 'Cancel',
+    confirmVariant = 'danger',
     loading = false,
     useModal = true,
     onConfirm,
@@ -51,17 +53,19 @@ export const AppConfirmDialog: FC<Props> = memo(
 
           {/* Action Buttons */}
           <View style={styles.buttonRow}>
-            <AppButton
-              label={cancelLabel}
-              variant="ghost"
-              style={styles.cancelButton}
-              onPress={onCancel}
-              disabled={loading}
-            />
+            {cancelLabel ? (
+              <AppButton
+                label={cancelLabel}
+                variant="ghost"
+                style={styles.cancelButton}
+                onPress={onCancel}
+                disabled={loading}
+              />
+            ) : null}
             <AppButton
               label={confirmLabel}
-              variant="danger"
-              style={styles.confirmButton}
+              variant={confirmVariant}
+              style={cancelLabel ? styles.confirmButton : styles.singleButton}
               loading={loading}
               onPress={onConfirm}
             />
@@ -147,6 +151,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   confirmButton: {
+    flex: 1,
+  },
+  singleButton: {
     flex: 1,
   },
 });

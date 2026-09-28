@@ -17,6 +17,7 @@ import {
   addCategory as addCategoryDb,
   deleteCategory as deleteCategoryDb,
   getExpenses,
+  getPersonalExpenses,
   updateCategory as updateCategoryDb,
 } from '@/services/database';
 import {
@@ -29,6 +30,7 @@ import {
   updateCategory,
 } from '@/store/categorySlice';
 import { setExpenses } from '@/store/expenseSlice';
+import { setPersonalExpenses } from '@/store/personalExpenseSlice';
 import { RootState } from '@/store/store';
 import { colors, radius, space } from '@/theme';
 import { ExpenseCategory } from '@/types';
@@ -93,9 +95,13 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
       await deleteCategoryDb(categoryToDelete.id);
       dispatch(deleteCategory(categoryToDelete.id));
 
-      // Reload expenses to reflect any reassigned category_id to 'others'
-      const updatedExpenses = await getExpenses();
+      // Reload both group and personal expenses to reflect reassigned category_id to 'others'
+      const [updatedExpenses, updatedPersonal] = await Promise.all([
+        getExpenses(),
+        getPersonalExpenses(),
+      ]);
       dispatch(setExpenses(updatedExpenses));
+      dispatch(setPersonalExpenses(updatedPersonal));
 
       showSuccessToast(
         `Deleted "${categoryToDelete.name}". Expenses moved to Other Expenses.`,

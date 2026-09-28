@@ -8,10 +8,11 @@ import { MemberBalanceDetail } from '@/utils';
 type Props = {
   detail: MemberBalanceDetail;
   defaultExpanded?: boolean;
+  onSettleUp?: (payer: Member, receiver: Member, amount: number) => void;
 };
 
 export const MemberBalanceCard = memo(
-  ({ detail, defaultExpanded = false }: Props) => {
+  ({ detail, defaultExpanded = false, onSettleUp }: Props) => {
     const [expanded, setExpanded] = useState(defaultExpanded);
     const { member, netBalance, status, breakdowns } = detail;
 
@@ -111,11 +112,42 @@ export const MemberBalanceCard = memo(
                       </AppText>
                     </View>
 
-                    <AppText
-                      style={[styles.breakdownAmount, { color: itemColor }]}
-                    >
-                      {`${itemSign}₹${itemAbs.toFixed(2)}`}
-                    </AppText>
+                    <View style={styles.breakdownRight}>
+                      <AppText
+                        style={[styles.breakdownAmount, { color: itemColor }]}
+                      >
+                        {`${itemSign}₹${itemAbs.toFixed(2)}`}
+                      </AppText>
+                      {onSettleUp && itemAbs > 0.005 ? (
+                        <Pressable
+                          style={styles.settleBtn}
+                          hitSlop={6}
+                          onPress={() => {
+                            if (item.amount < 0) {
+                              onSettleUp(
+                                member,
+                                {
+                                  id: item.otherMemberId,
+                                  name: item.otherMemberName,
+                                },
+                                itemAbs,
+                              );
+                            } else {
+                              onSettleUp(
+                                {
+                                  id: item.otherMemberId,
+                                  name: item.otherMemberName,
+                                },
+                                member,
+                                itemAbs,
+                              );
+                            }
+                          }}
+                        >
+                          <AppText style={styles.settleBtnText}>{'Settle'}</AppText>
+                        </Pressable>
+                      ) : null}
+                    </View>
                   </View>
                 );
               })
@@ -265,9 +297,27 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     flex: 1,
   },
+  breakdownRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.xs + 4,
+  },
   breakdownAmount: {
     fontSize: 13,
     fontWeight: '700',
+  },
+  settleBtn: {
+    backgroundColor: 'rgba(32, 217, 178, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(32, 217, 178, 0.35)',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: radius.full,
+  },
+  settleBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
   },
   noBreakdownText: {
     fontSize: 12,

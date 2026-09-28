@@ -49,6 +49,15 @@ import { ExpenseCategory } from '@/types';
 
 export const OTHERS_CATEGORY_ID = 'others';
 export const DEFAULT_CATEGORY_ID = 'others';
+export const SETTLEMENT_CATEGORY_ID = 'settlement';
+
+export const SETTLEMENT_CATEGORY: ExpenseCategory = {
+  id: 'settlement',
+  name: 'Debt Settlement',
+  iconKey: 'cash',
+  color: '#2ED573',
+  isDefault: true,
+};
 
 /** Available Lucide line icon keys for categories. */
 export const CATEGORY_ICON_KEYS = [
@@ -273,6 +282,7 @@ export function getCategoryById(
   id?: string,
   categories: ExpenseCategory[] = INITIAL_CATEGORIES,
 ): ExpenseCategory {
+  if (id === SETTLEMENT_CATEGORY_ID) return SETTLEMENT_CATEGORY;
   const fallback = categories.find(c => c.id === OTHERS_CATEGORY_ID) ?? INITIAL_CATEGORIES[0];
   if (!id || id === 'general') return fallback;
   return categories.find(c => c.id === id) ?? fallback;

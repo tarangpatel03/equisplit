@@ -52,7 +52,10 @@ export const PayerSection: FC<Props> = ({
         {members.map(m => {
           const val = parseFloat(payerContributions[m.id] ?? '0') || 0;
           const isSinglePayer =
-            val > 0 && totalAmount > 0 && Math.abs(val - totalAmount) < 0.01;
+            (val > 0 && totalAmount > 0 && Math.abs(val - totalAmount) < 0.01) ||
+            (payerContributions[m.id] !== undefined &&
+              Object.keys(payerContributions).length === 1 &&
+              Object.keys(payerContributions)[0] === m.id);
           return (
             <Pressable
               key={m.id}

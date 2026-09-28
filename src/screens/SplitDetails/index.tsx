@@ -30,6 +30,7 @@ const SPLIT_MODE_LABELS: Record<string, string> = {
   shares: 'Split by Shares',
   perItem: 'Itemized Split',
   amount: 'Split by Exact Amount',
+  settlement: 'Debt Settlement',
 };
 
 export const SplitDetailsScreen: FC = () => {

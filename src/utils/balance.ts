@@ -164,3 +164,59 @@ export function computePairwiseBalances(
     };
   });
 }
+
+/**
+ * Formats a clean, readable text summary of all member balances and simplified
+ * pairwise debts suitable for sharing via WhatsApp, SMS, or copying to clipboard.
+ */
+export function generateBalanceSummaryText(
+  members: Member[],
+  expenses: Expense[],
+): string {
+  if (members.length === 0) {
+    return 'EquiSplit: No members in group.';
+  }
+
+  const balances = computeBalances(members, expenses);
+  const settlements = simplifyDebts(balances);
+  const memberMap = new Map<string, Member>();
+  for (const m of members) {
+    memberMap.set(m.id, m);
+  }
+
+  const lines: string[] = [
+    '📊 EquiSplit - Group Balance Summary',
+    '────────────────────────────────',
+    '',
+    '👥 Member Net Balances:',
+  ];
+
+  for (const m of members) {
+    const net = Math.round((balances[m.id] ?? 0) * 100) / 100;
+    const sign = net > 0 ? '+' : '';
+    const status =
+      net > 0.005 ? '(gets back)' : net < -0.005 ? '(owes)' : '(settled)';
+    const tag = m.isPrimary ? ' (You)' : '';
+    lines.push(`• ${m.name}${tag}: ${sign}₹${net.toFixed(2)} ${status}`);
+  }
+
+  lines.push('');
+  lines.push('🤝 Who Owes Whom (Simplified):');
+
+  if (settlements.length === 0) {
+    lines.push('• All settled up! No outstanding balances.');
+  } else {
+    for (const s of settlements) {
+      const fromMember = memberMap.get(s.from);
+      const toMember = memberMap.get(s.to);
+      const fromName = fromMember ? (fromMember.isPrimary ? 'You' : fromMember.name) : 'Unknown';
+      const toName = toMember ? (toMember.isPrimary ? 'You' : toMember.name) : 'Unknown';
+      lines.push(`• ${fromName} owes ${toName} ₹${s.amount.toFixed(2)}`);
+    }
+  }
+
+  lines.push('');
+  lines.push('Shared via EquiSplit');
+
+  return lines.join('\n');
+}

@@ -9,7 +9,11 @@ export {
   SCREEN_WIDTH,
   SCREEN_HEIGHT,
 } from './normalize';
-export { computeBalances, computePairwiseBalances } from './balance';
+export {
+  computeBalances,
+  computePairwiseBalances,
+  generateBalanceSummaryText,
+} from './balance';
 export type {
   BalanceMap,
   MemberBalanceDetail,

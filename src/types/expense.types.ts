@@ -3,7 +3,7 @@
  * Shared across the DB service, Redux slices, and screens.
  */
 
-export type SplitMode = 'equally' | 'shares' | 'perItem' | 'amount';
+export type SplitMode = 'equally' | 'shares' | 'perItem' | 'amount' | 'settlement';
 
 /** A person in the fixed session group. */
 export type Member = {

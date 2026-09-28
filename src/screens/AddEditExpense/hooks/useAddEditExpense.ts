@@ -94,6 +94,20 @@ export const useAddEditExpense = () => {
     setIsDatePickerVisible(false);
   }, []);
 
+  // Track if a single payer is active to keep amount synced
+  const [selectedSinglePayerId, setSelectedSinglePayerId] = useState<string | null>(
+    () => {
+      if (existingExpense?.payers && existingExpense.payers.length === 1) {
+        return existingExpense.payers[0].memberId;
+      }
+      if (!existingExpense) {
+        const primary = members.find(m => m.isPrimary) ?? members[0];
+        return primary?.id ?? null;
+      }
+      return null;
+    },
+  );
+
   // Payers state: map memberId -> string amount
   const [payerContributions, setPayerContributions] = useState<
     Record<string, string>
@@ -104,6 +118,10 @@ export const useAddEditExpense = () => {
         map[p.memberId] = p.amount.toString();
       });
       return map;
+    }
+    const primary = members.find(m => m.isPrimary) ?? members[0];
+    if (primary) {
+      return { [primary.id]: '' };
     }
     return {};
   });
@@ -224,13 +242,31 @@ export const useAddEditExpense = () => {
     setIsCategoryManuallySet(true);
   }, []);
 
-  const handleTotalAmountChange = useCallback((text: string) => {
-    setTotalAmountStr(text);
-    setAmountError(undefined);
-  }, []);
+  const handleTotalAmountChange = useCallback(
+    (text: string) => {
+      setTotalAmountStr(text);
+      setAmountError(undefined);
+
+      // If single payer is active, automatically keep their contribution synced
+      if (selectedSinglePayerId) {
+        setPayerContributions({ [selectedSinglePayerId]: text });
+      } else {
+        const nonZeroPayers = Object.entries(payerContributions).filter(
+          ([_, v]) => v.trim() !== '',
+        );
+        if (nonZeroPayers.length === 1) {
+          const singleId = nonZeroPayers[0][0];
+          setSelectedSinglePayerId(singleId);
+          setPayerContributions({ [singleId]: text });
+        }
+      }
+    },
+    [selectedSinglePayerId, payerContributions],
+  );
 
   const handleSelectSinglePayer = useCallback(
     (memberId: string) => {
+      setSelectedSinglePayerId(memberId);
       setPayerContributions({ [memberId]: totalAmountStr });
     },
     [totalAmountStr],
@@ -238,6 +274,7 @@ export const useAddEditExpense = () => {
 
   const handlePayerAmountChange = useCallback(
     (memberId: string, val: string) => {
+      setSelectedSinglePayerId(null);
       setPayerContributions(prev => ({ ...prev, [memberId]: val }));
     },
     [],
