@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { CircleAlert, CircleCheck, Info } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
@@ -43,11 +43,20 @@ type BaseToastProps = {
 };
 
 const BaseToast: FC<BaseToastProps> = ({ text1, text2, type }) => {
+  const { width } = useWindowDimensions();
   const config = VARIANT_CONFIG[type] ?? VARIANT_CONFIG.info;
   const { Icon } = config;
 
   return (
-    <View style={[styles.container, { borderColor: config.borderColor }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          width: width - space.md * 2,
+          borderColor: config.borderColor,
+        },
+      ]}
+    >
       {/* Left status accent strip */}
       <View style={[styles.accentStrip, { backgroundColor: config.accent }]} />
 
@@ -89,8 +98,6 @@ export const toastConfig = {
 
 const styles = StyleSheet.create({
   container: {
-    width: '92%',
-    maxWidth: 420,
     backgroundColor: colors.surface,
     borderRadius: radius.xl,
     borderWidth: 1,
