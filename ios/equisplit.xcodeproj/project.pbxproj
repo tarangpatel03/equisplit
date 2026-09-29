@@ -7,43 +7,48 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A5D84E2B1E244B49EF777BD /* IBMPlexSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 94BF51A61E244F1687DB6102 /* IBMPlexSans-SemiBold.ttf */; };
 		0C80B921A6F3F58F76C31292 /* libPods-equisplit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-equisplit.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		15A276A895244AC3B1075EB0 /* Manrope-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A6D1BEC9F60D4D5CBAD9953D /* Manrope-Light.ttf */; };
+		38EC0D97ED3F43FEAA027DE1 /* IBMPlexSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0E6BD85624DD4D74A845C8DF /* IBMPlexSans-Light.ttf */; };
+		4B644CDBE9F24F44B21046D7 /* Manrope-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 77BE022729424B519D8FF4F0 /* Manrope-SemiBold.ttf */; };
+		69344FEEEC054D4BB8DD6E71 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9F54EEB4090445ABA9785C12 /* IBMPlexSans-Bold.ttf */; };
+		74E94757A41E48F286801374 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01AEF58FBB8340B78FD4F89E /* BootSplash.storyboard */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		69344FEEEC054D4BB8DD6E71 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9F54EEB4090445ABA9785C12 /* IBMPlexSans-Bold.ttf */; };
-		38EC0D97ED3F43FEAA027DE1 /* IBMPlexSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0E6BD85624DD4D74A845C8DF /* IBMPlexSans-Light.ttf */; };
-		997457EE313942649560FDBD /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D543E1E36746408885601B5C /* IBMPlexSans-Medium.ttf */; };
 		88149CA5C93C46A6A43B64F3 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BFA51CA639444E5397081AD6 /* IBMPlexSans-Regular.ttf */; };
-		0A5D84E2B1E244B49EF777BD /* IBMPlexSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 94BF51A61E244F1687DB6102 /* IBMPlexSans-SemiBold.ttf */; };
-		D7BAA2FE866F423DB5AAC624 /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B289396A3FC6414D88B890E2 /* Manrope-Bold.ttf */; };
-		15A276A895244AC3B1075EB0 /* Manrope-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A6D1BEC9F60D4D5CBAD9953D /* Manrope-Light.ttf */; };
+		997457EE313942649560FDBD /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D543E1E36746408885601B5C /* IBMPlexSans-Medium.ttf */; };
+		BFE22AB39B2A0F5D6BEBBB77 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		CDBA0924D3B243069209BFA6 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39EB69986DF24D7FB670E769 /* Colors.xcassets */; };
 		D436377E72AB467E9D8CEBD7 /* Manrope-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 730DAC03B8454671B2AA586C /* Manrope-Medium.ttf */; };
+		D7BAA2FE866F423DB5AAC624 /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B289396A3FC6414D88B890E2 /* Manrope-Bold.ttf */; };
 		F728348AA67142A1B333B3F4 /* Manrope-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 79130A85B7574FB2ACDC29A4 /* Manrope-Regular.ttf */; };
-		4B644CDBE9F24F44B21046D7 /* Manrope-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 77BE022729424B519D8FF4F0 /* Manrope-SemiBold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		01AEF58FBB8340B78FD4F89E /* BootSplash.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = BootSplash.storyboard; path = equisplit/BootSplash.storyboard; sourceTree = "<group>"; };
+		0E6BD85624DD4D74A845C8DF /* IBMPlexSans-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "IBMPlexSans-Light.ttf"; path = "../src/assets/fonts/IBMPlexSans-Light.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* equisplit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = equisplit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = equisplit/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = equisplit/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = equisplit/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		39EB69986DF24D7FB670E769 /* Colors.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; name = Colors.xcassets; path = equisplit/Colors.xcassets; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-equisplit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-equisplit.debug.xcconfig"; path = "Target Support Files/Pods-equisplit/Pods-equisplit.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-equisplit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-equisplit.release.xcconfig"; path = "Target Support Files/Pods-equisplit/Pods-equisplit.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-equisplit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-equisplit.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		730DAC03B8454671B2AA586C /* Manrope-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Medium.ttf"; path = "../src/assets/fonts/Manrope-Medium.ttf"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = equisplit/AppDelegate.swift; sourceTree = "<group>"; };
+		77BE022729424B519D8FF4F0 /* Manrope-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-SemiBold.ttf"; path = "../src/assets/fonts/Manrope-SemiBold.ttf"; sourceTree = "<group>"; };
+		79130A85B7574FB2ACDC29A4 /* Manrope-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Regular.ttf"; path = "../src/assets/fonts/Manrope-Regular.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = equisplit/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		94BF51A61E244F1687DB6102 /* IBMPlexSans-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "IBMPlexSans-SemiBold.ttf"; path = "../src/assets/fonts/IBMPlexSans-SemiBold.ttf"; sourceTree = "<group>"; };
+		9F54EEB4090445ABA9785C12 /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "IBMPlexSans-Bold.ttf"; path = "../src/assets/fonts/IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; };
+		A6D1BEC9F60D4D5CBAD9953D /* Manrope-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Light.ttf"; path = "../src/assets/fonts/Manrope-Light.ttf"; sourceTree = "<group>"; };
+		B289396A3FC6414D88B890E2 /* Manrope-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Bold.ttf"; path = "../src/assets/fonts/Manrope-Bold.ttf"; sourceTree = "<group>"; };
+		BFA51CA639444E5397081AD6 /* IBMPlexSans-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "IBMPlexSans-Regular.ttf"; path = "../src/assets/fonts/IBMPlexSans-Regular.ttf"; sourceTree = "<group>"; };
+		D543E1E36746408885601B5C /* IBMPlexSans-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "IBMPlexSans-Medium.ttf"; path = "../src/assets/fonts/IBMPlexSans-Medium.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		9F54EEB4090445ABA9785C12 /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; name = "IBMPlexSans-Bold.ttf"; path = "../src/assets/fonts/IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		0E6BD85624DD4D74A845C8DF /* IBMPlexSans-Light.ttf */ = {isa = PBXFileReference; name = "IBMPlexSans-Light.ttf"; path = "../src/assets/fonts/IBMPlexSans-Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		D543E1E36746408885601B5C /* IBMPlexSans-Medium.ttf */ = {isa = PBXFileReference; name = "IBMPlexSans-Medium.ttf"; path = "../src/assets/fonts/IBMPlexSans-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		BFA51CA639444E5397081AD6 /* IBMPlexSans-Regular.ttf */ = {isa = PBXFileReference; name = "IBMPlexSans-Regular.ttf"; path = "../src/assets/fonts/IBMPlexSans-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		94BF51A61E244F1687DB6102 /* IBMPlexSans-SemiBold.ttf */ = {isa = PBXFileReference; name = "IBMPlexSans-SemiBold.ttf"; path = "../src/assets/fonts/IBMPlexSans-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		B289396A3FC6414D88B890E2 /* Manrope-Bold.ttf */ = {isa = PBXFileReference; name = "Manrope-Bold.ttf"; path = "../src/assets/fonts/Manrope-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		A6D1BEC9F60D4D5CBAD9953D /* Manrope-Light.ttf */ = {isa = PBXFileReference; name = "Manrope-Light.ttf"; path = "../src/assets/fonts/Manrope-Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		730DAC03B8454671B2AA586C /* Manrope-Medium.ttf */ = {isa = PBXFileReference; name = "Manrope-Medium.ttf"; path = "../src/assets/fonts/Manrope-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		79130A85B7574FB2ACDC29A4 /* Manrope-Regular.ttf */ = {isa = PBXFileReference; name = "Manrope-Regular.ttf"; path = "../src/assets/fonts/Manrope-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		77BE022729424B519D8FF4F0 /* Manrope-SemiBold.ttf */ = {isa = PBXFileReference; name = "Manrope-SemiBold.ttf"; path = "../src/assets/fonts/Manrope-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +71,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				01AEF58FBB8340B78FD4F89E /* BootSplash.storyboard */,
+				39EB69986DF24D7FB670E769 /* Colors.xcassets */,
 			);
 			name = equisplit;
 			sourceTree = "<group>";
@@ -109,17 +116,8 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				3B4392A12AC88292D35C810B /* Pods-equisplit.debug.xcconfig */,
-				5709B34CF0A7D63546082F79 /* Pods-equisplit.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		8E3E0C22CB484450A21CE5BB /* Resources */ = {
-			isa = "PBXGroup";
+			isa = PBXGroup;
 			children = (
 				9F54EEB4090445ABA9785C12 /* IBMPlexSans-Bold.ttf */,
 				0E6BD85624DD4D74A845C8DF /* IBMPlexSans-Light.ttf */,
@@ -133,8 +131,17 @@
 				77BE022729424B519D8FF4F0 /* Manrope-SemiBold.ttf */,
 			);
 			name = Resources;
-			sourceTree = "<group>";
 			path = "";
+			sourceTree = "<group>";
+		};
+		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				3B4392A12AC88292D35C810B /* Pods-equisplit.debug.xcconfig */,
+				5709B34CF0A7D63546082F79 /* Pods-equisplit.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -208,6 +215,9 @@
 				D436377E72AB467E9D8CEBD7 /* Manrope-Medium.ttf in Resources */,
 				F728348AA67142A1B333B3F4 /* Manrope-Regular.ttf in Resources */,
 				4B644CDBE9F24F44B21046D7 /* Manrope-SemiBold.ttf in Resources */,
+				BFE22AB39B2A0F5D6BEBBB77 /* PrivacyInfo.xcprivacy in Resources */,
+				74E94757A41E48F286801374 /* BootSplash.storyboard in Resources */,
+				CDBA0924D3B243069209BFA6 /* Colors.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -419,6 +429,10 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DFOLLY_NO_CONFIG",
@@ -426,8 +440,13 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
+				PODFILE_DIR = "$(SRCROOT)";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				USE_HERMES = true;
 			};
 			name = Debug;
 		};
@@ -484,6 +503,10 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DFOLLY_NO_CONFIG",
@@ -491,8 +514,12 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
+				PODFILE_DIR = "$(SRCROOT)";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

@@ -1,24 +1,36 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, StatusBar, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { StatusBar, StyleSheet, View } from 'react-native';
+import BootSplash from 'react-native-bootsplash';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import Toast from 'react-native-toast-message';
 
-import { ThemeTransitionOverlay } from '@/components/common';
 import RootNavigation from '@/navigation/RootNavigation';
 import { initDatabase } from '@/services/database';
 import { toastConfig } from '@/services/toast';
 import { store } from '@/store/store';
+import {
+  loadPersistedCurrencyCode,
+  setCurrencyCode,
+} from '@/store/currencySlice';
+import {
+  loadPersistedPreferences,
+  setTrackOutOfPocket,
+} from '@/store/preferencesSlice';
 import { loadPersistedThemeMode, setThemeMode } from '@/store/themeSlice';
-import { colors, useAppTheme } from '@/theme';
+import { useAppTheme } from '@/theme';
 
-function ThemedApp() {
+function ThemedApp({ onReady }: { onReady: () => void }) {
   const { isDark } = useAppTheme();
+
+  useEffect(() => {
+    onReady();
+  }, [onReady]);
+
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <RootNavigation />
-      <ThemeTransitionOverlay />
       <Toast config={toastConfig} />
     </SafeAreaProvider>
   );
@@ -28,30 +40,49 @@ function App() {
   const [dbReady, setDbReady] = useState(false);
 
   useEffect(() => {
-    loadPersistedThemeMode().then(mode => {
-      if (mode) {
-        store.dispatch(setThemeMode(mode));
-      }
-    });
+    const initApp = async () => {
+      try {
+        const [mode, code, prefs] = await Promise.all([
+          loadPersistedThemeMode(),
+          loadPersistedCurrencyCode(),
+          loadPersistedPreferences(),
+          initDatabase(),
+        ]);
 
-    initDatabase()
-      .then(() => setDbReady(true))
-      .catch(err => {
-        console.error('[DB] initDatabase failed:', err);
-      });
+        if (mode) {
+          store.dispatch(setThemeMode(mode));
+        }
+        if (code) {
+          store.dispatch(setCurrencyCode(code));
+        }
+        if (prefs) {
+          store.dispatch(setTrackOutOfPocket(prefs.trackOutOfPocket));
+        }
+      } catch (err) {
+        console.error('[App] Initialization error:', err);
+      } finally {
+        setDbReady(true);
+      }
+    };
+
+    initApp();
+  }, []);
+
+  const handleAppReady = useCallback(async () => {
+    try {
+      await BootSplash.hide({ fade: true });
+    } catch (err) {
+      console.warn('[BootSplash] hide error:', err);
+    }
   }, []);
 
   if (!dbReady) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <View style={styles.container} />;
   }
 
   return (
     <Provider store={store}>
-      <ThemedApp />
+      <ThemedApp onReady={handleAppReady} />
     </Provider>
   );
 }
@@ -59,9 +90,7 @@ function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
+    backgroundColor: '#12161E',
   },
 });
 
