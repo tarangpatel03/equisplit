@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { useAppTheme } from '@/theme';
 import { ExpenseItem, Member } from '@/types';
 
@@ -27,6 +28,7 @@ export const PerItemSplit: FC<Props> = ({
   onToggleItemMember,
 }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
 
   // Compute per-member breakdown
   const memberTotals: Record<string, number> = {};
@@ -61,7 +63,7 @@ export const PerItemSplit: FC<Props> = ({
           {'Itemized Split'}
         </AppText>
         <AppText style={[styles.payerChipTextActive, { color: themeColors.primary }]}>
-          {`Total: ₹${itemsTotal.toFixed(2)}`}
+          {`Total: ${currencySymbol}${itemsTotal.toFixed(2)}`}
         </AppText>
       </View>
 
@@ -106,7 +108,7 @@ export const PerItemSplit: FC<Props> = ({
               ]}
             >
               <AppText style={[styles.itemCostPrefix, { color: themeColors.textSecondary }]}>
-                {'₹'}
+                {currencySymbol}
               </AppText>
               <TextInput
                 style={[styles.itemCostInput, { color: themeColors.textPrimary }]}
@@ -188,7 +190,7 @@ export const PerItemSplit: FC<Props> = ({
                   {m.name}
                 </AppText>
                 <AppText style={[styles.itemSummaryAmount, { color: themeColors.textPrimary }]}>
-                  {`₹${amount.toFixed(2)}`}
+                  {`${currencySymbol}${amount.toFixed(2)}`}
                 </AppText>
               </View>
             );

@@ -12,6 +12,7 @@ import { deleteExpense as deleteExpenseDb } from '@/services/database';
 import { showSuccessToast } from '@/services/toast/toast.service';
 import { deleteExpense } from '@/store/expenseSlice';
 import { RootState } from '@/store/store';
+import { usePreferences } from '@/hooks';
 import { useAppTheme } from '@/theme';
 import { Expense, PersonalExpense } from '@/types';
 
@@ -22,6 +23,7 @@ import { ExpenseCard } from './components/ExpenseCard';
 import { PersonalExpenseCard } from './components/PersonalExpenseCard';
 import { PersonalGroupExpenseCard } from './components/PersonalGroupExpenseCard';
 import { PersonalOverviewCard } from './components/PersonalOverviewCard';
+import { PersonalSettlementCard } from './components/PersonalSettlementCard';
 import { useHomeScreen } from './hooks/useHomeScreen';
 import { styles } from './styles';
 
@@ -38,7 +40,17 @@ type PersonalFeedItem =
       date: number;
       data: Expense;
       userShare: number;
+      amountSubtext?: string;
       payerLabel: string;
+    }
+  | {
+      type: 'settlement';
+      id: string;
+      date: number;
+      data: Expense;
+      direction: 'received' | 'paid';
+      amount: number;
+      counterpartName: string;
     };
 
 export const HomeScreen: FC = () => {
@@ -92,6 +104,8 @@ export const HomeScreen: FC = () => {
     }
   }, [personalExpenseToDelete, handleDeletePersonalExpense]);
 
+  const { trackOutOfPocket } = usePreferences();
+
   const primaryMember = useMemo(
     () => members.find(m => m.isPrimary),
     [members],
@@ -110,8 +124,79 @@ export const HomeScreen: FC = () => {
       });
     }
 
-    // 2. Group expenses where primary member has an active share
-    if (primaryMember) {
+    if (!primaryMember) {
+      items.sort((a, b) => b.date - a.date);
+      return items;
+    }
+
+    // 2. Group expenses & settlements based on preference mode
+    if (trackOutOfPocket) {
+      // Out-of-Pocket / Cash Flow Mode
+      for (const exp of expenses) {
+        if (exp.splitMode === 'settlement') {
+          const receiverId = exp.participants?.[0]?.memberId;
+          const payerId = exp.payers?.[0]?.memberId;
+
+          if (receiverId === primaryMember.id) {
+            const payerName =
+              members.find(m => m.id === payerId)?.name ?? 'Member';
+            items.push({
+              type: 'settlement',
+              id: `settlement_recv_${exp.id}`,
+              date: exp.createdAt,
+              data: exp,
+              direction: 'received',
+              amount: exp.totalAmount,
+              counterpartName: payerName,
+            });
+          }
+        } else {
+          // Regular group expense
+          const userPayer = exp.payers?.find(
+            p => p.memberId === primaryMember.id,
+          );
+          if (userPayer && userPayer.amount > 0) {
+            items.push({
+              type: 'group',
+              id: `group_oop_${exp.id}`,
+              date: exp.createdAt,
+              data: exp,
+              userShare: userPayer.amount,
+              amountSubtext: 'Paid out of pocket',
+              payerLabel: 'Paid by You',
+            });
+          } else {
+            // Another member paid: record primary user's allocated share (Scenarios 2 & 4)
+            const participant = exp.participants?.find(
+              p => p.memberId === primaryMember.id,
+            );
+            if (participant && participant.share > 0) {
+              const isSolePayer = exp.payers?.length === 1;
+              let payerLabel = 'Paid by Other';
+              if (isSolePayer && exp.payers[0]) {
+                const payerName =
+                  members.find(m => m.id === exp.payers[0].memberId)?.name ??
+                  'Member';
+                payerLabel = `Paid by ${payerName}`;
+              } else {
+                payerLabel = 'Multiple Payers';
+              }
+
+              items.push({
+                type: 'group',
+                id: `group_share_${exp.id}`,
+                date: exp.createdAt,
+                data: exp,
+                userShare: participant.share,
+                amountSubtext: 'Your share',
+                payerLabel,
+              });
+            }
+          }
+        }
+      }
+    } else {
+      // Consumption Mode (Default): Group expenses where primary member has an active share
       for (const ge of expenses) {
         if (ge.splitMode === 'settlement') continue;
         const participant = ge.participants.find(
@@ -144,6 +229,7 @@ export const HomeScreen: FC = () => {
             date: ge.createdAt,
             data: ge,
             userShare: participant.share,
+            amountSubtext: 'Your share',
             payerLabel,
           });
         }
@@ -153,12 +239,15 @@ export const HomeScreen: FC = () => {
     // Sort descending by date
     items.sort((a, b) => b.date - a.date);
     return items;
-  }, [personalExpenses, expenses, primaryMember, members]);
+  }, [personalExpenses, expenses, primaryMember, members, trackOutOfPocket]);
 
   const filteredPersonalFeedItems = useMemo<PersonalFeedItem[]>(() => {
     let list = personalFeedItems;
     if (selectedCategoryId) {
       list = list.filter(item => {
+        if (item.type === 'settlement') {
+          return selectedCategoryId === 'settlement';
+        }
         const catId = item.data.categoryId ?? 'others';
         return catId === selectedCategoryId;
       });
@@ -175,7 +264,11 @@ export const HomeScreen: FC = () => {
           item.type === 'group'
             ? item.payerLabel.toLowerCase().includes(q)
             : false;
-        return titleMatch || noteMatch || payerMatch;
+        const settlementMatch =
+          item.type === 'settlement'
+            ? item.counterpartName.toLowerCase().includes(q)
+            : false;
+        return titleMatch || noteMatch || payerMatch || settlementMatch;
       });
     }
     return list;
@@ -364,10 +457,21 @@ export const HomeScreen: FC = () => {
                 />
               );
             }
+            if (item.type === 'settlement') {
+              return (
+                <PersonalSettlementCard
+                  settlement={item.data}
+                  direction={item.direction}
+                  amount={item.amount}
+                  counterpartName={item.counterpartName}
+                />
+              );
+            }
             return (
               <PersonalGroupExpenseCard
                 expense={item.data}
                 userShare={item.userShare}
+                amountSubtext={item.amountSubtext}
                 payerLabel={item.payerLabel}
                 onPress={() =>
                   navigation.navigate(RootRoutes.SplitDetails, {

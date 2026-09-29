@@ -10,6 +10,7 @@ import { AppButton } from '@/components/ui/AppButton';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
+import { useCurrency } from '@/hooks';
 import { RootRoutes } from '@/navigation/routes';
 import { deleteExpense as deleteExpenseDb } from '@/services/database';
 import { showSuccessToast } from '@/services/toast/toast.service';
@@ -37,6 +38,7 @@ export const SplitDetailsScreen: FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<DetailsRouteProp>();
   const dispatch = useDispatch();
+  const { currencySymbol } = useCurrency();
 
   const { expenseId } = route.params;
 
@@ -133,7 +135,7 @@ export const SplitDetailsScreen: FC = () => {
           </View>
           <AppText style={styles.heroTitle}>{expense.title}</AppText>
           <AppText style={styles.heroAmount}>
-            {`₹${expense.totalAmount.toFixed(2)}`}
+            {`${currencySymbol}${expense.totalAmount.toFixed(2)}`}
           </AppText>
           <View style={styles.dateRow}>
             <Image
@@ -164,7 +166,7 @@ export const SplitDetailsScreen: FC = () => {
                 {getMemberName(p.memberId)}
               </AppText>
               <AppText style={styles.rowAmount}>
-                {`₹${p.amount.toFixed(2)}`}
+                {`${currencySymbol}${p.amount.toFixed(2)}`}
               </AppText>
             </View>
           ))}
@@ -186,7 +188,7 @@ export const SplitDetailsScreen: FC = () => {
                 ) : null}
               </View>
               <AppText style={styles.rowAmount}>
-                {`₹${p.share.toFixed(2)}`}
+                {`${currencySymbol}${p.share.toFixed(2)}`}
               </AppText>
             </View>
           ))}
@@ -207,7 +209,7 @@ export const SplitDetailsScreen: FC = () => {
                       {item.name || `Item #${idx + 1}`}
                     </AppText>
                     <AppText style={styles.itemCost}>
-                      {`₹${item.cost.toFixed(2)}`}
+                      {`${currencySymbol}${item.cost.toFixed(2)}`}
                     </AppText>
                   </View>
                   <AppText style={styles.itemAssignees}>

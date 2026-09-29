@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Share } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { useCurrency } from '@/hooks';
 import {
   addExpense as addExpenseDb,
   addMember as addMemberDb,
@@ -22,6 +23,7 @@ import {
 
 export function useMembersScreen() {
   const dispatch = useDispatch();
+  const { currencySymbol } = useCurrency();
   const members = useSelector((s: RootState) => s.members.members);
   const expenses = useSelector((s: RootState) => s.expenses.expenses);
 
@@ -207,7 +209,7 @@ export function useMembersScreen() {
         dispatch(addExpense(settlementExpense));
 
         showSuccessToast(
-          `Settlement recorded: ${payerName} paid ₹${data.amount.toFixed(2)} to ${receiverName}`,
+          `Settlement recorded: ${payerName} paid ${currencySymbol}${data.amount.toFixed(2)} to ${receiverName}`,
         );
         setSettleModalVisible(false);
         setSettleTarget(null);
@@ -220,7 +222,12 @@ export function useMembersScreen() {
 
   const handleShareSummary = useCallback(async () => {
     try {
-      const summaryText = generateBalanceSummaryText(members, expenses);
+      const summaryText = generateBalanceSummaryText(
+        members,
+        expenses,
+        new Date(),
+        currencySymbol,
+      );
       await Share.share({
         message: summaryText,
         title: 'EquiSplit Group Balances',
@@ -228,7 +235,7 @@ export function useMembersScreen() {
     } catch {
       // User cancelled or dismissed share dialog
     }
-  }, [members, expenses]);
+  }, [members, expenses, currencySymbol]);
 
   return {
     members,

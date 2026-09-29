@@ -9,6 +9,7 @@ import { AppButton } from '@/components/ui/AppButton';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
@@ -22,6 +23,7 @@ import { styles } from './styles';
 
 export const MembersScreen: FC = () => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
 
   const {
     members,
@@ -348,7 +350,7 @@ export const MembersScreen: FC = () => {
       {/* Replace Primary Member Modal Flow */}
       <ReplacePrimaryModal
         visible={Boolean(primaryMemberToDelete)}
-        memberToRemove={primaryMemberToDelete!}
+        memberToDelete={primaryMemberToDelete}
         otherMembers={members.filter(m => m.id !== primaryMemberToDelete?.id)}
         loading={deleting}
         onConfirm={handleReplacePrimaryAndRemove}
@@ -365,7 +367,7 @@ export const MembersScreen: FC = () => {
                 unsettledMemberWarning.member.name
               } has an unsettled balance of ${
                 unsettledMemberWarning.balance > 0 ? '+' : '-'
-              }₹${Math.abs(unsettledMemberWarning.balance).toFixed(
+              }${currencySymbol}${Math.abs(unsettledMemberWarning.balance).toFixed(
                 2,
               )}. Please settle all balances before removing this member.`
             : ''
@@ -381,12 +383,13 @@ export const MembersScreen: FC = () => {
       <SettleUpModal
         visible={settleModalVisible}
         members={members}
+        pairwiseDetails={pairwiseDetails}
         initialPayer={settleTarget?.payer}
         initialReceiver={settleTarget?.receiver}
         initialAmount={settleTarget?.amount}
         loading={savingSettlement}
         onClose={handleCloseSettleUp}
-        onConfirm={handleRecordSettlement}
+        onSaveSettlement={handleRecordSettlement}
       />
     </AppScreen>
   );

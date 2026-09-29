@@ -19,6 +19,7 @@ import { AppInput } from '@/components/ui/AppInput';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
+import { useCurrency } from '@/hooks';
 import { useAppTheme } from '@/theme';
 
 import { useAddEditPersonalExpense } from './hooks/useAddEditPersonalExpense';
@@ -26,6 +27,7 @@ import { styles } from './styles';
 
 export const AddEditPersonalExpenseScreen = () => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
   const {
     isEdit,
     type,
@@ -219,7 +221,7 @@ export const AddEditPersonalExpenseScreen = () => {
                     },
                   ]}
                 >
-                  {'₹'}
+                  {currencySymbol}
                 </AppText>
               </View>
             }

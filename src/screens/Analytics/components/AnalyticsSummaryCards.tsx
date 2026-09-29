@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { colors, radius, space, useAppTheme } from '@/theme';
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
 
 export const AnalyticsSummaryCards: FC<Props> = ({ totalPaid, totalShare }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
 
   return (
     <View style={styles.container}>
@@ -38,7 +40,7 @@ export const AnalyticsSummaryCards: FC<Props> = ({ totalPaid, totalShare }) => {
           style={[styles.amount, { color: themeColors.textPrimary }]}
           numberOfLines={1}
         >
-          {`₹${totalPaid.toFixed(2)}`}
+          {`${currencySymbol}${totalPaid.toFixed(2)}`}
         </AppText>
       </View>
 
@@ -66,7 +68,7 @@ export const AnalyticsSummaryCards: FC<Props> = ({ totalPaid, totalShare }) => {
           style={[styles.amount, { color: themeColors.textPrimary }]}
           numberOfLines={1}
         >
-          {`₹${totalShare.toFixed(2)}`}
+          {`${currencySymbol}${totalShare.toFixed(2)}`}
         </AppText>
       </View>
     </View>

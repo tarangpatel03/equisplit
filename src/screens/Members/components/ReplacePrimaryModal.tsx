@@ -1,11 +1,5 @@
 import { FC, useState } from 'react';
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { UserCheck, UserPlus } from 'lucide-react-native';
 
@@ -20,7 +14,10 @@ type Props = {
   memberToDelete: Member | null;
   otherMembers: Member[];
   loading: boolean;
-  onConfirm: (choice: { selectedMemberId?: string; newMemberName?: string }) => void;
+  onConfirm: (choice: {
+    selectedMemberId?: string;
+    newMemberName?: string;
+  }) => void;
   onCancel: () => void;
 };
 
@@ -89,20 +86,33 @@ export const ReplacePrimaryModal: FC<Props> = ({
         >
           {/* Header */}
           <View style={styles.headerIconContainer}>
-            <UserCheck size={28} color={themeColors.primary} strokeWidth={2.2} />
+            <UserCheck
+              size={28}
+              color={themeColors.primary}
+              strokeWidth={2.2}
+            />
           </View>
 
           <AppText style={[styles.title, { color: themeColors.textPrimary }]}>
             {'Assign New Primary Profile'}
           </AppText>
-          <AppText style={[styles.subtitle, { color: themeColors.textSecondary }]}>
-            {`"${memberToDelete?.name ?? 'This member'}" is your primary profile ("You"). Choose who will become "You" before deleting this profile.`}
+          <AppText
+            style={[styles.subtitle, { color: themeColors.textSecondary }]}
+          >
+            {`"${
+              memberToDelete?.name ?? 'This member'
+            }" is your primary profile ("You"). Choose who will become "You" before deleting this profile.`}
           </AppText>
 
           {/* Option A: Select from existing members */}
           {otherMembers.length > 0 && (
             <View style={styles.section}>
-              <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+              <AppText
+                style={[
+                  styles.sectionLabel,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
                 {'Select an existing member:'}
               </AppText>
               <ScrollView
@@ -151,14 +161,19 @@ export const ReplacePrimaryModal: FC<Props> = ({
           <View style={styles.section}>
             <View style={styles.newProfileLabelRow}>
               <UserPlus size={14} color={themeColors.textSecondary} />
-              <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+              <AppText
+                style={[
+                  styles.sectionLabel,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
                 {otherMembers.length > 0
                   ? 'Or create a new profile as "You":'
                   : 'Enter your new name to continue as "You":'}
               </AppText>
             </View>
             <AppInput
-              placeholder="e.g. Tarang"
+              placeholder="e.g. Alex"
               value={newName}
               onChangeText={handleNewNameChange}
               error={inputError}
@@ -199,7 +214,7 @@ const styles = StyleSheet.create({
     padding: space.md,
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   dialog: {
     width: '100%',

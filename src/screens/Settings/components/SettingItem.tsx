@@ -1,9 +1,18 @@
-import React, { FC, ReactNode } from 'react';
-import { Pressable, StyleSheet, Switch, View } from 'react-native';
+import React, { FC, ReactNode, useRef } from 'react';
+import {
+  GestureResponderEvent,
+  Pressable,
+  StyleSheet,
+  Switch,
+  View,
+} from 'react-native';
+import type { ViewInstance } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { colors, radius, space, useAppTheme } from '@/theme';
+
+export type TouchCoordinates = { cx: number; cy: number };
 
 type Props = {
   icon: ReactNode;
@@ -14,8 +23,8 @@ type Props = {
   badgeVariant?: 'default' | 'primary';
   type?: 'chevron' | 'switch' | 'badge' | 'none';
   switchValue?: boolean;
-  onSwitchChange?: (val: boolean) => void;
-  onPress?: () => void;
+  onSwitchChange?: (val: boolean, coords?: TouchCoordinates) => void;
+  onPress?: (coords?: TouchCoordinates) => void;
   isDestructive?: boolean;
   showDivider?: boolean;
 };
@@ -35,9 +44,22 @@ export const SettingItem: FC<Props> = ({
   showDivider = true,
 }) => {
   const { colors: themeColors, isDark } = useAppTheme();
+  const switchContainerRef = useRef<ViewInstance>(null);
 
   const effectiveIconBg =
     iconBg ?? (isDestructive ? themeColors.debtLight : themeColors.surfaceAlt);
+
+  const handleItemPress = (e: GestureResponderEvent) => {
+    const coords: TouchCoordinates | undefined = e.nativeEvent
+      ? { cx: e.nativeEvent.pageX, cy: e.nativeEvent.pageY }
+      : undefined;
+
+    if (type === 'switch') {
+      onSwitchChange?.(!switchValue, coords);
+    } else {
+      onPress?.(coords);
+    }
+  };
 
   const content = (
     <View style={styles.row}>
@@ -81,15 +103,20 @@ export const SettingItem: FC<Props> = ({
       {/* Right Accessory */}
       <View style={styles.accessoryContainer}>
         {type === 'switch' && (
-          <Switch
-            value={switchValue}
-            onValueChange={onSwitchChange}
-            trackColor={{
-              false: isDark ? themeColors.border : '#CBD5E1',
-              true: themeColors.primary,
-            }}
-            thumbColor={themeColors.textOnPrimary}
-          />
+          <View
+            ref={switchContainerRef}
+            collapsable={false}
+            pointerEvents="none"
+          >
+            <Switch
+              value={switchValue}
+              trackColor={{
+                false: isDark ? themeColors.border : '#CBD5E1',
+                true: themeColors.primary,
+              }}
+              thumbColor={themeColors.textOnPrimary}
+            />
+          </View>
         )}
 
         {type === 'badge' && badgeText && (
@@ -125,11 +152,13 @@ export const SettingItem: FC<Props> = ({
     </View>
   );
 
+  const isInteractive = Boolean(onPress || type === 'switch');
+
   return (
     <View>
-      {onPress && type !== 'switch' ? (
+      {isInteractive ? (
         <Pressable
-          onPress={onPress}
+          onPress={handleItemPress}
           style={({ pressed }) => [
             styles.itemPressable,
             pressed && {
@@ -138,7 +167,10 @@ export const SettingItem: FC<Props> = ({
                 : 'rgba(0, 0, 0, 0.03)',
             },
           ]}
-          accessibilityRole="button"
+          accessibilityRole={type === 'switch' ? 'switch' : 'button'}
+          accessibilityState={
+            type === 'switch' ? { checked: switchValue } : undefined
+          }
           accessibilityLabel={title}
         >
           {content}

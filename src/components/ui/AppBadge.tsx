@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 
+import { useCurrency } from '@/hooks';
 import { colors, radius, space, useAppTheme } from '@/theme';
 
 import { AppText } from './AppText';
@@ -12,6 +13,7 @@ type Props = {
   amount: number;
   /** Positive = credit (you are owed), negative = debt (you owe), zero = settled. */
   variant?: Variant;
+  currencySymbol?: string;
   compact?: boolean;
   style?: ViewStyle;
 };
@@ -26,10 +28,13 @@ export const AppBadge: FC<Props> = ({
   label,
   amount,
   variant,
+  currencySymbol: propSymbol,
   compact = true,
   style,
 }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol: defaultSymbol } = useCurrency();
+  const symbol = propSymbol ?? defaultSymbol;
   const resolvedVariant = variant ?? resolveVariant(amount);
   const absAmount = Math.abs(amount);
   const sign = amount > 0 ? '+' : amount < 0 ? '-' : '';
@@ -77,7 +82,7 @@ export const AppBadge: FC<Props> = ({
           { color: textColors[resolvedVariant] },
         ]}
       >
-        {`${sign}₹${absAmount.toFixed(2)}`}
+        {`${sign}${symbol}${absAmount.toFixed(2)}`}
       </AppText>
     </View>
   );

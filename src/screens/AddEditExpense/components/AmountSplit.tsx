@@ -2,6 +2,7 @@ import { FC, useMemo } from 'react';
 import { TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
@@ -21,6 +22,7 @@ export const AmountSplit: FC<Props> = ({
   onAmountChange,
 }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
   const sumAllocated = useMemo(() => {
     return members.reduce((sum, m) => {
       const val = parseFloat(memberAmounts[m.id] ?? '0');
@@ -62,7 +64,7 @@ export const AmountSplit: FC<Props> = ({
           </AppText>
           <View style={styles.memberInputContainer}>
             <AppText style={[styles.currencyPrefix, { color: themeColors.textSecondary }]}>
-              {'₹'}
+              {currencySymbol}
             </AppText>
             <TextInput
               style={[
@@ -89,12 +91,12 @@ export const AmountSplit: FC<Props> = ({
           style={isMatched ? styles.statusTextSuccess : styles.statusTextError}
         >
           {isMatched
-            ? `✓ Allocated ₹${sumAllocated.toFixed(2)} of ₹${totalAmount.toFixed(2)}`
+            ? `✓ Allocated ${currencySymbol}${sumAllocated.toFixed(2)} of ${currencySymbol}${totalAmount.toFixed(2)}`
             : totalAmount <= 0
             ? 'Enter a valid total amount above'
             : diff > 0
-            ? `Allocated ₹${sumAllocated.toFixed(2)} / ₹${totalAmount.toFixed(2)} (₹${diff.toFixed(2)} remaining)`
-            : `Allocated ₹${sumAllocated.toFixed(2)} / ₹${totalAmount.toFixed(2)} (₹${Math.abs(diff).toFixed(2)} over)`}
+            ? `Allocated ${currencySymbol}${sumAllocated.toFixed(2)} / ${currencySymbol}${totalAmount.toFixed(2)} (${currencySymbol}${diff.toFixed(2)} remaining)`
+            : `Allocated ${currencySymbol}${sumAllocated.toFixed(2)} / ${currencySymbol}${totalAmount.toFixed(2)} (${currencySymbol}${Math.abs(diff).toFixed(2)} over)`}
         </AppText>
       </View>
     </View>

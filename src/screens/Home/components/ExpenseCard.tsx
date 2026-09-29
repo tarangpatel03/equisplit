@@ -6,6 +6,7 @@ import { assets } from '@/assets';
 import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
+import { useCurrency } from '@/hooks';
 import { RootState } from '@/store/store';
 import { colors, radius, space, useAppTheme } from '@/theme';
 import { Expense, Member } from '@/types';
@@ -20,6 +21,7 @@ type Props = {
 export const ExpenseCard: FC<Props> = memo(
   ({ expense, members, onPress, onDelete }) => {
     const { colors: themeColors } = useAppTheme();
+    const { currencySymbol } = useCurrency();
     const categories = useSelector((s: RootState) => s.categories.categories);
     const category = getCategoryById(expense.categoryId, categories);
 
@@ -98,14 +100,14 @@ export const ExpenseCard: FC<Props> = memo(
 
       if (net > 0.005) {
         return {
-          label: `You lent ₹${net.toFixed(2)}`,
+          label: `You lent ${currencySymbol}${net.toFixed(2)}`,
           color: themeColors.credit,
           bg: 'rgba(46, 213, 115, 0.12)',
           borderColor: 'rgba(46, 213, 115, 0.35)',
         };
       } else if (net < -0.005) {
         return {
-          label: `You owe ₹${Math.abs(net).toFixed(2)}`,
+          label: `You owe ${currencySymbol}${Math.abs(net).toFixed(2)}`,
           color: themeColors.debt,
           bg: 'rgba(255, 107, 107, 0.12)',
           borderColor: 'rgba(255, 107, 107, 0.35)',
@@ -223,7 +225,7 @@ export const ExpenseCard: FC<Props> = memo(
         <View style={styles.right}>
           <AppText
             style={[styles.amount, { color: themeColors.textPrimary }]}
-          >{`₹${expense.totalAmount.toFixed(2)}`}</AppText>
+          >{`${currencySymbol}${expense.totalAmount.toFixed(2)}`}</AppText>
           <Pressable
             onPress={onDelete}
             hitSlop={8}

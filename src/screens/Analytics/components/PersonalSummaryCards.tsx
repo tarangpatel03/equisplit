@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { ArrowDownLeft, ArrowUpRight, Scale } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { colors, radius, space, useAppTheme } from '@/theme';
 
 type Props = {
@@ -17,6 +18,7 @@ export const PersonalSummaryCards: FC<Props> = ({
   netBalance,
 }) => {
   const { colors: themeColors, isDark } = useAppTheme();
+  const { currencySymbol } = useCurrency();
   const netSign = netBalance > 0 ? '+' : netBalance < 0 ? '-' : '';
   const absNet = Math.abs(netBalance);
   const netColor =
@@ -68,7 +70,7 @@ export const PersonalSummaryCards: FC<Props> = ({
             style={[styles.amount, { color: themeColors.credit }]}
             numberOfLines={1}
           >
-            {`+₹${totalInflow.toFixed(2)}`}
+            {`+${currencySymbol}${totalInflow.toFixed(2)}`}
           </AppText>
         </View>
 
@@ -110,7 +112,7 @@ export const PersonalSummaryCards: FC<Props> = ({
             style={[styles.amount, { color: themeColors.debt }]}
             numberOfLines={1}
           >
-            {`-₹${totalOutflow.toFixed(2)}`}
+            {`-${currencySymbol}${totalOutflow.toFixed(2)}`}
           </AppText>
         </View>
       </View>
@@ -137,7 +139,7 @@ export const PersonalSummaryCards: FC<Props> = ({
           style={[styles.netAmount, { color: netColor }]}
           numberOfLines={1}
         >
-          {`${netSign}₹${absNet.toFixed(2)}`}
+          {`${netSign}${currencySymbol}${absNet.toFixed(2)}`}
         </AppText>
       </View>
     </View>

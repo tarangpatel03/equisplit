@@ -2,6 +2,7 @@ import { FC, useMemo } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
@@ -23,6 +24,7 @@ export const PayerSection: FC<Props> = ({
   onSelectSinglePayer,
 }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
   const sumPaid = useMemo(() => {
     return members.reduce((acc, m) => {
       const val = parseFloat(payerContributions[m.id] ?? '0');
@@ -122,7 +124,7 @@ export const PayerSection: FC<Props> = ({
                 { color: themeColors.textSecondary },
               ]}
             >
-              {'₹'}
+              {currencySymbol}
             </AppText>
             <TextInput
               style={[
@@ -151,16 +153,16 @@ export const PayerSection: FC<Props> = ({
           }
         >
           {isPaidMatched
-            ? `✓ Paid ₹${sumPaid.toFixed(2)} of ₹${totalAmount.toFixed(2)}`
+            ? `✓ Paid ${currencySymbol}${sumPaid.toFixed(2)} of ${currencySymbol}${totalAmount.toFixed(2)}`
             : totalAmount <= 0
             ? 'Enter a valid total amount above'
             : difference > 0
-            ? `Paid ₹${sumPaid.toFixed(2)} / ₹${totalAmount.toFixed(
+            ? `Paid ${currencySymbol}${sumPaid.toFixed(2)} / ${currencySymbol}${totalAmount.toFixed(
                 2,
-              )} (₹${difference.toFixed(2)} remaining)`
-            : `Paid ₹${sumPaid.toFixed(2)} / ₹${totalAmount.toFixed(
+              )} (${currencySymbol}${difference.toFixed(2)} remaining)`
+            : `Paid ${currencySymbol}${sumPaid.toFixed(2)} / ${currencySymbol}${totalAmount.toFixed(
                 2,
-              )} (₹${Math.abs(difference).toFixed(2)} overpaid)`}
+              )} (${currencySymbol}${Math.abs(difference).toFixed(2)} overpaid)`}
         </AppText>
       </View>
     </View>

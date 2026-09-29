@@ -6,6 +6,7 @@ import { assets } from '@/assets';
 import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
+import { useCurrency } from '@/hooks';
 import { RootState } from '@/store/store';
 import { colors, radius, space, useAppTheme } from '@/theme';
 import { PersonalExpense } from '@/types';
@@ -19,6 +20,7 @@ type Props = {
 export const PersonalExpenseCard = memo(
   ({ expense, onPress, onDelete }: Props) => {
     const { colors: themeColors } = useAppTheme();
+    const { currencySymbol } = useCurrency();
     const categories = useSelector((s: RootState) => s.categories.categories);
     const category = getCategoryById(expense.categoryId, categories);
 
@@ -96,7 +98,7 @@ export const PersonalExpenseCard = memo(
 
         <View style={styles.right}>
           <AppText style={[styles.amount, { color: amountColor }]}>
-            {`${amountPrefix}₹${expense.amount.toFixed(2)}`}
+            {`${amountPrefix}${currencySymbol}${expense.amount.toFixed(2)}`}
           </AppText>
           <Pressable
             onPress={onDelete}

@@ -2,6 +2,7 @@ import { FC, useMemo } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
@@ -23,6 +24,7 @@ export const SharesSplit: FC<Props> = ({
   onStepperChange,
 }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
   const totalShares = useMemo(() => {
     return members.reduce((sum, m) => {
       const val = parseFloat(memberShares[m.id] ?? '0');
@@ -127,7 +129,7 @@ export const SharesSplit: FC<Props> = ({
               </Pressable>
 
               <AppText style={styles.computedShareBadge}>
-                {`₹${computedAmount}`}
+                {`${currencySymbol}${computedAmount}`}
               </AppText>
             </View>
           </View>

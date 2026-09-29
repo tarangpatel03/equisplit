@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { colors, radius, space, useAppTheme } from '@/theme';
 import { Member } from '@/types';
 import { MemberBalanceDetail } from '@/utils';
@@ -15,6 +16,7 @@ type Props = {
 export const MemberBalanceCard = memo(
   ({ detail, defaultExpanded = false, onSettleUp }: Props) => {
     const { colors: themeColors } = useAppTheme();
+    const { currencySymbol } = useCurrency();
     const [expanded, setExpanded] = useState(defaultExpanded);
     const { member, netBalance, status, breakdowns } = detail;
 
@@ -107,7 +109,7 @@ export const MemberBalanceCard = memo(
 
           <View style={styles.right}>
             <AppText style={[styles.netAmount, { color: amountColor }]}>
-              {`${sign}₹${absAmount.toFixed(2)}`}
+              {`${sign}${currencySymbol}${absAmount.toFixed(2)}`}
             </AppText>
             <View
               style={[
@@ -200,7 +202,7 @@ export const MemberBalanceCard = memo(
                       <AppText
                         style={[styles.breakdownAmount, { color: itemColor }]}
                       >
-                        {`${itemSign}₹${itemAbs.toFixed(2)}`}
+                        {`${itemSign}${currencySymbol}${itemAbs.toFixed(2)}`}
                       </AppText>
                       {onSettleUp && itemAbs > 0.005 ? (
                         <Pressable

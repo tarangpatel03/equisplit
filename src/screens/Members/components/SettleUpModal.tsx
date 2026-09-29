@@ -15,20 +15,32 @@ import { AppDatePicker } from '@/components/common';
 import { AppButton } from '@/components/ui/AppButton';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { colors, radius, space, useAppTheme } from '@/theme';
 import { Member } from '@/types';
 import { MemberBalanceDetail } from '@/utils';
+
+const EMPTY_PAIRWISE_DETAILS: MemberBalanceDetail[] = [];
 
 type Props = {
   visible: boolean;
   members: Member[];
   pairwiseDetails?: MemberBalanceDetail[];
+  initialPayer?: Member;
   initialPayerId?: string;
+  initialReceiver?: Member;
   initialReceiverId?: string;
   initialAmount?: number;
   loading?: boolean;
   onClose: () => void;
-  onSaveSettlement: (settlement: {
+  onSaveSettlement?: (settlement: {
+    payerId: string;
+    receiverId: string;
+    amount: number;
+    date: Date;
+    note?: string;
+  }) => Promise<void>;
+  onConfirm?: (settlement: {
     payerId: string;
     receiverId: string;
     amount: number;
@@ -40,16 +52,23 @@ type Props = {
 export const SettleUpModal: FC<Props> = ({
   visible,
   members,
-  pairwiseDetails = [],
+  pairwiseDetails = EMPTY_PAIRWISE_DETAILS,
+  initialPayer,
   initialPayerId,
+  initialReceiver,
   initialReceiverId,
   initialAmount,
   loading = false,
   onClose,
   onSaveSettlement,
+  onConfirm,
 }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
   const insets = useSafeAreaInsets();
+
+  const effectivePayerId = initialPayerId ?? initialPayer?.id;
+  const effectiveReceiverId = initialReceiverId ?? initialReceiver?.id;
 
   const [payerId, setPayerId] = useState<string>('');
   const [receiverId, setReceiverId] = useState<string>('');
@@ -75,8 +94,8 @@ export const SettleUpModal: FC<Props> = ({
     setDate(new Date());
     setError(undefined);
 
-    let defaultPayer = initialPayerId;
-    let defaultReceiver = initialReceiverId;
+    let defaultPayer = effectivePayerId;
+    let defaultReceiver = effectiveReceiverId;
 
     if (!defaultPayer || !defaultReceiver) {
       // Find the first pairwise debt in the group to auto-suggest
@@ -97,7 +116,8 @@ export const SettleUpModal: FC<Props> = ({
       defaultPayer = members[0].id;
     }
     if (!defaultReceiver && members.length > 1) {
-      defaultReceiver = members.find(m => m.id !== defaultPayer)?.id ?? members[1].id;
+      defaultReceiver =
+        members.find(m => m.id !== defaultPayer)?.id ?? members[1].id;
     }
 
     setPayerId(defaultPayer ?? '');
@@ -113,9 +133,13 @@ export const SettleUpModal: FC<Props> = ({
     }
 
     setNote('');
-  }, [visible, initialPayerId, initialReceiverId, initialAmount, members, pairwiseDetails]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, effectivePayerId, effectiveReceiverId, initialAmount]);
 
-  const payer = useMemo(() => members.find(m => m.id === payerId), [members, payerId]);
+  const payer = useMemo(
+    () => members.find(m => m.id === payerId),
+    [members, payerId],
+  );
   const receiver = useMemo(
     () => members.find(m => m.id === receiverId),
     [members, receiverId],
@@ -124,6 +148,7 @@ export const SettleUpModal: FC<Props> = ({
   const activeDebt = useMemo(() => {
     if (!payerId || !receiverId) return 0;
     return getDebtBetween(payerId, receiverId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payerId, receiverId, pairwiseDetails]);
 
   const handleSelectPayer = (id: string) => {
@@ -177,13 +202,16 @@ export const SettleUpModal: FC<Props> = ({
       return;
     }
 
-    await onSaveSettlement({
-      payerId,
-      receiverId,
-      amount: Math.round(parsedAmount * 100) / 100,
-      date,
-      note: note.trim() || undefined,
-    });
+    const saveFn = onSaveSettlement ?? onConfirm;
+    if (saveFn) {
+      await saveFn({
+        payerId,
+        receiverId,
+        amount: Math.round(parsedAmount * 100) / 100,
+        date,
+        note: note.trim() || undefined,
+      });
+    }
   };
 
   const formattedDate = date.toLocaleDateString('en-IN', {
@@ -218,18 +246,34 @@ export const SettleUpModal: FC<Props> = ({
               ]}
             >
               {/* Handle Bar */}
-              <View style={[styles.handleBar, { backgroundColor: themeColors.border }]} />
+              <View
+                style={[
+                  styles.handleBar,
+                  { backgroundColor: themeColors.border },
+                ]}
+              />
 
               {/* Title Header */}
               <View style={styles.header}>
                 <View style={styles.headerIconBox}>
-                  <HandCoins size={22} color={themeColors.credit} strokeWidth={2.4} />
+                  <HandCoins
+                    size={22}
+                    color={themeColors.credit}
+                    strokeWidth={2.4}
+                  />
                 </View>
                 <View style={styles.headerTextCol}>
-                  <AppText style={[styles.title, { color: themeColors.textPrimary }]}>
+                  <AppText
+                    style={[styles.title, { color: themeColors.textPrimary }]}
+                  >
                     {'Record Settlement'}
                   </AppText>
-                  <AppText style={[styles.subtitle, { color: themeColors.textSecondary }]}>
+                  <AppText
+                    style={[
+                      styles.subtitle,
+                      { color: themeColors.textSecondary },
+                    ]}
+                  >
                     {'Log a cash or UPI payment between group members'}
                   </AppText>
                 </View>
@@ -257,11 +301,19 @@ export const SettleUpModal: FC<Props> = ({
                     </AppText>
                   </View>
                   <View style={styles.memberNameCol}>
-                    <AppText style={[styles.transferRole, { color: themeColors.textSecondary }]}>
+                    <AppText
+                      style={[
+                        styles.transferRole,
+                        { color: themeColors.textSecondary },
+                      ]}
+                    >
                       {'Paid by'}
                     </AppText>
                     <AppText
-                      style={[styles.transferName, { color: themeColors.textPrimary }]}
+                      style={[
+                        styles.transferName,
+                        { color: themeColors.textPrimary },
+                      ]}
                       numberOfLines={1}
                     >
                       {payer?.name ?? 'Select'}
@@ -269,21 +321,35 @@ export const SettleUpModal: FC<Props> = ({
                   </View>
 
                   <View style={styles.arrowBox}>
-                    <ArrowRight size={18} color={themeColors.primary} strokeWidth={2.4} />
+                    <ArrowRight
+                      size={18}
+                      color={themeColors.primary}
+                      strokeWidth={2.4}
+                    />
                   </View>
 
                   <View style={styles.memberNameCol}>
-                    <AppText style={[styles.transferRole, { color: themeColors.textSecondary }]}>
+                    <AppText
+                      style={[
+                        styles.transferRole,
+                        { color: themeColors.textSecondary },
+                      ]}
+                    >
                       {'Received by'}
                     </AppText>
                     <AppText
-                      style={[styles.transferName, { color: themeColors.textPrimary }]}
+                      style={[
+                        styles.transferName,
+                        { color: themeColors.textPrimary },
+                      ]}
                       numberOfLines={1}
                     >
                       {receiver?.name ?? 'Select'}
                     </AppText>
                   </View>
-                  <View style={[styles.memberAvatarBox, styles.receiverAvatarBox]}>
+                  <View
+                    style={[styles.memberAvatarBox, styles.receiverAvatarBox]}
+                  >
                     <AppText style={styles.memberAvatarText}>
                       {receiver?.name.charAt(0).toUpperCase() ?? '?'}
                     </AppText>
@@ -292,7 +358,12 @@ export const SettleUpModal: FC<Props> = ({
 
                 {/* 1. Who Paid? */}
                 <View style={styles.section}>
-                  <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                  <AppText
+                    style={[
+                      styles.sectionLabel,
+                      { color: themeColors.textSecondary },
+                    ]}
+                  >
                     {'Who paid?'}
                   </AppText>
                   <ScrollView
@@ -339,7 +410,12 @@ export const SettleUpModal: FC<Props> = ({
 
                 {/* 2. Who Received? */}
                 <View style={styles.section}>
-                  <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                  <AppText
+                    style={[
+                      styles.sectionLabel,
+                      { color: themeColors.textSecondary },
+                    ]}
+                  >
                     {'Who received?'}
                   </AppText>
                   <ScrollView
@@ -391,7 +467,12 @@ export const SettleUpModal: FC<Props> = ({
                 {/* 3. Amount */}
                 <View style={styles.section}>
                   <View style={styles.amountLabelRow}>
-                    <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                    <AppText
+                      style={[
+                        styles.sectionLabel,
+                        { color: themeColors.textSecondary },
+                      ]}
+                    >
                       {'Amount Paid'}
                     </AppText>
                     {activeDebt > 0 && (
@@ -401,7 +482,9 @@ export const SettleUpModal: FC<Props> = ({
                         hitSlop={4}
                       >
                         <AppText style={styles.fullDebtText}>
-                          {`Full balance: ₹${activeDebt.toFixed(2)}`}
+                          {`Full balance: ${currencySymbol}${activeDebt.toFixed(
+                            2,
+                          )}`}
                         </AppText>
                       </Pressable>
                     )}
@@ -418,7 +501,12 @@ export const SettleUpModal: FC<Props> = ({
 
                 {/* 4. Date Picker Button */}
                 <View style={styles.section}>
-                  <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                  <AppText
+                    style={[
+                      styles.sectionLabel,
+                      { color: themeColors.textSecondary },
+                    ]}
+                  >
                     {'Payment Date'}
                   </AppText>
                   <Pressable
@@ -445,7 +533,12 @@ export const SettleUpModal: FC<Props> = ({
 
                 {/* 5. Note / Payment Method */}
                 <View style={styles.section}>
-                  <AppText style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                  <AppText
+                    style={[
+                      styles.sectionLabel,
+                      { color: themeColors.textSecondary },
+                    ]}
+                  >
                     {'Note / Payment Method (Optional)'}
                   </AppText>
                   <AppInput
@@ -508,7 +601,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   sheet: {
     backgroundColor: colors.surface,

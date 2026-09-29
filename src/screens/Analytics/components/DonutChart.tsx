@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { colors, useAppTheme } from '@/theme';
 
 import { CategorySpending } from '../hooks/useAnalytics';
@@ -21,6 +22,7 @@ export const DonutChart: FC<Props> = ({
   innerRadius = 72,
 }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
 
   const chartData = useMemo(() => {
     if (totalSpending <= 0 || data.length === 0) {
@@ -53,7 +55,7 @@ export const DonutChart: FC<Props> = ({
               style={[styles.totalAmount, { color: themeColors.textPrimary }]}
               numberOfLines={1}
             >
-              {`₹${totalSpending.toFixed(2)}`}
+              {`${currencySymbol}${totalSpending.toFixed(2)}`}
             </AppText>
             <AppText
               style={[styles.totalLabel, { color: themeColors.textSecondary }]}

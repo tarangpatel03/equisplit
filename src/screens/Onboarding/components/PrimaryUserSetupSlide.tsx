@@ -56,10 +56,7 @@ export const PrimaryUserSetupSlide: FC<Props> = ({
                   <Pressable
                     key={m.id}
                     onPress={() => onSelectMember(m)}
-                    style={[
-                      styles.chip,
-                      isSelected && styles.chipSelected,
-                    ]}
+                    style={[styles.chip, isSelected && styles.chipSelected]}
                   >
                     <AppText
                       style={[
@@ -78,7 +75,7 @@ export const PrimaryUserSetupSlide: FC<Props> = ({
 
         <AppInput
           label="Your Name"
-          placeholder="e.g. Tarang"
+          placeholder="e.g. Alex"
           value={name}
           onChangeText={onChangeName}
           autoCapitalize="words"

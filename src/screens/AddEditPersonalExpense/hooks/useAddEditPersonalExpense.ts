@@ -102,7 +102,7 @@ export function useAddEditPersonalExpense() {
 
     const parsedAmount = parseFloat(amountStr);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      setAmountError('Please enter a valid amount greater than ₹0');
+      setAmountError('Please enter a valid amount greater than 0');
       hasError = true;
     }
 

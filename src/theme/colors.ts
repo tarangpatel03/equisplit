@@ -34,6 +34,8 @@ export const darkColors = {
   // Misc
   divider: '#262F3F',
   overlay: 'rgba(0, 0, 0, 0.75)',
+
+  transparent: 'transparent',
 };
 
 export const lightColors = {
@@ -67,6 +69,8 @@ export const lightColors = {
   // Misc
   divider: '#E2E8F0',
   overlay: 'rgba(15, 23, 42, 0.55)',
+
+  transparent: 'transparent',
 };
 
 export type ColorPalette = typeof darkColors;

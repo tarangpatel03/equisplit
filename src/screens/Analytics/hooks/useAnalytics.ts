@@ -25,17 +25,110 @@ export const useAnalytics = () => {
     (state: RootState) => state.personalExpenses?.personalExpenses ?? [],
   );
 
+  const trackOutOfPocket = useSelector(
+    (state: RootState) => state.preferences?.trackOutOfPocket ?? false,
+  );
+
+  const primaryMember = useMemo(
+    () => members.find(m => m.isPrimary),
+    [members],
+  );
+
+  const effectivePersonalExpenses = useMemo(() => {
+    if (!primaryMember) {
+      return personalExpenses;
+    }
+    const combined = [...personalExpenses];
+
+    if (trackOutOfPocket) {
+      // Out-of-Pocket / Cash Flow Mode
+      for (const exp of expenses) {
+        if (exp.splitMode === 'settlement') {
+          const receiverId = exp.participants?.[0]?.memberId;
+          // Only settlement received creates an inflow (settlement income)
+          if (receiverId === primaryMember.id) {
+            combined.push({
+              id: `settle_recv_${exp.id}`,
+              title: exp.title,
+              amount: exp.totalAmount,
+              type: 'income',
+              categoryId: 'settlement',
+              date: exp.createdAt,
+              createdAt: exp.createdAt,
+              updatedAt: exp.updatedAt ?? exp.createdAt,
+            });
+          }
+        } else {
+          const userPayer = exp.payers?.find(
+            p => p.memberId === primaryMember.id,
+          );
+          if (userPayer && userPayer.amount > 0) {
+            // Primary user paid out of pocket (Scenarios 1 & 3)
+            combined.push({
+              id: `group_oop_${exp.id}`,
+              title: exp.title,
+              amount: userPayer.amount,
+              type: 'expense',
+              categoryId: exp.categoryId ?? 'others',
+              date: exp.createdAt,
+              createdAt: exp.createdAt,
+              updatedAt: exp.updatedAt ?? exp.createdAt,
+            });
+          } else {
+            // Another member paid: primary user's consumed share is counted (Scenarios 2 & 4)
+            const participant = exp.participants?.find(
+              p => p.memberId === primaryMember.id,
+            );
+            if (participant && participant.share > 0) {
+              combined.push({
+                id: `group_share_${exp.id}`,
+                title: exp.title,
+                amount: participant.share,
+                type: 'expense',
+                categoryId: exp.categoryId ?? 'others',
+                date: exp.createdAt,
+                createdAt: exp.createdAt,
+                updatedAt: exp.updatedAt ?? exp.createdAt,
+              });
+            }
+          }
+        }
+      }
+    } else {
+      // Consumption Mode (Default): Group expenses where primary member has an active share
+      for (const exp of expenses) {
+        if (exp.splitMode === 'settlement') continue;
+        const participant = exp.participants?.find(
+          p => p.memberId === primaryMember.id,
+        );
+        if (participant && participant.share > 0) {
+          combined.push({
+            id: `group_share_${exp.id}`,
+            title: exp.title,
+            amount: participant.share,
+            type: 'expense',
+            categoryId: exp.categoryId ?? 'others',
+            date: exp.createdAt,
+            createdAt: exp.createdAt,
+            updatedAt: exp.updatedAt ?? exp.createdAt,
+          });
+        }
+      }
+    }
+    return combined;
+  }, [personalExpenses, expenses, primaryMember, trackOutOfPocket]);
+
   const [activeTab, setActiveTab] = useState<"personal" | "group">("personal");
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("this_month");
   const [selectedMemberId, setSelectedMemberId] = useState<string>("group");
 
   const personalAnalytics = useMemo(() => {
     return computePersonalAnalytics(
-      personalExpenses,
+      effectivePersonalExpenses,
       categories,
       selectedPeriod,
     );
-  }, [personalExpenses, categories, selectedPeriod]);
+  }, [effectivePersonalExpenses, categories, selectedPeriod]);
 
   const selectedMemberName = useMemo(() => {
     if (selectedMemberId === "group") return "Group View";
@@ -112,7 +205,7 @@ export const useAnalytics = () => {
     selectedPeriod,
     setSelectedPeriod,
     personalAnalytics,
-    personalExpensesCount: personalExpenses.length,
+    personalExpensesCount: effectivePersonalExpenses.length,
     members,
     selectedMemberId,
     setSelectedMemberId,

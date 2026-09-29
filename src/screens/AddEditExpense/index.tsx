@@ -21,6 +21,7 @@ import { AppInput } from '@/components/ui/AppInput';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
+import { useCurrency } from '@/hooks';
 import { RootState } from '@/store/store';
 import { useAppTheme } from '@/theme';
 import { BottomTabRoutes, RootRoutes } from '@/navigation/routes';
@@ -37,6 +38,7 @@ import { styles } from './styles';
 
 export const AddEditExpenseScreen: FC = () => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
   const navigation = useNavigation<NavType>();
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const categories = useSelector((s: RootState) => s.categories.categories);
@@ -201,7 +203,7 @@ export const AddEditExpenseScreen: FC = () => {
                     { color: themeColors.primary },
                   ]}
                 >
-                  {'₹'}
+                  {currencySymbol}
                 </AppText>
               </View>
             }

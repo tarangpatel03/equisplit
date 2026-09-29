@@ -4,6 +4,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { DEFAULT_CATEGORY_ID } from '@/config';
+import { useCurrency } from '@/hooks';
 import { RootRoutes } from '@/navigation/routes';
 import {
   addExpense as addExpenseDb,
@@ -53,6 +54,7 @@ export const useAddEditExpense = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ScreenRouteProp>();
   const dispatch = useDispatch();
+  const { currencySymbol } = useCurrency();
 
   const expenseId = route.params?.expenseId;
 
@@ -432,9 +434,9 @@ export const useAddEditExpense = () => {
 
     if (Math.abs(sumPaid - total) > 0.05) {
       showErrorToast(
-        `Total paid (₹${sumPaid.toFixed(
+        `Total paid (${currencySymbol}${sumPaid.toFixed(
           2,
-        )}) must equal total amount (₹${total.toFixed(2)})`,
+        )}) must equal total amount (${currencySymbol}${total.toFixed(2)})`,
       );
       return;
     }
@@ -501,9 +503,9 @@ export const useAddEditExpense = () => {
 
       if (Math.abs(sumAllocated - total) > 0.05) {
         showErrorToast(
-          `Allocated amount (₹${sumAllocated.toFixed(
+          `Allocated amount (${currencySymbol}${sumAllocated.toFixed(
             2,
-          )}) must equal total amount (₹${total.toFixed(2)})`,
+          )}) must equal total amount (${currencySymbol}${total.toFixed(2)})`,
         );
         return;
       }

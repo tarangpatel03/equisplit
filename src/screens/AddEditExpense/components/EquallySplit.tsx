@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency } from '@/hooks';
 import { useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
@@ -25,6 +26,7 @@ export const EquallySplit: FC<Props> = ({
   onDeselectAll,
 }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
   const count = selectedMemberIds.length;
   const sharePerPerson =
     count > 0 && totalAmount > 0 ? (totalAmount / count).toFixed(2) : '0.00';
@@ -54,7 +56,7 @@ export const EquallySplit: FC<Props> = ({
 
       <AppText style={[styles.subText, { color: themeColors.textSecondary }]}>
         {count > 0
-          ? `₹${sharePerPerson} / person (${count} of ${members.length} people)`
+          ? `${currencySymbol}${sharePerPerson} / person (${count} of ${members.length} people)`
           : 'Select at least one person'}
       </AppText>
 
@@ -75,7 +77,7 @@ export const EquallySplit: FC<Props> = ({
               </AppText>
               {isSelected ? (
                 <AppText style={styles.equalShareText}>
-                  {`₹${sharePerPerson}`}
+                  {`${currencySymbol}${sharePerPerson}`}
                 </AppText>
               ) : null}
             </View>

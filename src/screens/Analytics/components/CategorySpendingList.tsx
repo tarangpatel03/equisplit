@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor } from '@/config';
+import { useCurrency } from '@/hooks';
 import { colors, radius, space, useAppTheme } from '@/theme';
 
 import { CategorySpending } from '../hooks/useAnalytics';
@@ -14,6 +15,7 @@ type Props = {
 
 export const CategorySpendingList: FC<Props> = ({ data }) => {
   const { colors: themeColors } = useAppTheme();
+  const { currencySymbol } = useCurrency();
   if (data.length === 0) return null;
 
   return (
@@ -59,7 +61,7 @@ export const CategorySpendingList: FC<Props> = ({ data }) => {
                 style={[styles.amount, { color: themeColors.textPrimary }]}
                 numberOfLines={1}
               >
-                {`₹${item.amount.toFixed(2)}`}
+                {`${currencySymbol}${item.amount.toFixed(2)}`}
               </AppText>
               <AppText
                 style={[
