@@ -9,6 +9,7 @@ export {
   addExpense,
   updateExpense,
   deleteExpense,
+  clearAllTransactions,
   getPersonalExpenses,
   addPersonalExpense,
   updatePersonalExpense,
@@ -17,4 +18,10 @@ export {
   addCategory,
   updateCategory,
   deleteCategory,
+  mergeImportedRecords,
 } from './database.service';
+export type {
+  MergeImportSummary,
+  MergeImportResult,
+} from './database.service';
+

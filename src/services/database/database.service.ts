@@ -262,6 +262,12 @@ export async function deleteExpense(id: string): Promise<void> {
   await getDb().execute('DELETE FROM expenses WHERE id = ?;', [id]);
 }
 
+export async function clearAllTransactions(): Promise<void> {
+  const db = getDb();
+  await db.execute('DELETE FROM expenses;');
+  await db.execute('DELETE FROM personal_expenses;');
+}
+
 // ---------------------------------------------------------------------------
 // Personal Expenses
 // ---------------------------------------------------------------------------
@@ -377,3 +383,296 @@ export async function deleteCategory(id: string): Promise<void> {
   );
   await getDb().execute('DELETE FROM categories WHERE id = ?;', [id]);
 }
+
+// ---------------------------------------------------------------------------
+// Import Merge (Non-destructive)
+// ---------------------------------------------------------------------------
+
+export interface MergeImportSummary {
+  membersAdded: number;
+  membersSkipped: number;
+  categoriesAdded: number;
+  categoriesSkipped: number;
+  personalExpensesAdded: number;
+  personalExpensesSkipped: number;
+  expensesAdded: number;
+  expensesSkipped: number;
+}
+
+export interface MergeImportResult {
+  summary: MergeImportSummary;
+  members: Member[];
+  categories: ExpenseCategory[];
+  expenses: Expense[];
+  personalExpenses: PersonalExpense[];
+}
+
+function toDateKey(timestamp: number): string {
+  try {
+    const d = new Date(timestamp);
+    if (isNaN(d.getTime())) return '';
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Safely merges imported members, categories, personal expenses, and group expenses into SQLite.
+ *
+ * Rules:
+ * 1. Existing data is NEVER overwritten, modified, or deleted.
+ * 2. If a record already exists (matching ID or matching fingerprint), it is skipped.
+ * 3. Members are mapped case-insensitively by name to existing members.
+ * 4. Payer and participant member IDs are remapped appropriately.
+ * 5. Returns updated fresh DB records and an operation summary.
+ */
+export async function mergeImportedRecords(payload: {
+  personalExpenses?: PersonalExpense[];
+  expenses?: Expense[];
+  members?: Member[];
+  categories?: ExpenseCategory[];
+}): Promise<MergeImportResult> {
+  const summary: MergeImportSummary = {
+    membersAdded: 0,
+    membersSkipped: 0,
+    categoriesAdded: 0,
+    categoriesSkipped: 0,
+    personalExpensesAdded: 0,
+    personalExpensesSkipped: 0,
+    expensesAdded: 0,
+    expensesSkipped: 0,
+  };
+
+  // 1. Fetch all existing records from DB (read-only baseline)
+  let existingMembers = await getMembers();
+  let existingCategories = await getCategories();
+  const existingExpenses = await getExpenses();
+  const existingPersonalExpenses = await getPersonalExpenses();
+
+  const hasPrimaryMember = existingMembers.some(m => m.isPrimary);
+
+  // Mappings for imported IDs -> target IDs in DB
+  const memberIdMap = new Map<string, string>();
+  const categoryIdMap = new Map<string, string>();
+
+  // Map of existing members by lowercased name
+  const existingMemberByName = new Map<string, Member>();
+  existingMembers.forEach(m => {
+    existingMemberByName.set(m.name.trim().toLowerCase(), m);
+  });
+  const existingMemberIdSet = new Set<string>(existingMembers.map(m => m.id));
+
+  // 2. Merge Categories
+  const importedCategories = payload.categories || [];
+  const existingCatByName = new Map<string, ExpenseCategory>();
+  existingCategories.forEach(c => {
+    existingCatByName.set(c.name.trim().toLowerCase(), c);
+  });
+  const existingCatIdSet = new Set<string>(existingCategories.map(c => c.id));
+
+  for (const cat of importedCategories) {
+    const catNameKey = (cat.name || '').trim().toLowerCase();
+    const existingByName = catNameKey ? existingCatByName.get(catNameKey) : undefined;
+    const existingById = existingCatIdSet.has(cat.id);
+
+    if (existingByName) {
+      categoryIdMap.set(cat.id, existingByName.id);
+      summary.categoriesSkipped++;
+    } else if (existingById) {
+      categoryIdMap.set(cat.id, cat.id);
+      summary.categoriesSkipped++;
+    } else {
+      const newCat: ExpenseCategory = {
+        id: cat.id || `imported_cat_${Date.now()}_${summary.categoriesAdded}`,
+        name: cat.name || 'Custom Category',
+        iconKey: cat.iconKey || 'other',
+        color: cat.color || '#94A3B8',
+        isDefault: false,
+      };
+      await addCategory(newCat);
+      categoryIdMap.set(cat.id, newCat.id);
+      existingCatByName.set(newCat.name.trim().toLowerCase(), newCat);
+      existingCatIdSet.add(newCat.id);
+      summary.categoriesAdded++;
+    }
+  }
+
+  // Reload categories if any were added
+  if (summary.categoriesAdded > 0) {
+    existingCategories = await getCategories();
+  }
+
+  // 3. Merge Members
+  const importedMembers = payload.members || [];
+  for (const member of importedMembers) {
+    const nameKey = (member.name || '').trim().toLowerCase();
+    if (!nameKey) {
+      summary.membersSkipped++;
+      continue;
+    }
+
+    const existingByName = existingMemberByName.get(nameKey);
+    if (existingByName) {
+      memberIdMap.set(member.id, existingByName.id);
+      summary.membersSkipped++;
+    } else {
+      let targetId = member.id;
+      if (existingMemberIdSet.has(targetId)) {
+        targetId = `imported_m_${Date.now()}_${summary.membersAdded}`;
+      }
+      const isPrimary =
+        !hasPrimaryMember && summary.membersAdded === 0 && Boolean(member.isPrimary);
+      const newMember: Member = {
+        id: targetId,
+        name: member.name.trim(),
+        isPrimary,
+      };
+      await addMember(newMember);
+      memberIdMap.set(member.id, targetId);
+      existingMemberByName.set(nameKey, newMember);
+      existingMemberIdSet.add(targetId);
+      summary.membersAdded++;
+    }
+  }
+
+  // Reload members if any were added
+  if (summary.membersAdded > 0) {
+    existingMembers = await getMembers();
+  }
+  const fallbackMemberId = existingMembers[0]?.id || 'primary_user';
+
+  // 4. Merge Personal Expenses
+  const importedPersonalExpenses = payload.personalExpenses || [];
+  const existingPeIdSet = new Set<string>(existingPersonalExpenses.map(pe => pe.id));
+  const existingPeFingerprintSet = new Set<string>(
+    existingPersonalExpenses.map(
+      pe =>
+        `${pe.title.trim().toLowerCase()}_${pe.amount.toFixed(2)}_${toDateKey(pe.date)}_${pe.type}`,
+    ),
+  );
+
+  for (const pe of importedPersonalExpenses) {
+    const fingerprint = `${(pe.title || '').trim().toLowerCase()}_${(Number(pe.amount) || 0).toFixed(2)}_${toDateKey(pe.date)}_${pe.type}`;
+    if (existingPeIdSet.has(pe.id) || existingPeFingerprintSet.has(fingerprint)) {
+      summary.personalExpensesSkipped++;
+      continue;
+    }
+
+    let targetId = pe.id;
+    if (existingPeIdSet.has(targetId) || !targetId) {
+      targetId = `imported_pe_${Date.now()}_${summary.personalExpensesAdded}`;
+    }
+
+    const mappedCategoryId = pe.categoryId
+      ? categoryIdMap.get(pe.categoryId) || pe.categoryId
+      : 'others';
+
+    const newPersonalExpense: PersonalExpense = {
+      id: targetId,
+      title: pe.title || 'Personal Expense',
+      amount: Math.abs(Number(pe.amount) || 0),
+      type: pe.type === 'income' ? 'income' : 'expense',
+      categoryId: mappedCategoryId,
+      date: Number(pe.date) || Date.now(),
+      note: pe.note ? String(pe.note) : undefined,
+      createdAt: Number(pe.createdAt) || Number(pe.date) || Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    await addPersonalExpense(newPersonalExpense);
+    existingPeIdSet.add(targetId);
+    existingPeFingerprintSet.add(fingerprint);
+    summary.personalExpensesAdded++;
+  }
+
+  // 5. Merge Group Expenses
+  const importedExpenses = payload.expenses || [];
+  const existingExpIdSet = new Set<string>(existingExpenses.map(e => e.id));
+  const existingExpFingerprintSet = new Set<string>(
+    existingExpenses.map(
+      e =>
+        `${e.title.trim().toLowerCase()}_${e.totalAmount.toFixed(2)}_${toDateKey(e.createdAt)}`,
+    ),
+  );
+
+  for (const exp of importedExpenses) {
+    const fingerprint = `${(exp.title || '').trim().toLowerCase()}_${(Number(exp.totalAmount) || 0).toFixed(2)}_${toDateKey(exp.createdAt)}`;
+    if (existingExpIdSet.has(exp.id) || existingExpFingerprintSet.has(fingerprint)) {
+      summary.expensesSkipped++;
+      continue;
+    }
+
+    let targetId = exp.id;
+    if (existingExpIdSet.has(targetId) || !targetId) {
+      targetId = `imported_exp_${Date.now()}_${summary.expensesAdded}`;
+    }
+
+    const mappedCategoryId = exp.categoryId
+      ? categoryIdMap.get(exp.categoryId) || exp.categoryId
+      : 'general';
+
+    const mappedPayers: PayerContribution[] = (exp.payers || []).map(p => ({
+      memberId:
+        memberIdMap.get(p.memberId) ||
+        (existingMemberIdSet.has(p.memberId) ? p.memberId : fallbackMemberId),
+      amount: Math.abs(Number(p.amount) || 0),
+    }));
+
+    const mappedParticipants: ParticipantShare[] = (exp.participants || []).map(p => ({
+      memberId:
+        memberIdMap.get(p.memberId) ||
+        (existingMemberIdSet.has(p.memberId) ? p.memberId : fallbackMemberId),
+      share: Math.abs(Number(p.share) || 0),
+    }));
+
+    if (mappedPayers.length === 0 && exp.totalAmount > 0) {
+      mappedPayers.push({
+        memberId: fallbackMemberId,
+        amount: Number(exp.totalAmount) || 0,
+      });
+    }
+    if (mappedParticipants.length === 0 && exp.totalAmount > 0) {
+      mappedParticipants.push({
+        memberId: fallbackMemberId,
+        share: Number(exp.totalAmount) || 0,
+      });
+    }
+
+    const newExpense: Expense = {
+      id: targetId,
+      title: exp.title || 'Group Expense',
+      totalAmount: Math.abs(Number(exp.totalAmount) || 0),
+      splitMode: exp.splitMode || 'equally',
+      categoryId: mappedCategoryId,
+      payers: mappedPayers,
+      participants: mappedParticipants,
+      items: exp.items,
+      createdAt: Number(exp.createdAt) || Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    await addExpense(newExpense);
+    existingExpIdSet.add(targetId);
+    existingExpFingerprintSet.add(fingerprint);
+    summary.expensesAdded++;
+  }
+
+  // 6. Return fresh data directly from DB alongside summary
+  const [freshMembers, freshCategories, freshExpenses, freshPersonalExpenses] =
+    await Promise.all([
+      getMembers(),
+      getCategories(),
+      getExpenses(),
+      getPersonalExpenses(),
+    ]);
+
+  return {
+    summary,
+    members: freshMembers,
+    categories: freshCategories,
+    expenses: freshExpenses,
+    personalExpenses: freshPersonalExpenses,
+  };
+}
+

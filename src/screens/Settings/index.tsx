@@ -3,19 +3,24 @@ import { Image, View } from 'react-native';
 import {
   Coins,
   FileSpreadsheet,
+  FileUp,
   Layers,
   Moon,
   Share2,
   Sun,
   Trash2,
+  Wallet,
 } from 'lucide-react-native';
 
 import { assets } from '@/assets';
-import { CategoryManagerModal } from '@/components/common';
+import { AppConfirmDialog, CategoryManagerModal } from '@/components/common';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
 import { useAppTheme } from '@/theme';
 
+import { ExportDataModal } from './components/ExportDataModal';
+import { ImportDataModal } from './components/ImportDataModal';
+import { CurrencyPickerModal } from './components/CurrencyPickerModal';
 import { ProfileCard } from './components/ProfileCard';
 import { SettingItem } from './components/SettingItem';
 import { SettingSection } from './components/SettingSection';
@@ -29,14 +34,33 @@ export const SettingsScreen: FC = () => {
   const {
     members,
     categories,
+    expenses,
+    personalExpenses,
     primaryMember,
+    selectedCurrency,
+    trackOutOfPocket,
     switchModalVisible,
     setSwitchModalVisible,
     categoryManagerVisible,
     setCategoryManagerVisible,
+    exportModalVisible,
+    setExportModalVisible,
+    importModalVisible,
+    setImportModalVisible,
+    clearDialogVisible,
+    setClearDialogVisible,
+    currencyModalVisible,
+    setCurrencyModalVisible,
+    exporting,
+    clearing,
     switching,
     handleSelectPrimary,
     handleToggleTheme,
+    handleExport,
+    handleShareBalances,
+    handleConfirmClearData,
+    handleSelectCurrency,
+    handleToggleTrackOutOfPocket,
   } = useSettingsScreen();
 
   return (
@@ -85,9 +109,24 @@ export const SettingsScreen: FC = () => {
           icon={<Coins size={20} color="#FBBF24" />}
           iconBg="rgba(251, 191, 36, 0.14)"
           title="Currency"
-          subtitle="Indian Rupee"
+          subtitle={selectedCurrency.name}
           type="badge"
-          badgeText="₹ INR"
+          badgeText={`${selectedCurrency.symbol} ${selectedCurrency.code}`}
+          showDivider={true}
+          onPress={() => setCurrencyModalVisible(true)}
+        />
+        <SettingItem
+          icon={<Wallet size={20} color="#10B981" />}
+          iconBg="rgba(16, 185, 129, 0.14)"
+          title="Track Out-of-Pocket"
+          subtitle={
+            trackOutOfPocket
+              ? 'Include all out-of-pocket & settlements'
+              : 'Only include personal consumption share'
+          }
+          type="switch"
+          switchValue={trackOutOfPocket}
+          onSwitchChange={handleToggleTrackOutOfPocket}
           showDivider={false}
         />
       </SettingSection>
@@ -100,7 +139,7 @@ export const SettingsScreen: FC = () => {
           title="Share Balances"
           subtitle="Share simplified debt summary"
           type="chevron"
-          onPress={() => {}}
+          onPress={handleShareBalances}
         />
         <SettingItem
           icon={<FileSpreadsheet size={20} color="#34D399" />}
@@ -108,7 +147,15 @@ export const SettingsScreen: FC = () => {
           title="Export Data"
           subtitle="Backup personal & group records"
           type="chevron"
-          onPress={() => {}}
+          onPress={() => setExportModalVisible(true)}
+        />
+        <SettingItem
+          icon={<FileUp size={20} color="#818CF8" />}
+          iconBg="rgba(129, 140, 248, 0.14)"
+          title="Import Data"
+          subtitle="Merge expenses from JSON or CSV"
+          type="chevron"
+          onPress={() => setImportModalVisible(true)}
         />
         <SettingItem
           icon={<Trash2 size={20} color={themeColors.debt} />}
@@ -117,7 +164,7 @@ export const SettingsScreen: FC = () => {
           type="chevron"
           isDestructive
           showDivider={false}
-          onPress={() => {}}
+          onPress={() => setClearDialogVisible(true)}
         />
       </SettingSection>
 
@@ -128,15 +175,13 @@ export const SettingsScreen: FC = () => {
           style={styles.appLogo}
           resizeMode="contain"
         />
-        <AppText
-          style={[styles.appName, { color: themeColors.textPrimary }]}
-        >
+        <AppText style={[styles.appName, { color: themeColors.textPrimary }]}>
           {'EquiSplit'}
         </AppText>
         <AppText
           style={[styles.appVersion, { color: themeColors.textSecondary }]}
         >
-          {'Version 1.0.0 (Build 1)'}
+          {'Version 1.0'}
         </AppText>
         <AppText
           style={[styles.appTagline, { color: themeColors.textSecondary }]}
@@ -159,6 +204,42 @@ export const SettingsScreen: FC = () => {
       <CategoryManagerModal
         visible={categoryManagerVisible}
         onClose={() => setCategoryManagerVisible(false)}
+      />
+
+      {/* Export Data Modal */}
+      <ExportDataModal
+        visible={exportModalVisible}
+        onClose={() => setExportModalVisible(false)}
+        onExport={handleExport}
+        personalCount={personalExpenses.length}
+        groupCount={expenses.length}
+        exporting={exporting}
+      />
+
+      {/* Import Data Modal */}
+      <ImportDataModal
+        visible={importModalVisible}
+        onClose={() => setImportModalVisible(false)}
+      />
+
+      {/* Clear Data Confirmation Dialog */}
+      <AppConfirmDialog
+        visible={clearDialogVisible}
+        title="Clear Transaction Data?"
+        message="This will permanently delete all group and personal expense records. Your members and categories will be kept."
+        confirmLabel="Clear All"
+        confirmVariant="danger"
+        loading={clearing}
+        onConfirm={handleConfirmClearData}
+        onCancel={() => setClearDialogVisible(false)}
+      />
+
+      {/* Currency Picker Modal */}
+      <CurrencyPickerModal
+        visible={currencyModalVisible}
+        currentCurrencyCode={selectedCurrency.code}
+        onSelect={handleSelectCurrency}
+        onClose={() => setCurrencyModalVisible(false)}
       />
     </AppScreen>
   );

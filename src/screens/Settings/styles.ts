@@ -5,7 +5,6 @@ import { colors, radius, space } from '@/theme';
 export const styles = StyleSheet.create({
   container: {
     padding: space.md,
-    paddingBottom: 60,
   },
   appInfoSection: {
     alignItems: 'center',
