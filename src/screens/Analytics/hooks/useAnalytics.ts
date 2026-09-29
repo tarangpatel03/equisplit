@@ -1,9 +1,13 @@
-import { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 
-import { getCategoryById, OTHERS_CATEGORY_ID } from '@/config';
-import { RootState } from '@/store/store';
-import { ExpenseCategory } from '@/types';
+import { getCategoryById, OTHERS_CATEGORY_ID } from "@/config";
+import { RootState } from "@/store/store";
+import { ExpenseCategory } from "@/types";
+import {
+  computePersonalAnalytics,
+  TimePeriod,
+} from "@/utils/personalAnalytics";
 
 export type CategorySpending = {
   category: ExpenseCategory;
@@ -17,12 +21,25 @@ export const useAnalytics = () => {
   const categories = useSelector(
     (state: RootState) => state.categories.categories,
   );
+  const personalExpenses = useSelector(
+    (state: RootState) => state.personalExpenses?.personalExpenses ?? [],
+  );
 
-  const [selectedMemberId, setSelectedMemberId] = useState<string>('group');
+  const [activeTab, setActiveTab] = useState<"personal" | "group">("personal");
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("this_month");
+  const [selectedMemberId, setSelectedMemberId] = useState<string>("group");
+
+  const personalAnalytics = useMemo(() => {
+    return computePersonalAnalytics(
+      personalExpenses,
+      categories,
+      selectedPeriod,
+    );
+  }, [personalExpenses, categories, selectedPeriod]);
 
   const selectedMemberName = useMemo(() => {
-    if (selectedMemberId === 'group') return 'Group View';
-    return members.find(m => m.id === selectedMemberId)?.name ?? 'Member';
+    if (selectedMemberId === "group") return "Group View";
+    return members.find(m => m.id === selectedMemberId)?.name ?? "Member";
   }, [members, selectedMemberId]);
 
   const { totalPaid, totalShare, categoryBreakdown, totalSpending } =
@@ -31,7 +48,7 @@ export const useAnalytics = () => {
       let share = 0;
       const catMap: Record<string, number> = {};
 
-      if (selectedMemberId === 'group') {
+      if (selectedMemberId === "group") {
         expenses.forEach(exp => {
           paid += exp.totalAmount;
           share += exp.totalAmount;
@@ -64,7 +81,7 @@ export const useAnalytics = () => {
         });
       }
 
-      const spending = selectedMemberId === 'group' ? paid : share;
+      const spending = selectedMemberId === "group" ? paid : share;
 
       const breakdown: CategorySpending[] = Object.entries(catMap)
         .filter(([_, amt]) => amt > 0)
@@ -88,6 +105,12 @@ export const useAnalytics = () => {
     }, [expenses, categories, selectedMemberId]);
 
   return {
+    activeTab,
+    setActiveTab,
+    selectedPeriod,
+    setSelectedPeriod,
+    personalAnalytics,
+    personalExpensesCount: personalExpenses.length,
     members,
     selectedMemberId,
     setSelectedMemberId,
@@ -96,6 +119,6 @@ export const useAnalytics = () => {
     totalShare,
     totalSpending,
     categoryBreakdown,
-    hasExpenses: expenses.length > 0,
+    hasGroupExpenses: expenses.length > 0,
   };
 };
