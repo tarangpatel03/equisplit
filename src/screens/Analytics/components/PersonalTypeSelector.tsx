@@ -1,10 +1,11 @@
+import { ArrowDownLeft, ArrowUpRight } from 'lucide-react-native';
 import { FC } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { ArrowDownLeft, ArrowUpRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { colors, radius, space, useAppTheme } from '@/theme';
-import { PersonalAnalyticsType } from '../hooks/useAnalytics';
+
+import type { PersonalAnalyticsType } from '@/screens/Analytics/hooks/useAnalytics';
 
 type Props = {
   activeType: PersonalAnalyticsType;
@@ -34,11 +35,13 @@ export const PersonalTypeSelector: FC<Props> = ({
         <Pressable
           style={[
             styles.option,
-            isExpense && {
-              backgroundColor: themeColors.debtLight,
-              borderColor: themeColors.debt,
-              borderWidth: 1,
-            },
+            isExpense && [
+              styles.optionActive,
+              {
+                backgroundColor: themeColors.debtLight,
+                borderColor: themeColors.debt,
+              },
+            ],
           ]}
           onPress={() => onSelectType('expense')}
           hitSlop={4}
@@ -52,10 +55,10 @@ export const PersonalTypeSelector: FC<Props> = ({
             style={[
               styles.optionLabel,
               { color: themeColors.textSecondary },
-              isExpense && {
-                color: themeColors.debt,
-                fontWeight: '700',
-              },
+              isExpense && [
+                styles.optionLabelActive,
+                { color: themeColors.debt },
+              ],
             ]}
           >
             {'Expenses'}
@@ -66,11 +69,13 @@ export const PersonalTypeSelector: FC<Props> = ({
         <Pressable
           style={[
             styles.option,
-            isIncome && {
-              backgroundColor: themeColors.primaryLight,
-              borderColor: themeColors.credit,
-              borderWidth: 1,
-            },
+            isIncome && [
+              styles.optionActive,
+              {
+                backgroundColor: themeColors.primaryLight,
+                borderColor: themeColors.credit,
+              },
+            ],
           ]}
           onPress={() => onSelectType('income')}
           hitSlop={4}
@@ -84,10 +89,10 @@ export const PersonalTypeSelector: FC<Props> = ({
             style={[
               styles.optionLabel,
               { color: themeColors.textSecondary },
-              isIncome && {
-                color: themeColors.credit,
-                fontWeight: '700',
-              },
+              isIncome && [
+                styles.optionLabelActive,
+                { color: themeColors.credit },
+              ],
             ]}
           >
             {'Income'}
@@ -121,10 +126,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.sm,
     borderRadius: radius.lg,
     gap: 6,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  optionActive: {
+    borderWidth: 1,
   },
   optionLabel: {
     fontSize: 13,
     fontWeight: '600',
     color: colors.textSecondary,
+  },
+  optionLabelActive: {
+    fontWeight: '700',
   },
 });

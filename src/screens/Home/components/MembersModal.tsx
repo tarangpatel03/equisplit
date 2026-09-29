@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -14,7 +14,8 @@ import { AppButton } from '@/components/ui/AppButton';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppText } from '@/components/ui/AppText';
 import { borderRadius, colors, radius, space, useAppTheme } from '@/theme';
-import { Member } from '@/types';
+
+import type { Member } from '@/types';
 
 type Props = {
   visible: boolean;
@@ -51,6 +52,43 @@ export const MembersModal = memo(
         setRemoving(false);
       }
     };
+
+    const renderMemberItem = useCallback(
+      ({ item }: { item: Member }) => (
+        <View
+          style={[
+            styles.memberRow,
+            { borderBottomColor: themeColors.divider },
+          ]}
+        >
+          <AppText
+            style={[
+              styles.memberName,
+              { color: themeColors.textPrimary },
+            ]}
+          >
+            {item.name}
+          </AppText>
+          <Pressable
+            onPress={() => setMemberToDelete(item)}
+            hitSlop={8}
+            style={styles.removeBtn}
+          >
+            <AppText style={styles.removeText}>{'✕'}</AppText>
+          </Pressable>
+        </View>
+      ),
+      [themeColors.divider, themeColors.textPrimary],
+    );
+
+    const renderEmptyMembers = useCallback(
+      () => (
+        <AppText style={[styles.empty, { color: themeColors.textSecondary }]}>
+          {'No members yet. Add people above.'}
+        </AppText>
+      ),
+      [themeColors.textSecondary],
+    );
 
     return (
       <Modal
@@ -99,35 +137,8 @@ export const MembersModal = memo(
             <FlatList
               data={members}
               keyExtractor={item => item.id}
-              renderItem={({ item }) => (
-                <View
-                  style={[
-                    styles.memberRow,
-                    { borderBottomColor: themeColors.divider },
-                  ]}
-                >
-                  <AppText
-                    style={[
-                      styles.memberName,
-                      { color: themeColors.textPrimary },
-                    ]}
-                  >
-                    {item.name}
-                  </AppText>
-                  <Pressable
-                    onPress={() => setMemberToDelete(item)}
-                    hitSlop={8}
-                    style={styles.removeBtn}
-                  >
-                    <AppText style={styles.removeText}>{'✕'}</AppText>
-                  </Pressable>
-                </View>
-              )}
-              ListEmptyComponent={
-                <AppText style={[styles.empty, { color: themeColors.textSecondary }]}>
-                  {'No members yet. Add people above.'}
-                </AppText>
-              }
+              renderItem={renderMemberItem}
+              ListEmptyComponent={renderEmptyMembers}
               style={styles.list}
             />
 

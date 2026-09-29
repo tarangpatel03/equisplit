@@ -8,7 +8,7 @@ import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
 import { useCurrency } from '@/hooks';
 import { RootState } from '@/store/store';
-import { colors, radius, space, useAppTheme } from '@/theme';
+import { colors, hexToRgba, radius, space, useAppTheme } from '@/theme';
 import { Expense, Member } from '@/types';
 
 type Props = {
@@ -72,16 +72,16 @@ export const ExpenseCard: FC<Props> = memo(
           return {
             label: 'You paid debt',
             color: themeColors.primary,
-            bg: 'rgba(32, 217, 178, 0.12)',
-            borderColor: 'rgba(32, 217, 178, 0.35)',
+            bg: themeColors.primaryLight,
+            borderColor: hexToRgba(themeColors.primary, 0.35),
           };
         }
         if (isReceiver) {
           return {
             label: 'You received debt',
             color: themeColors.credit,
-            bg: 'rgba(46, 213, 115, 0.12)',
-            borderColor: 'rgba(46, 213, 115, 0.35)',
+            bg: themeColors.settlementLight,
+            borderColor: hexToRgba(themeColors.settlement, 0.35),
           };
         }
         return {
@@ -102,22 +102,22 @@ export const ExpenseCard: FC<Props> = memo(
         return {
           label: `You lent ${currencySymbol}${net.toFixed(2)}`,
           color: themeColors.credit,
-          bg: 'rgba(46, 213, 115, 0.12)',
-          borderColor: 'rgba(46, 213, 115, 0.35)',
+          bg: themeColors.settlementLight,
+          borderColor: hexToRgba(themeColors.settlement, 0.35),
         };
       } else if (net < -0.005) {
         return {
           label: `You owe ${currencySymbol}${Math.abs(net).toFixed(2)}`,
           color: themeColors.debt,
-          bg: 'rgba(255, 107, 107, 0.12)',
-          borderColor: 'rgba(255, 107, 107, 0.35)',
+          bg: themeColors.debtLight,
+          borderColor: hexToRgba(themeColors.debt, 0.35),
         };
       } else if (amountPaid > 0) {
         return {
           label: 'You paid your share',
           color: themeColors.primary,
-          bg: 'rgba(32, 217, 178, 0.12)',
-          borderColor: 'rgba(32, 217, 178, 0.35)',
+          bg: themeColors.primaryLight,
+          borderColor: hexToRgba(themeColors.primary, 0.35),
         };
       } else {
         return {
@@ -127,7 +127,7 @@ export const ExpenseCard: FC<Props> = memo(
           borderColor: themeColors.border,
         };
       }
-    }, [expense, primaryId, themeColors]);
+    }, [currencySymbol, expense, primaryId, themeColors]);
 
     return (
       <Pressable
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: space.sm,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.12,
     shadowRadius: 4,

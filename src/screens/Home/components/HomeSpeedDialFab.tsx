@@ -2,7 +2,7 @@ import { memo, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { Plus, Users, Wallet } from 'lucide-react-native';
 
-import { colors, radius, space } from '@/theme';
+import { colors, hexToRgba, radius, space } from '@/theme';
 
 type Props = {
   onSelectPersonal: () => void;
@@ -11,8 +11,8 @@ type Props = {
 
 // Distinct semantic accent colors for the two actions
 const ACTION_COLORS = {
-  group: colors.primary, // #1CC29F Splitwise teal for group splits
-  personal: '#8B5CF6', // Vibrant purple for personal wallet/expenses
+  group: colors.primary,
+  personal: colors.purple,
 };
 
 export const HomeSpeedDialFab = memo(
@@ -173,7 +173,7 @@ export const HomeSpeedDialFab = memo(
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(18, 22, 30, 0.45)',
+    backgroundColor: colors.backdrop,
     zIndex: 90,
   },
   mainFab: {
@@ -219,13 +219,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 6,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.22)',
+    borderColor: hexToRgba(colors.white, 0.22),
   },
   subFabPressed: {
     opacity: 0.85,

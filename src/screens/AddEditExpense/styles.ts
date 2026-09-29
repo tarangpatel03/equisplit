@@ -269,7 +269,7 @@ export const styles = StyleSheet.create({
   },
   modeTabActive: {
     backgroundColor: colors.surface,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -525,7 +525,7 @@ export const styles = StyleSheet.create({
   emptyIcon: {
     width: 50,
     height: 50,
-    tintColor: '#FFF',
+    tintColor: colors.white,
     marginBottom: space.sm,
   },
   emptyTitle: {

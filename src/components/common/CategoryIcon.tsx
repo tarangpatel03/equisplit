@@ -1,6 +1,7 @@
 import { FC, memo } from 'react';
 
 import { CategoryIconKey, getCategoryLucideIcon } from '@/config';
+import { colors } from '@/theme/colors';
 
 export type CategoryIconProps = {
   iconKey?: CategoryIconKey | string;
@@ -10,7 +11,7 @@ export type CategoryIconProps = {
 };
 
 export const CategoryIcon: FC<CategoryIconProps> = memo(
-  ({ iconKey, size = 20, color = '#94A3B8', strokeWidth = 2 }) => {
+  ({ iconKey, size = 20, color = colors.neutral, strokeWidth = 2 }) => {
     const IconComponent = getCategoryLucideIcon(iconKey);
     if (!IconComponent) return null;
     return (

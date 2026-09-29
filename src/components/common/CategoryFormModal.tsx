@@ -464,11 +464,11 @@ const styles = StyleSheet.create({
   },
   colorCircleSelected: {
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: colors.white,
     transform: [{ scale: 1.1 }],
   },
   checkMark: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 14,
     fontWeight: '800',
   },

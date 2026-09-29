@@ -143,7 +143,7 @@ export const ReplacePrimaryModal: FC<Props> = ({
                           styles.memberChipText,
                           {
                             color: isSelected
-                              ? '#FFFFFF'
+                              ? themeColors.white
                               : themeColors.textPrimary,
                           },
                         ]}
@@ -208,7 +208,7 @@ export const ReplacePrimaryModal: FC<Props> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.72)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: space.md,
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     padding: space.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,
     shadowRadius: 16,

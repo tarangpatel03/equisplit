@@ -44,8 +44,7 @@ import {
   Zap,
 } from 'lucide-react-native';
 
-import { assets } from '@/assets';
-import { ExpenseCategory } from '@/types';
+import type { ExpenseCategory } from '@/types';
 
 export const OTHERS_CATEGORY_ID = 'others';
 export const DEFAULT_CATEGORY_ID = 'others';
@@ -271,7 +270,7 @@ export function getCategoryIconSource(iconKey?: string): any {
   if (iconKey && iconKey in CATEGORY_ICONS) {
     return CATEGORY_ICONS[iconKey as CategoryIconKey];
   }
-  return assets.icons.ic_cat_other;
+  return MoreHorizontal;
 }
 
 /**

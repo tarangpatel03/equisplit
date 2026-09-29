@@ -11,7 +11,7 @@ import { Check, UserCheck, X } from 'lucide-react-native';
 
 import { AppButton } from '@/components/ui/AppButton';
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space, useAppTheme } from '@/theme';
+import { colors, hexToRgba, radius, space, useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
 type Props = {
@@ -231,9 +231,9 @@ const styles = StyleSheet.create({
     gap: space.sm,
   },
   memberRowSelected: {
-    backgroundColor: 'rgba(28, 194, 159, 0.08)',
+    backgroundColor: hexToRgba(colors.primary, 0.08),
     borderWidth: 1,
-    borderColor: 'rgba(28, 194, 159, 0.3)',
+    borderColor: hexToRgba(colors.primary, 0.3),
   },
   memberAvatar: {
     width: 36,

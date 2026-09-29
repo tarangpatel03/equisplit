@@ -86,10 +86,10 @@ export const CurrencyPickerModal: FC<Props> = ({
                   <View
                     style={[
                       styles.iconCircle,
-                      { backgroundColor: 'rgba(251, 191, 36, 0.14)' },
+                      { backgroundColor: themeColors.goldLight },
                     ]}
                   >
-                    <Coins size={20} color="#FBBF24" />
+                    <Coins size={20} color={themeColors.warning} />
                   </View>
                   <View>
                     <AppText

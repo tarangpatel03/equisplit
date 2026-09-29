@@ -4,7 +4,7 @@ import { ArrowDownLeft, ArrowUpRight, Scale } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { useCurrency, usePreferences } from '@/hooks';
-import { colors, radius, space, useAppTheme } from '@/theme';
+import { colors, hexToRgba, radius, space, useAppTheme } from '@/theme';
 import { Expense, Member, PersonalExpense } from '@/types';
 
 type Props = {
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     marginBottom: space.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 5,
@@ -267,12 +267,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   inflowBox: {
-    backgroundColor: 'rgba(32, 217, 178, 0.06)',
-    borderColor: 'rgba(32, 217, 178, 0.18)',
+    backgroundColor: hexToRgba(colors.credit, 0.06),
+    borderColor: hexToRgba(colors.credit, 0.18),
   },
   outflowBox: {
-    backgroundColor: 'rgba(255, 107, 107, 0.06)',
-    borderColor: 'rgba(255, 107, 107, 0.18)',
+    backgroundColor: hexToRgba(colors.debt, 0.06),
+    borderColor: hexToRgba(colors.debt, 0.18),
   },
   flowHeader: {
     flexDirection: 'row',
@@ -288,10 +288,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inflowIconPill: {
-    backgroundColor: 'rgba(32, 217, 178, 0.14)',
+    backgroundColor: colors.creditLight,
   },
   outflowIconPill: {
-    backgroundColor: 'rgba(255, 107, 107, 0.14)',
+    backgroundColor: colors.debtLight,
   },
   flowLabel: {
     fontSize: 11,

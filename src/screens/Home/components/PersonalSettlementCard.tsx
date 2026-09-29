@@ -51,8 +51,8 @@ export const PersonalSettlementCard = memo(
             styles.avatar,
             {
               backgroundColor: isReceived
-                ? 'rgba(52, 211, 153, 0.16)'
-                : 'rgba(248, 113, 113, 0.16)',
+                ? themeColors.creditLight
+                : themeColors.debtLight,
             },
           ]}
         >
@@ -113,8 +113,8 @@ export const PersonalSettlementCard = memo(
                 styles.directionBadge,
                 {
                   backgroundColor: isReceived
-                    ? 'rgba(52, 211, 153, 0.14)'
-                    : 'rgba(248, 113, 113, 0.14)',
+                    ? themeColors.creditLight
+                    : themeColors.debtLight,
                 },
               ]}
             >
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: space.sm,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.12,
     shadowRadius: 4,

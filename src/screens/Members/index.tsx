@@ -1,6 +1,6 @@
+import { HandCoins } from 'lucide-react-native';
 import { FC } from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
-import { HandCoins, Share2 } from 'lucide-react-native';
 
 import { assets } from '@/assets';
 import { AppConfirmDialog } from '@/components/common';
@@ -11,15 +11,14 @@ import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
 import { useCurrency } from '@/hooks';
 import { useAppTheme } from '@/theme';
-import { Member } from '@/types';
 
-import {
-  MemberBalanceCard,
-  ReplacePrimaryModal,
-  SettleUpModal,
-} from './components';
+import { MemberBalanceCard } from './components/MemberBalanceCard';
+import { ReplacePrimaryModal } from './components/ReplacePrimaryModal';
+import { SettleUpModal } from './components/SettleUpModal';
 import { useMembersScreen } from './hooks/useMembersScreen';
 import { styles } from './styles';
+
+import type { Member } from '@/types';
 
 export const MembersScreen: FC = () => {
   const { colors: themeColors } = useAppTheme();
@@ -49,7 +48,6 @@ export const MembersScreen: FC = () => {
     handleOpenSettleUp,
     handleCloseSettleUp,
     handleRecordSettlement,
-    handleShareSummary,
   } = useMembersScreen();
 
   return (
@@ -244,34 +242,6 @@ export const MembersScreen: FC = () => {
         </View>
 
         <View style={styles.headerActionsRight}>
-          {members.length > 0 && (
-            <Pressable
-              style={[
-                styles.shareHeaderBtn,
-                {
-                  backgroundColor: themeColors.surfaceAlt,
-                  borderColor: themeColors.border,
-                },
-              ]}
-              onPress={handleShareSummary}
-              hitSlop={6}
-            >
-              <Share2
-                size={13}
-                color={themeColors.textSecondary}
-                strokeWidth={2.2}
-              />
-              <AppText
-                style={[
-                  styles.shareHeaderBtnText,
-                  { color: themeColors.textSecondary },
-                ]}
-              >
-                {'Share'}
-              </AppText>
-            </Pressable>
-          )}
-
           {members.length > 1 && (
             <Pressable
               style={styles.settleUpHeaderBtn}
@@ -367,7 +337,9 @@ export const MembersScreen: FC = () => {
                 unsettledMemberWarning.member.name
               } has an unsettled balance of ${
                 unsettledMemberWarning.balance > 0 ? '+' : '-'
-              }${currencySymbol}${Math.abs(unsettledMemberWarning.balance).toFixed(
+              }${currencySymbol}${Math.abs(
+                unsettledMemberWarning.balance,
+              ).toFixed(
                 2,
               )}. Please settle all balances before removing this member.`
             : ''

@@ -9,6 +9,7 @@
 import { open } from '@op-engineering/op-sqlite';
 
 import { INITIAL_CATEGORIES } from '@/config';
+import { colors } from '@/theme/colors';
 import {
   Expense,
   ExpenseCategory,
@@ -110,7 +111,9 @@ export async function initDatabase(): Promise<void> {
 
   // Migration: Ensure type column exists on pre-existing personal_expenses table
   try {
-    const personalInfo = await db.execute('PRAGMA table_info(personal_expenses);');
+    const personalInfo = await db.execute(
+      'PRAGMA table_info(personal_expenses);',
+    );
     const hasType = personalInfo.rows?.some(
       (col: Record<string, unknown>) => col.name === 'type',
     );
@@ -206,7 +209,9 @@ function rowToExpense(row: Record<string, unknown>): Expense {
     categoryId: (row.category_id as string) || 'general',
     payers: JSON.parse(row.payers as string) as PayerContribution[],
     participants: JSON.parse(row.participants as string) as ParticipantShare[],
-    items: row.items ? (JSON.parse(row.items as string) as ExpenseItem[]) : undefined,
+    items: row.items
+      ? (JSON.parse(row.items as string) as ExpenseItem[])
+      : undefined,
     createdAt: row.created_at as number,
     updatedAt: row.updated_at as number,
   };
@@ -293,7 +298,9 @@ export async function getPersonalExpenses(): Promise<PersonalExpense[]> {
   return (result.rows ?? []).map(rowToPersonalExpense);
 }
 
-export async function addPersonalExpense(expense: PersonalExpense): Promise<void> {
+export async function addPersonalExpense(
+  expense: PersonalExpense,
+): Promise<void> {
   await getDb().execute(
     `INSERT INTO personal_expenses
       (id, title, amount, type, category_id, date, note, created_at, updated_at)
@@ -312,7 +319,9 @@ export async function addPersonalExpense(expense: PersonalExpense): Promise<void
   );
 }
 
-export async function updatePersonalExpense(expense: PersonalExpense): Promise<void> {
+export async function updatePersonalExpense(
+  expense: PersonalExpense,
+): Promise<void> {
   await getDb().execute(
     `UPDATE personal_expenses
      SET title = ?, amount = ?, type = ?, category_id = ?, date = ?, note = ?, updated_at = ?
@@ -346,7 +355,7 @@ export async function getCategories(): Promise<ExpenseCategory[]> {
     id: row.id as string,
     name: row.name as string,
     iconKey: (row.icon_key as string) || 'other',
-    color: (row.color as string) || '#94A3B8',
+    color: (row.color as string) || colors.neutral,
     isDefault: Boolean(row.is_default),
   }));
 }
@@ -411,7 +420,10 @@ function toDateKey(timestamp: number): string {
   try {
     const d = new Date(timestamp);
     if (isNaN(d.getTime())) return '';
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+      2,
+      '0',
+    )}-${String(d.getDate()).padStart(2, '0')}`;
   } catch {
     return '';
   }
@@ -473,7 +485,9 @@ export async function mergeImportedRecords(payload: {
 
   for (const cat of importedCategories) {
     const catNameKey = (cat.name || '').trim().toLowerCase();
-    const existingByName = catNameKey ? existingCatByName.get(catNameKey) : undefined;
+    const existingByName = catNameKey
+      ? existingCatByName.get(catNameKey)
+      : undefined;
     const existingById = existingCatIdSet.has(cat.id);
 
     if (existingByName) {
@@ -487,7 +501,7 @@ export async function mergeImportedRecords(payload: {
         id: cat.id || `imported_cat_${Date.now()}_${summary.categoriesAdded}`,
         name: cat.name || 'Custom Category',
         iconKey: cat.iconKey || 'other',
-        color: cat.color || '#94A3B8',
+        color: cat.color || colors.neutral,
         isDefault: false,
       };
       await addCategory(newCat);
@@ -522,7 +536,9 @@ export async function mergeImportedRecords(payload: {
         targetId = `imported_m_${Date.now()}_${summary.membersAdded}`;
       }
       const isPrimary =
-        !hasPrimaryMember && summary.membersAdded === 0 && Boolean(member.isPrimary);
+        !hasPrimaryMember &&
+        summary.membersAdded === 0 &&
+        Boolean(member.isPrimary);
       const newMember: Member = {
         id: targetId,
         name: member.name.trim(),
@@ -544,17 +560,26 @@ export async function mergeImportedRecords(payload: {
 
   // 4. Merge Personal Expenses
   const importedPersonalExpenses = payload.personalExpenses || [];
-  const existingPeIdSet = new Set<string>(existingPersonalExpenses.map(pe => pe.id));
+  const existingPeIdSet = new Set<string>(
+    existingPersonalExpenses.map(pe => pe.id),
+  );
   const existingPeFingerprintSet = new Set<string>(
     existingPersonalExpenses.map(
       pe =>
-        `${pe.title.trim().toLowerCase()}_${pe.amount.toFixed(2)}_${toDateKey(pe.date)}_${pe.type}`,
+        `${pe.title.trim().toLowerCase()}_${pe.amount.toFixed(2)}_${toDateKey(
+          pe.date,
+        )}_${pe.type}`,
     ),
   );
 
   for (const pe of importedPersonalExpenses) {
-    const fingerprint = `${(pe.title || '').trim().toLowerCase()}_${(Number(pe.amount) || 0).toFixed(2)}_${toDateKey(pe.date)}_${pe.type}`;
-    if (existingPeIdSet.has(pe.id) || existingPeFingerprintSet.has(fingerprint)) {
+    const fingerprint = `${(pe.title || '').trim().toLowerCase()}_${(
+      Number(pe.amount) || 0
+    ).toFixed(2)}_${toDateKey(pe.date)}_${pe.type}`;
+    if (
+      existingPeIdSet.has(pe.id) ||
+      existingPeFingerprintSet.has(fingerprint)
+    ) {
       summary.personalExpensesSkipped++;
       continue;
     }
@@ -592,13 +617,20 @@ export async function mergeImportedRecords(payload: {
   const existingExpFingerprintSet = new Set<string>(
     existingExpenses.map(
       e =>
-        `${e.title.trim().toLowerCase()}_${e.totalAmount.toFixed(2)}_${toDateKey(e.createdAt)}`,
+        `${e.title.trim().toLowerCase()}_${e.totalAmount.toFixed(
+          2,
+        )}_${toDateKey(e.createdAt)}`,
     ),
   );
 
   for (const exp of importedExpenses) {
-    const fingerprint = `${(exp.title || '').trim().toLowerCase()}_${(Number(exp.totalAmount) || 0).toFixed(2)}_${toDateKey(exp.createdAt)}`;
-    if (existingExpIdSet.has(exp.id) || existingExpFingerprintSet.has(fingerprint)) {
+    const fingerprint = `${(exp.title || '').trim().toLowerCase()}_${(
+      Number(exp.totalAmount) || 0
+    ).toFixed(2)}_${toDateKey(exp.createdAt)}`;
+    if (
+      existingExpIdSet.has(exp.id) ||
+      existingExpFingerprintSet.has(fingerprint)
+    ) {
       summary.expensesSkipped++;
       continue;
     }
@@ -619,12 +651,14 @@ export async function mergeImportedRecords(payload: {
       amount: Math.abs(Number(p.amount) || 0),
     }));
 
-    const mappedParticipants: ParticipantShare[] = (exp.participants || []).map(p => ({
-      memberId:
-        memberIdMap.get(p.memberId) ||
-        (existingMemberIdSet.has(p.memberId) ? p.memberId : fallbackMemberId),
-      share: Math.abs(Number(p.share) || 0),
-    }));
+    const mappedParticipants: ParticipantShare[] = (exp.participants || []).map(
+      p => ({
+        memberId:
+          memberIdMap.get(p.memberId) ||
+          (existingMemberIdSet.has(p.memberId) ? p.memberId : fallbackMemberId),
+        share: Math.abs(Number(p.share) || 0),
+      }),
+    );
 
     if (mappedPayers.length === 0 && exp.totalAmount > 0) {
       mappedPayers.push({
@@ -675,4 +709,3 @@ export async function mergeImportedRecords(payload: {
     personalExpenses: freshPersonalExpenses,
   };
 }
-

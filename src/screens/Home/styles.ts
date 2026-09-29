@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { colors, hexToRgba, radius, space } from '@/theme';
 
 export const styles = StyleSheet.create({
   // Expense list
@@ -66,9 +66,9 @@ export const styles = StyleSheet.create({
   },
   clearFilterBtn: {
     marginTop: space.md,
-    backgroundColor: 'rgba(32, 217, 178, 0.12)',
+    backgroundColor: colors.primaryLight,
     borderWidth: 1,
-    borderColor: 'rgba(32, 217, 178, 0.35)',
+    borderColor: hexToRgba(colors.primary, 0.35),
     paddingVertical: 6,
     paddingHorizontal: space.md,
     borderRadius: radius.full,

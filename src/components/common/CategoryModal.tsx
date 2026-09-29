@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
@@ -6,9 +6,10 @@ import { useSelector } from 'react-redux';
 import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
-import { RootState } from '@/store/store';
 import { colors, radius, space, useAppTheme } from '@/theme';
-import { ExpenseCategory } from '@/types';
+
+import type { RootState } from '@/store/store';
+import type { ExpenseCategory } from '@/types';
 
 type Props = {
   visible: boolean;
@@ -29,10 +30,71 @@ export const CategoryModal: FC<Props> = ({
 
   const selectedCategory = getCategoryById(selectedCategoryId, categories);
 
-  const handleSelect = (cat: ExpenseCategory) => {
-    onSelectCategory(cat);
-    onClose();
-  };
+  const handleSelect = useCallback(
+    (cat: ExpenseCategory) => {
+      onSelectCategory(cat);
+      onClose();
+    },
+    [onSelectCategory, onClose],
+  );
+
+  const renderCategoryItem = useCallback(
+    ({ item }: { item: ExpenseCategory }) => {
+      const isSelected = item.id === selectedCategoryId;
+      return (
+        <Pressable
+          style={({ pressed }) => [
+            styles.itemRow,
+            isSelected && [
+              styles.itemRowSelected,
+              { backgroundColor: themeColors.surfaceAlt },
+            ],
+            pressed && styles.itemRowPressed,
+          ]}
+          onPress={() => handleSelect(item)}
+        >
+          <View
+            style={[
+              styles.itemIconContainer,
+              {
+                backgroundColor: getCategoryBgColor(item.color, 0.16),
+              },
+            ]}
+          >
+            <CategoryIcon
+              iconKey={item.iconKey}
+              size={22}
+              color={item.color}
+              strokeWidth={2}
+            />
+          </View>
+          <AppText
+            style={[
+              styles.itemName,
+              { color: themeColors.textPrimary },
+              isSelected && styles.itemNameSelected,
+            ]}
+          >
+            {item.name}
+          </AppText>
+        </Pressable>
+      );
+    },
+    [handleSelect, selectedCategoryId, themeColors.surfaceAlt, themeColors.textPrimary],
+  );
+
+  const renderEmptyList = useCallback(
+    () => (
+      <View style={styles.emptyContainer}>
+        <AppText
+          style={[styles.emptyText, { color: themeColors.textSecondary }]}
+        >
+          {'No categories found'}
+        </AppText>
+      </View>
+    ),
+    [themeColors.textSecondary],
+  );
 
   return (
     <Modal
@@ -98,59 +160,8 @@ export const CategoryModal: FC<Props> = ({
             keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContent}
-            renderItem={({ item }) => {
-              const isSelected = item.id === selectedCategoryId;
-              return (
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.itemRow,
-                    isSelected && [
-                      styles.itemRowSelected,
-                      { backgroundColor: themeColors.surfaceAlt },
-                    ],
-                    pressed && styles.itemRowPressed,
-                  ]}
-                  onPress={() => handleSelect(item)}
-                >
-                  <View
-                    style={[
-                      styles.itemIconContainer,
-                      {
-                        backgroundColor: getCategoryBgColor(item.color, 0.16),
-                      },
-                    ]}
-                  >
-                    <CategoryIcon
-                      iconKey={item.iconKey}
-                      size={22}
-                      color={item.color}
-                      strokeWidth={2}
-                    />
-                  </View>
-                  <AppText
-                    style={[
-                      styles.itemName,
-                      { color: themeColors.textPrimary },
-                      isSelected && styles.itemNameSelected,
-                    ]}
-                  >
-                    {item.name}
-                  </AppText>
-                </Pressable>
-              );
-            }}
-            ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <AppText
-                  style={[
-                    styles.emptyText,
-                    { color: themeColors.textSecondary },
-                  ]}
-                >
-                  {'No categories found'}
-                </AppText>
-              </View>
-            }
+            renderItem={renderCategoryItem}
+            ListEmptyComponent={renderEmptyList}
           />
         </View>
       </View>
@@ -168,7 +179,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sheet: {
-    backgroundColor: '#161A22',
+    backgroundColor: colors.sheetSurface,
     borderTopLeftRadius: radius['2xl'],
     borderTopRightRadius: radius['2xl'],
     borderWidth: 1,

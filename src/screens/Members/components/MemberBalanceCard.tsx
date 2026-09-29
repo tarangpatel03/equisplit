@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { useCurrency } from '@/hooks';
-import { colors, radius, space, useAppTheme } from '@/theme';
+import { colors, hexToRgba, radius, space, useAppTheme } from '@/theme';
 import { Member } from '@/types';
 import { MemberBalanceDetail } from '@/utils';
 
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     marginBottom: space.sm,
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -406,9 +406,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   settleBtn: {
-    backgroundColor: 'rgba(32, 217, 178, 0.14)',
+    backgroundColor: colors.primaryLight,
     borderWidth: 1,
-    borderColor: 'rgba(32, 217, 178, 0.35)',
+    borderColor: hexToRgba(colors.primary, 0.35),
     paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: radius.full,

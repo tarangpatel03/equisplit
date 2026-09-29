@@ -394,7 +394,7 @@ export const SettleUpModal: FC<Props> = ({
                               styles.chipText,
                               {
                                 color: isSelected
-                                  ? '#FFFFFF'
+                                  ? themeColors.white
                                   : themeColors.textSecondary,
                               },
                             ]}
@@ -448,9 +448,7 @@ export const SettleUpModal: FC<Props> = ({
                               styles.chipText,
                               {
                                 color: isSelected
-                                  ? '#FFFFFF'
-                                  : isSameAsPayer
-                                  ? themeColors.textSecondary
+                                  ? themeColors.white
                                   : themeColors.textSecondary,
                               },
                             ]}
@@ -597,7 +595,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    backgroundColor: colors.overlay,
     justifyContent: 'flex-end',
   },
   backdrop: {
@@ -632,7 +630,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: radius.full,
-    backgroundColor: 'rgba(46, 213, 115, 0.12)',
+    backgroundColor: colors.settlementLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -675,7 +673,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   receiverAvatarBox: {
-    backgroundColor: 'rgba(46, 213, 115, 0.16)',
+    backgroundColor: colors.settlementLight,
   },
   memberAvatarText: {
     fontSize: 15,
@@ -740,7 +738,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   chipTextActive: {
-    color: '#FFFFFF',
+    color: colors.white,
   },
   chipTextDisabled: {
     color: colors.textSecondary,

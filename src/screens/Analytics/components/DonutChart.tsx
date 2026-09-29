@@ -6,7 +6,7 @@ import { AppText } from '@/components/ui/AppText';
 import { useCurrency } from '@/hooks';
 import { colors, useAppTheme } from '@/theme';
 
-import { CategorySpending } from '../hooks/useAnalytics';
+import type { CategorySpending } from '@/screens/Analytics/hooks/useAnalytics';
 
 type Props = {
   data: CategorySpending[];
@@ -37,13 +37,29 @@ export const DonutChart: FC<Props> = ({
       value: item.amount,
       color: item.category.color,
       text: item.percentage >= 5 ? `${Math.round(item.percentage)}%` : '',
-      textColor: '#FFFFFF',
+      textColor: themeColors.white,
       textSize: 10,
       fontWeight: '700',
     }));
   }, [data, totalSpending, themeColors]);
 
   const resolvedAmountColor = totalColor ?? themeColors.textPrimary;
+
+  const renderChart = () => (
+    <View style={styles.centerContainer}>
+      <AppText
+        style={[styles.totalAmount, { color: resolvedAmountColor }]}
+        numberOfLines={1}
+      >
+        {`${currencySymbol}${totalSpending.toFixed(2)}`}
+      </AppText>
+      <AppText
+        style={[styles.totalLabel, { color: themeColors.textSecondary }]}
+      >
+        {totalLabel}
+      </AppText>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -55,21 +71,7 @@ export const DonutChart: FC<Props> = ({
         strokeWidth={data.length > 1 ? 2.5 : 0}
         strokeColor={themeColors.surface}
         innerCircleColor={themeColors.surface}
-        centerLabelComponent={() => (
-          <View style={styles.centerContainer}>
-            <AppText
-              style={[styles.totalAmount, { color: resolvedAmountColor }]}
-              numberOfLines={1}
-            >
-              {`${currencySymbol}${totalSpending.toFixed(2)}`}
-            </AppText>
-            <AppText
-              style={[styles.totalLabel, { color: themeColors.textSecondary }]}
-            >
-              {totalLabel}
-            </AppText>
-          </View>
-        )}
+        centerLabelComponent={renderChart}
       />
     </View>
   );

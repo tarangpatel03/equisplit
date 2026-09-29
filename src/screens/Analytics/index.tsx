@@ -62,10 +62,7 @@ export const AnalyticsScreen: FC = () => {
       contentContainerStyle={styles.scrollContent}
     >
       {/* Top Segmented Tab Switcher: Personal vs Group Splits */}
-      <AnalyticsModeTabs
-        activeTab={activeTab}
-        onSelectTab={setActiveTab}
-      />
+      <AnalyticsModeTabs activeTab={activeTab} onSelectTab={setActiveTab} />
 
       {isPersonal ? (
         <>
@@ -147,7 +144,9 @@ export const AnalyticsScreen: FC = () => {
                   data={personalBreakdown}
                   totalSpending={personalTotal}
                   totalLabel={isIncome ? 'Total Income' : 'Total Spending'}
-                  totalColor={isIncome ? themeColors.credit : themeColors.textPrimary}
+                  totalColor={
+                    isIncome ? themeColors.credit : themeColors.textPrimary
+                  }
                 />
               </View>
 
@@ -160,15 +159,14 @@ export const AnalyticsScreen: FC = () => {
                       { color: themeColors.textPrimary },
                     ]}
                   >
-                    {isIncome ? 'Top Income Sources' : 'Top Spending Categories'}
+                    {isIncome
+                      ? 'Top Income Sources'
+                      : 'Top Spending Categories'}
                   </AppText>
                 </View>
               ) : null}
 
-              <CategorySpendingList
-                data={personalBreakdown}
-                isIncome={isIncome}
-              />
+              <CategorySpendingList data={personalBreakdown} />
             </>
           )}
         </>

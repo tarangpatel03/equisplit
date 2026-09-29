@@ -100,10 +100,10 @@ export const AddExpenseActionModal: FC<Props> = ({
               <View
                 style={[
                   styles.optionIconContainer,
-                  { backgroundColor: 'rgba(99, 102, 241, 0.18)' },
+                  { backgroundColor: colors.indigoLight },
                 ]}
               >
-                <Users size={24} color="#818CF8" strokeWidth={2.2} />
+                <Users size={24} color={colors.indigo} strokeWidth={2.2} />
               </View>
 
               <View style={styles.optionContent}>
@@ -128,7 +128,7 @@ export const AddExpenseActionModal: FC<Props> = ({
                 <View
                   style={[
                     styles.optionIconContainer,
-                    { backgroundColor: 'rgba(46, 213, 115, 0.16)' },
+                    { backgroundColor: colors.settlementLight },
                   ]}
                 >
                   <HandCoins size={24} color={colors.credit} strokeWidth={2.2} />
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sheet: {
-    backgroundColor: '#161A22',
+    backgroundColor: colors.sheetSurface,
     borderTopLeftRadius: radius['2xl'],
     borderTopRightRadius: radius['2xl'],
     borderWidth: 1,

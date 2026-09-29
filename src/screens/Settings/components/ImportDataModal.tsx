@@ -30,7 +30,7 @@ import { setExpenses } from '@/store/expenseSlice';
 import { setMembers } from '@/store/memberSlice';
 import { setPersonalExpenses } from '@/store/personalExpenseSlice';
 import { RootState } from '@/store/store';
-import { radius, space, useAppTheme } from '@/theme';
+import { colors, hexToRgba, radius, space, useAppTheme } from '@/theme';
 import {
   ParsedImportResult,
   parseImportContent,
@@ -176,7 +176,7 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                   <View
                     style={[
                       styles.iconCircle,
-                      { backgroundColor: 'rgba(99, 102, 241, 0.12)' },
+                      { backgroundColor: themeColors.indigoLight },
                     ]}
                   >
                     <FileUp size={20} color={themeColors.primary} />
@@ -219,21 +219,26 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                     styles.safeBanner,
                     {
                       backgroundColor: isDark
-                        ? 'rgba(16, 185, 129, 0.12)'
-                        : 'rgba(16, 185, 129, 0.08)',
+                        ? hexToRgba(themeColors.credit, 0.12)
+                        : hexToRgba(themeColors.credit, 0.08),
                       borderColor: isDark
-                        ? 'rgba(16, 185, 129, 0.25)'
-                        : 'rgba(16, 185, 129, 0.2)',
+                        ? hexToRgba(themeColors.credit, 0.25)
+                        : hexToRgba(themeColors.credit, 0.2),
                     },
                   ]}
                 >
                   <ShieldCheck
                     size={20}
-                    color="#10B981"
+                    color={themeColors.credit}
                     style={styles.bannerIcon}
                   />
                   <View style={styles.bannerTextCol}>
-                    <AppText style={[styles.bannerTitle, { color: '#10B981' }]}>
+                    <AppText
+                      style={[
+                        styles.bannerTitle,
+                        { color: themeColors.credit },
+                      ]}
+                    >
                       {'Safe Merge Guarantee'}
                     </AppText>
                     <AppText
@@ -256,11 +261,11 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                       styles.errorBanner,
                       {
                         backgroundColor: isDark
-                          ? 'rgba(239, 68, 68, 0.12)'
-                          : 'rgba(239, 68, 68, 0.08)',
+                          ? hexToRgba(themeColors.debt, 0.12)
+                          : hexToRgba(themeColors.debt, 0.08),
                         borderColor: isDark
-                          ? 'rgba(239, 68, 68, 0.25)'
-                          : 'rgba(239, 68, 68, 0.2)',
+                          ? hexToRgba(themeColors.debt, 0.25)
+                          : hexToRgba(themeColors.debt, 0.2),
                       },
                     ]}
                   >
@@ -331,7 +336,7 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                           },
                         ]}
                       >
-                        <FileSpreadsheet size={22} color="#34D399" />
+                        <FileSpreadsheet size={22} color={themeColors.credit} />
                         <View style={styles.formatTextCol}>
                           <AppText
                             style={[
@@ -382,7 +387,10 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                         {parsedResult.format === 'json' ? (
                           <FileCode size={20} color={themeColors.primary} />
                         ) : (
-                          <FileSpreadsheet size={20} color="#34D399" />
+                          <FileSpreadsheet
+                            size={20}
+                            color={themeColors.credit}
+                          />
                         )}
                         <AppText
                           style={[
@@ -399,8 +407,8 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                             {
                               backgroundColor:
                                 parsedResult.format === 'json'
-                                  ? 'rgba(99, 102, 241, 0.15)'
-                                  : 'rgba(52, 211, 153, 0.15)',
+                                  ? themeColors.primaryLight
+                                  : themeColors.creditLight,
                             },
                           ]}
                         >
@@ -411,7 +419,7 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                                 color:
                                   parsedResult.format === 'json'
                                     ? themeColors.primary
-                                    : '#10B981',
+                                    : themeColors.credit,
                               },
                             ]}
                           >
@@ -472,7 +480,7 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                           },
                         ]}
                       >
-                        <Users size={18} color="#38BDF8" />
+                        <Users size={18} color={themeColors.blue} />
                         <AppText
                           style={[
                             styles.statCount,
@@ -500,7 +508,7 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                           },
                         ]}
                       >
-                        <Database size={18} color="#A78BFA" />
+                        <Database size={18} color={themeColors.purple} />
                         <AppText
                           style={[
                             styles.statCount,
@@ -528,7 +536,7 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                           },
                         ]}
                       >
-                        <CheckCircle2 size={18} color="#34D399" />
+                        <CheckCircle2 size={18} color={themeColors.credit} />
                         <AppText
                           style={[
                             styles.statCount,
@@ -554,8 +562,8 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
                         styles.infoRow,
                         {
                           backgroundColor: isDark
-                            ? 'rgba(255, 255, 255, 0.04)'
-                            : 'rgba(0, 0, 0, 0.02)',
+                            ? hexToRgba(themeColors.white, 0.04)
+                            : hexToRgba(themeColors.black, 0.02),
                           borderColor: themeColors.border,
                         },
                       ]}
@@ -617,7 +625,7 @@ export const ImportDataModal: FC<Props> = ({ visible, onClose }) => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: space.md,
@@ -629,7 +637,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 1,
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,
     shadowRadius: 18,

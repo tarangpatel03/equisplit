@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     borderTopWidth: StyleSheet.hairlineWidth * 2,
     elevation: 8,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,

@@ -91,14 +91,12 @@ export const SettingsScreen: FC = () => {
         <SettingItem
           icon={
             isDark ? (
-              <Moon size={20} color="#A78BFA" />
+              <Moon size={20} color={themeColors.purple} />
             ) : (
-              <Sun size={20} color="#F59E0B" />
+              <Sun size={20} color={themeColors.gold} />
             )
           }
-          iconBg={
-            isDark ? 'rgba(167, 139, 250, 0.14)' : 'rgba(245, 158, 11, 0.14)'
-          }
+          iconBg={isDark ? themeColors.purpleLight : themeColors.goldLight}
           title="Theme"
           subtitle={isDark ? 'Dark theme enabled' : 'Light theme enabled'}
           type="switch"
@@ -106,8 +104,8 @@ export const SettingsScreen: FC = () => {
           onSwitchChange={handleToggleTheme}
         />
         <SettingItem
-          icon={<Coins size={20} color="#FBBF24" />}
-          iconBg="rgba(251, 191, 36, 0.14)"
+          icon={<Coins size={20} color={themeColors.warning} />}
+          iconBg={themeColors.goldLight}
           title="Currency"
           subtitle={selectedCurrency.name}
           type="badge"
@@ -116,8 +114,8 @@ export const SettingsScreen: FC = () => {
           onPress={() => setCurrencyModalVisible(true)}
         />
         <SettingItem
-          icon={<Wallet size={20} color="#10B981" />}
-          iconBg="rgba(16, 185, 129, 0.14)"
+          icon={<Wallet size={20} color={themeColors.credit} />}
+          iconBg={themeColors.creditLight}
           title="Track Out-of-Pocket"
           subtitle={
             trackOutOfPocket
@@ -134,24 +132,24 @@ export const SettingsScreen: FC = () => {
       {/* Data & Backup Section */}
       <SettingSection title="Data & Backup">
         <SettingItem
-          icon={<Share2 size={20} color="#38BDF8" />}
-          iconBg="rgba(56, 189, 248, 0.14)"
+          icon={<Share2 size={20} color={themeColors.blue} />}
+          iconBg={themeColors.blueLight}
           title="Share Balances"
           subtitle="Share simplified debt summary"
           type="chevron"
           onPress={handleShareBalances}
         />
         <SettingItem
-          icon={<FileSpreadsheet size={20} color="#34D399" />}
-          iconBg="rgba(52, 211, 153, 0.14)"
+          icon={<FileSpreadsheet size={20} color={themeColors.credit} />}
+          iconBg={themeColors.creditLight}
           title="Export Data"
           subtitle="Backup personal & group records"
           type="chevron"
           onPress={() => setExportModalVisible(true)}
         />
         <SettingItem
-          icon={<FileUp size={20} color="#818CF8" />}
-          iconBg="rgba(129, 140, 248, 0.14)"
+          icon={<FileUp size={20} color={themeColors.indigo} />}
+          iconBg={themeColors.indigoLight}
           title="Import Data"
           subtitle="Merge expenses from JSON or CSV"
           type="chevron"

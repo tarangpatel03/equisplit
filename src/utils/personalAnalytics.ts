@@ -1,3 +1,4 @@
+import { colors } from '@/theme/colors';
 import { ExpenseCategory, PersonalExpense } from "@/types";
 
 export type TimePeriod = "this_month" | "last_month" | "all";
@@ -54,7 +55,7 @@ export function resolveCategory(
       id: 'settlement',
       name: 'Settlement',
       iconKey: 'handshake',
-      color: '#10B981',
+      color: colors.credit,
     };
   }
   const fallback =
@@ -63,7 +64,7 @@ export function resolveCategory(
       id: id || "other",
       name: "Other",
       iconKey: "more-horizontal",
-      color: "#94A3B8",
+      color: colors.neutral,
     };
   if (!id || id === "general") return fallback;
   return categories.find(c => c.id === id) ?? fallback;

@@ -7,16 +7,16 @@ import { getCategoryBgColor } from '@/config';
 import { useCurrency } from '@/hooks';
 import { colors, radius, space, useAppTheme } from '@/theme';
 
-import { CategorySpending } from '../hooks/useAnalytics';
+import type { CategorySpending } from '@/screens/Analytics/hooks/useAnalytics';
 
 type Props = {
   data: CategorySpending[];
-  isIncome?: boolean;
 };
 
-export const CategorySpendingList: FC<Props> = ({ data, isIncome = false }) => {
+export const CategorySpendingList: FC<Props> = ({ data }) => {
   const { colors: themeColors } = useAppTheme();
   const { currencySymbol } = useCurrency();
+
   if (data.length === 0) return null;
 
   return (
@@ -37,7 +37,9 @@ export const CategorySpendingList: FC<Props> = ({ data, isIncome = false }) => {
           >
             {/* Category Avatar & Name */}
             <View style={styles.left}>
-              <View style={[styles.iconContainer, { backgroundColor: bgColor }]}>
+              <View
+                style={[styles.iconContainer, { backgroundColor: bgColor }]}
+              >
                 <CategoryIcon
                   iconKey={item.category.iconKey}
                   size={22}
@@ -58,14 +60,8 @@ export const CategorySpendingList: FC<Props> = ({ data, isIncome = false }) => {
 
             {/* Amount & Percentage */}
             <View style={styles.right}>
-              <AppText
-                style={[
-                  styles.amount,
-                  { color: isIncome ? themeColors.credit : themeColors.textPrimary },
-                ]}
-                numberOfLines={1}
-              >
-                {`${isIncome ? '+' : ''}${currencySymbol}${item.amount.toFixed(2)}`}
+              <AppText style={styles.amount} numberOfLines={1}>
+                {`${currencySymbol}${item.amount.toFixed(2)}`}
               </AppText>
               <AppText
                 style={[
@@ -99,7 +95,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 3,

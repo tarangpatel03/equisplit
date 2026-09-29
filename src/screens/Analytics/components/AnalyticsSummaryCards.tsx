@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     padding: space.md,
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   paidBadge: {
-    backgroundColor: 'rgba(46, 213, 115, 0.16)',
+    backgroundColor: colors.settlementLight,
   },
   paidArrow: {
     fontSize: 12,
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     color: colors.success,
   },
   shareBadge: {
-    backgroundColor: 'rgba(9, 132, 227, 0.16)',
+    backgroundColor: colors.primaryLight,
   },
   shareArrow: {
     fontSize: 12,

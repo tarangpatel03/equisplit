@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     marginBottom: space.sm,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,

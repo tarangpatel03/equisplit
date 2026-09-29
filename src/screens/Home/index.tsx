@@ -1,31 +1,33 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
-import { FlatList, Image, Pressable, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { FC, useCallback, useMemo, useState } from 'react';
+import { FlatList, Image, Pressable, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { assets } from '@/assets';
 import { AppConfirmDialog } from '@/components/common';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { AppText } from '@/components/ui/AppText';
-import { NavType } from '@/navigation/navigation.service';
+import { usePreferences } from '@/hooks';
 import { RootRoutes } from '@/navigation/routes';
 import { deleteExpense as deleteExpenseDb } from '@/services/database';
 import { showSuccessToast } from '@/services/toast/toast.service';
 import { deleteExpense } from '@/store/expenseSlice';
-import { RootState } from '@/store/store';
-import { usePreferences } from '@/hooks';
 import { useAppTheme } from '@/theme';
-import { Expense, PersonalExpense } from '@/types';
 
-import { HomeSpeedDialFab } from './components/HomeSpeedDialFab';
 import { DashboardSearchBar } from './components/DashboardSearchBar';
 import { DashboardTypeTabs } from './components/DashboardTypeTabs';
 import { ExpenseCard } from './components/ExpenseCard';
+import { HomeSpeedDialFab } from './components/HomeSpeedDialFab';
 import { PersonalExpenseCard } from './components/PersonalExpenseCard';
 import { PersonalGroupExpenseCard } from './components/PersonalGroupExpenseCard';
 import { PersonalOverviewCard } from './components/PersonalOverviewCard';
 import { PersonalSettlementCard } from './components/PersonalSettlementCard';
 import { useHomeScreen } from './hooks/useHomeScreen';
 import { styles } from './styles';
+
+import type { NavType } from '@/navigation/navigation.service';
+import type { RootState } from '@/store/store';
+import type { Expense, PersonalExpense } from '@/types';
 
 type PersonalFeedItem =
   | {
@@ -295,6 +297,159 @@ export const HomeScreen: FC = () => {
 
   const isFiltered = Boolean(searchQuery.trim() || selectedCategoryId);
 
+  const renderEmptyState = useCallback(
+    (type: 'personal' | 'group'): React.JSX.Element | undefined => {
+      if (loadState === 'loading') return undefined;
+
+      if (isFiltered) {
+        return (
+          <View style={styles.emptyState}>
+            <Image
+              style={styles.emptyIcon}
+              source={assets.icons.ic_search}
+              resizeMode="contain"
+            />
+            <AppText
+              style={[styles.emptyTitle, { color: themeColors.textPrimary }]}
+            >
+              {'No matching transactions'}
+            </AppText>
+            <AppText
+              style={[
+                styles.emptySubtitle,
+                { color: themeColors.textSecondary },
+              ]}
+            >
+              {'Try adjusting your search query or category filter.'}
+            </AppText>
+            <Pressable
+              style={styles.clearFilterBtn}
+              onPress={() => {
+                setSearchQuery('');
+                setSelectedCategoryId(null);
+              }}
+            >
+              <AppText style={styles.clearFilterBtnText}>
+                {'Clear Filters'}
+              </AppText>
+            </Pressable>
+          </View>
+        );
+      }
+
+      return (
+        <View style={styles.emptyState}>
+          <Image
+            style={styles.emptyIcon}
+            source={assets.icons.ic_receipt}
+            resizeMode="contain"
+          />
+          <AppText
+            style={[styles.emptyTitle, { color: themeColors.textPrimary }]}
+          >
+            {type === 'personal'
+              ? 'No personal transactions yet'
+              : 'No group expenses yet'}
+          </AppText>
+          <AppText
+            style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}
+          >
+            {type === 'personal'
+              ? 'Tap + to add an expense or income.'
+              : 'Tap + to add a split expense.'}
+          </AppText>
+        </View>
+      );
+    },
+    [
+      isFiltered,
+      loadState,
+      setSearchQuery,
+      setSelectedCategoryId,
+      themeColors.textPrimary,
+      themeColors.textSecondary,
+    ],
+  );
+
+  const renderPersonalFeedItem = useCallback(
+    ({ item }: { item: PersonalFeedItem }) => {
+      if (item.type === 'personal') {
+        return (
+          <PersonalExpenseCard
+            expense={item.data}
+            onPress={() =>
+              navigation.navigate(RootRoutes.AddEditPersonalExpense, {
+                personalExpenseId: item.data.id,
+              })
+            }
+            onDelete={() => setPersonalExpenseToDelete(item.data)}
+          />
+        );
+      }
+      if (item.type === 'settlement') {
+        return (
+          <PersonalSettlementCard
+            settlement={item.data}
+            direction={item.direction}
+            amount={item.amount}
+            counterpartName={item.counterpartName}
+          />
+        );
+      }
+      return (
+        <PersonalGroupExpenseCard
+          expense={item.data}
+          userShare={item.userShare}
+          amountSubtext={item.amountSubtext}
+          payerLabel={item.payerLabel}
+          onPress={() =>
+            navigation.navigate(RootRoutes.SplitDetails, {
+              expenseId: item.data.id,
+            })
+          }
+        />
+      );
+    },
+    [navigation],
+  );
+
+  const renderGroupExpenseItem = useCallback(
+    ({ item }: { item: Expense }) => (
+      <ExpenseCard
+        expense={item}
+        members={members}
+        onPress={() =>
+          navigation.navigate(RootRoutes.SplitDetails, {
+            expenseId: item.id,
+          })
+        }
+        onDelete={() => setExpenseToDelete(item)}
+      />
+    ),
+    [members, navigation],
+  );
+
+  const renderPersonalHeader = useCallback(() => {
+    if (isFiltered) return null;
+    return (
+      <PersonalOverviewCard
+        personalExpenses={personalExpenses}
+        expenses={expenses}
+        members={members}
+      />
+    );
+  }, [isFiltered, personalExpenses, expenses, members]);
+
+  const renderPersonalEmpty = useCallback(
+    () => renderEmptyState('personal'),
+    [renderEmptyState],
+  );
+
+  const renderGroupEmpty = useCallback(
+    () => renderEmptyState('group'),
+    [renderEmptyState],
+  );
+
   if (loadState === 'error') {
     return (
       <AppScreen screenTitle="EquiSplit" preset="fixed" safeAreaEdges={['top']}>
@@ -307,69 +462,6 @@ export const HomeScreen: FC = () => {
       </AppScreen>
     );
   }
-
-  const renderEmptyState = (
-    type: 'personal' | 'group',
-  ): React.JSX.Element | undefined => {
-    if (loadState === 'loading') return undefined;
-
-    if (isFiltered) {
-      return (
-        <View style={styles.emptyState}>
-          <Image
-            style={styles.emptyIcon}
-            source={assets.icons.ic_search}
-            resizeMode="contain"
-          />
-          <AppText
-            style={[styles.emptyTitle, { color: themeColors.textPrimary }]}
-          >
-            {'No matching transactions'}
-          </AppText>
-          <AppText
-            style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}
-          >
-            {'Try adjusting your search query or category filter.'}
-          </AppText>
-          <Pressable
-            style={styles.clearFilterBtn}
-            onPress={() => {
-              setSearchQuery('');
-              setSelectedCategoryId(null);
-            }}
-          >
-            <AppText style={styles.clearFilterBtnText}>
-              {'Clear Filters'}
-            </AppText>
-          </Pressable>
-        </View>
-      );
-    }
-
-    return (
-      <View style={styles.emptyState}>
-        <Image
-          style={styles.emptyIcon}
-          source={assets.icons.ic_receipt}
-          resizeMode="contain"
-        />
-        <AppText
-          style={[styles.emptyTitle, { color: themeColors.textPrimary }]}
-        >
-          {type === 'personal'
-            ? 'No personal transactions yet'
-            : 'No group expenses yet'}
-        </AppText>
-        <AppText
-          style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}
-        >
-          {type === 'personal'
-            ? 'Tap + to add an expense or income.'
-            : 'Tap + to add a split expense.'}
-        </AppText>
-      </View>
-    );
-  };
 
   const isPersonal = activeTab === 'personal';
 
@@ -434,55 +526,10 @@ export const HomeScreen: FC = () => {
           style={styles.list}
           data={filteredPersonalFeedItems}
           keyExtractor={item => item.id}
-          ListHeaderComponent={
-            !isFiltered ? (
-              <PersonalOverviewCard
-                personalExpenses={personalExpenses}
-                expenses={expenses}
-                members={members}
-              />
-            ) : undefined
-          }
-          renderItem={({ item }) => {
-            if (item.type === 'personal') {
-              return (
-                <PersonalExpenseCard
-                  expense={item.data}
-                  onPress={() =>
-                    navigation.navigate(RootRoutes.AddEditPersonalExpense, {
-                      personalExpenseId: item.data.id,
-                    })
-                  }
-                  onDelete={() => setPersonalExpenseToDelete(item.data)}
-                />
-              );
-            }
-            if (item.type === 'settlement') {
-              return (
-                <PersonalSettlementCard
-                  settlement={item.data}
-                  direction={item.direction}
-                  amount={item.amount}
-                  counterpartName={item.counterpartName}
-                />
-              );
-            }
-            return (
-              <PersonalGroupExpenseCard
-                expense={item.data}
-                userShare={item.userShare}
-                amountSubtext={item.amountSubtext}
-                payerLabel={item.payerLabel}
-                onPress={() =>
-                  navigation.navigate(RootRoutes.SplitDetails, {
-                    expenseId: item.data.id,
-                  })
-                }
-              />
-            );
-          }}
+          ListHeaderComponent={renderPersonalHeader}
+          renderItem={renderPersonalFeedItem}
           contentContainerStyle={styles.listContent}
-          ListEmptyComponent={renderEmptyState('personal')}
+          ListEmptyComponent={renderPersonalEmpty}
           showsVerticalScrollIndicator={false}
         />
       ) : (
@@ -490,20 +537,9 @@ export const HomeScreen: FC = () => {
           style={styles.list}
           data={filteredGroupExpenses}
           keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <ExpenseCard
-              expense={item}
-              members={members}
-              onPress={() =>
-                navigation.navigate(RootRoutes.SplitDetails, {
-                  expenseId: item.id,
-                })
-              }
-              onDelete={() => setExpenseToDelete(item)}
-            />
-          )}
+          renderItem={renderGroupExpenseItem}
           contentContainerStyle={styles.listContent}
-          ListEmptyComponent={renderEmptyState('group')}
+          ListEmptyComponent={renderGroupEmpty}
           showsVerticalScrollIndicator={false}
         />
       )}

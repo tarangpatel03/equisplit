@@ -1,12 +1,12 @@
+import { ArrowDownLeft, ArrowUpRight, Scale } from 'lucide-react-native';
 import { FC } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { ArrowDownLeft, ArrowUpRight, Scale } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { useCurrency } from '@/hooks';
-import { colors, radius, space, useAppTheme } from '@/theme';
+import { colors, hexToRgba, radius, space, useAppTheme } from '@/theme';
 
-import { PersonalAnalyticsType } from '../hooks/useAnalytics';
+import type { PersonalAnalyticsType } from '@/screens/Analytics/hooks/useAnalytics';
 
 type Props = {
   totalInflow: number;
@@ -48,16 +48,16 @@ export const PersonalSummaryCards: FC<Props> = ({
           style={[
             styles.card,
             styles.inflowCard,
+            isIncomeActive && styles.activeCard,
             {
               backgroundColor: isDark
-                ? 'rgba(32, 217, 178, 0.06)'
-                : 'rgba(32, 217, 178, 0.09)',
-              borderWidth: isIncomeActive ? 1.5 : isDark ? 1 : 0,
+                ? hexToRgba(themeColors.credit, 0.06)
+                : hexToRgba(themeColors.credit, 0.09),
               borderColor: isIncomeActive
                 ? themeColors.credit
                 : isDark
-                ? 'rgba(32, 217, 178, 0.2)'
-                : 'transparent',
+                ? hexToRgba(themeColors.credit, 0.2)
+                : themeColors.transparent,
             },
           ]}
         >
@@ -78,7 +78,10 @@ export const PersonalSummaryCards: FC<Props> = ({
               style={[
                 styles.label,
                 { color: themeColors.textSecondary },
-                isIncomeActive && { color: themeColors.credit, fontWeight: '800' },
+                isIncomeActive && [
+                  styles.activeLabelText,
+                  { color: themeColors.credit },
+                ],
               ]}
               numberOfLines={1}
             >
@@ -100,16 +103,16 @@ export const PersonalSummaryCards: FC<Props> = ({
           style={[
             styles.card,
             styles.outflowCard,
+            isExpenseActive && styles.activeCard,
             {
               backgroundColor: isDark
-                ? 'rgba(255, 107, 107, 0.06)'
-                : 'rgba(255, 107, 107, 0.09)',
-              borderWidth: isExpenseActive ? 1.5 : isDark ? 1 : 0,
+                ? hexToRgba(themeColors.debt, 0.06)
+                : hexToRgba(themeColors.debt, 0.09),
               borderColor: isExpenseActive
                 ? themeColors.debt
                 : isDark
-                ? 'rgba(255, 107, 107, 0.2)'
-                : 'transparent',
+                ? hexToRgba(themeColors.debt, 0.2)
+                : themeColors.transparent,
             },
           ]}
         >
@@ -130,7 +133,10 @@ export const PersonalSummaryCards: FC<Props> = ({
               style={[
                 styles.label,
                 { color: themeColors.textSecondary },
-                isExpenseActive && { color: themeColors.debt, fontWeight: '800' },
+                isExpenseActive && [
+                  styles.activeLabelText,
+                  { color: themeColors.debt },
+                ],
               ]}
               numberOfLines={1}
             >
@@ -192,10 +198,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     paddingVertical: space.sm + 2,
     paddingHorizontal: space.sm + 2,
-    borderWidth: 0,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   inflowCard: {},
   outflowCard: {},
+  activeCard: {
+    borderWidth: 1.5,
+  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,6 +225,9 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     letterSpacing: 0.2,
   },
+  activeLabelText: {
+    fontWeight: '800',
+  },
   amount: {
     fontSize: 16,
     fontWeight: '800',
@@ -229,7 +242,7 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     paddingHorizontal: space.sm + 2,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.04)',
+    borderColor: colors.border,
   },
   netLeft: {
     flexDirection: 'row',

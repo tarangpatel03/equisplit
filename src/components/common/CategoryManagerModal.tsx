@@ -1,12 +1,11 @@
-import { FC, useState } from 'react';
+import { Trash2 } from 'lucide-react-native';
+import { FC, useCallback, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Trash2 } from 'lucide-react-native';
-
 import { AppText } from '@/components/ui/AppText';
-import { OTHERS_CATEGORY_ID, getCategoryBgColor } from '@/config';
+import { getCategoryBgColor, OTHERS_CATEGORY_ID } from '@/config';
 import {
   addCategory as addCategoryDb,
   deleteCategory as deleteCategoryDb,
@@ -26,12 +25,13 @@ import {
 import { setExpenses } from '@/store/expenseSlice';
 import { setPersonalExpenses } from '@/store/personalExpenseSlice';
 import { colors, radius, space, useAppTheme } from '@/theme';
-import { ExpenseCategory } from '@/types';
 
 import { AppConfirmDialog } from './AppConfirmDialog';
 import { CategoryFormModal } from './CategoryFormModal';
 import { CategoryIcon } from './CategoryIcon';
-import { RootState } from '@/store/store';
+
+import type { RootState } from '@/store/store';
+import type { ExpenseCategory } from '@/types';
 
 type Props = {
   visible: boolean;
@@ -56,10 +56,10 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
     setFormVisible(true);
   };
 
-  const handleOpenEdit = (cat: ExpenseCategory) => {
+  const handleOpenEdit = useCallback((cat: ExpenseCategory) => {
     setEditingCategory(cat);
     setFormVisible(true);
-  };
+  }, []);
 
   const handleSaveCategory = async (cat: ExpenseCategory) => {
     if (editingCategory) {
@@ -73,7 +73,7 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
     }
   };
 
-  const handleDeletePress = (category: ExpenseCategory) => {
+  const handleDeletePress = useCallback((category: ExpenseCategory) => {
     if (category.id === OTHERS_CATEGORY_ID) {
       showInfoToast(
         '"Other Expenses" is the default fallback category and cannot be deleted.',
@@ -81,7 +81,7 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
       return;
     }
     setCategoryToDelete(category);
-  };
+  }, []);
 
   const handleConfirmDelete = async () => {
     if (!categoryToDelete) return;
@@ -106,6 +106,128 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
       setDeleting(false);
     }
   };
+
+  const renderCategoryItem = useCallback(
+    ({ item }: { item: ExpenseCategory }) => {
+      const isDefault = Boolean(item.isDefault);
+
+      return (
+        <View
+          style={[
+            styles.itemCard,
+            {
+              backgroundColor: themeColors.surface,
+              borderColor: themeColors.border,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.itemAvatar,
+              {
+                backgroundColor: getCategoryBgColor(item.color, 0.16),
+              },
+            ]}
+          >
+            <CategoryIcon
+              iconKey={item.iconKey}
+              size={22}
+              color={item.color}
+              strokeWidth={2}
+            />
+          </View>
+
+          <View style={styles.itemInfo}>
+            <AppText
+              style={[styles.itemName, { color: themeColors.textPrimary }]}
+              numberOfLines={1}
+            >
+              {item.name}
+            </AppText>
+            {isDefault ? (
+              <View
+                style={[
+                  styles.defaultBadge,
+                  { backgroundColor: themeColors.surfaceAlt },
+                ]}
+              >
+                <AppText
+                  style={[
+                    styles.defaultBadgeText,
+                    { color: themeColors.textSecondary },
+                  ]}
+                >
+                  {'Default'}
+                </AppText>
+              </View>
+            ) : (
+              <AppText
+                style={[styles.customBadgeText, { color: themeColors.primary }]}
+              >
+                {'Custom'}
+              </AppText>
+            )}
+          </View>
+
+          <View style={styles.itemActions}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.actionBtn,
+                { backgroundColor: themeColors.surfaceAlt },
+                pressed && styles.actionBtnPressed,
+              ]}
+              onPress={() => handleOpenEdit(item)}
+              hitSlop={6}
+            >
+              <AppText
+                style={[styles.editBtnText, { color: themeColors.textPrimary }]}
+              >
+                {'Edit'}
+              </AppText>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.deleteBtn,
+                item.id === OTHERS_CATEGORY_ID && [
+                  styles.deleteBtnDisabled,
+                  { backgroundColor: themeColors.surfaceAlt },
+                ],
+                pressed && styles.deleteBtnPressed,
+              ]}
+              onPress={() => handleDeletePress(item)}
+              hitSlop={6}
+              accessibilityLabel={`Delete ${item.name}`}
+            >
+              <Trash2
+                size={15}
+                color={
+                  item.id === OTHERS_CATEGORY_ID
+                    ? themeColors.textSecondary
+                    : themeColors.error
+                }
+                strokeWidth={2.2}
+              />
+            </Pressable>
+          </View>
+        </View>
+      );
+    },
+    [handleDeletePress, handleOpenEdit, themeColors],
+  );
+
+  const renderEmptyCategoryList = useCallback(
+    () => (
+      <View style={styles.emptyContainer}>
+        <AppText
+          style={[styles.emptyText, { color: themeColors.textSecondary }]}
+        >
+          {'No categories found'}
+        </AppText>
+      </View>
+    ),
+    [themeColors.textSecondary],
+  );
 
   return (
     <>
@@ -178,132 +300,8 @@ export const CategoryManagerModal: FC<Props> = ({ visible, onClose }) => {
               keyExtractor={item => item.id}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.listContent}
-              renderItem={({ item }) => {
-                const isDefault = Boolean(item.isDefault);
-
-                return (
-                  <View
-                    style={[
-                      styles.itemCard,
-                      {
-                        backgroundColor: themeColors.surface,
-                        borderColor: themeColors.border,
-                      },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.itemAvatar,
-                        {
-                          backgroundColor: getCategoryBgColor(item.color, 0.16),
-                        },
-                      ]}
-                    >
-                      <CategoryIcon
-                        iconKey={item.iconKey}
-                        size={22}
-                        color={item.color}
-                        strokeWidth={2}
-                      />
-                    </View>
-
-                    <View style={styles.itemInfo}>
-                      <AppText
-                        style={[
-                          styles.itemName,
-                          { color: themeColors.textPrimary },
-                        ]}
-                        numberOfLines={1}
-                      >
-                        {item.name}
-                      </AppText>
-                      {isDefault ? (
-                        <View
-                          style={[
-                            styles.defaultBadge,
-                            { backgroundColor: themeColors.surfaceAlt },
-                          ]}
-                        >
-                          <AppText
-                            style={[
-                              styles.defaultBadgeText,
-                              { color: themeColors.textSecondary },
-                            ]}
-                          >
-                            {'Default'}
-                          </AppText>
-                        </View>
-                      ) : (
-                        <AppText
-                          style={[
-                            styles.customBadgeText,
-                            { color: themeColors.primary },
-                          ]}
-                        >
-                          {'Custom'}
-                        </AppText>
-                      )}
-                    </View>
-
-                    <View style={styles.itemActions}>
-                      <Pressable
-                        style={({ pressed }) => [
-                          styles.actionBtn,
-                          { backgroundColor: themeColors.surfaceAlt },
-                          pressed && styles.actionBtnPressed,
-                        ]}
-                        onPress={() => handleOpenEdit(item)}
-                        hitSlop={6}
-                      >
-                        <AppText
-                          style={[
-                            styles.editBtnText,
-                            { color: themeColors.textPrimary },
-                          ]}
-                        >
-                          {'Edit'}
-                        </AppText>
-                      </Pressable>
-
-                      <Pressable
-                        style={({ pressed }) => [
-                          styles.deleteBtn,
-                          item.id === OTHERS_CATEGORY_ID && [
-                            styles.deleteBtnDisabled,
-                            { backgroundColor: themeColors.surfaceAlt },
-                          ],
-                          pressed && styles.deleteBtnPressed,
-                        ]}
-                        onPress={() => handleDeletePress(item)}
-                        hitSlop={6}
-                        accessibilityLabel={`Delete ${item.name}`}
-                      >
-                        <Trash2
-                          size={15}
-                          color={
-                            item.id === OTHERS_CATEGORY_ID
-                              ? themeColors.textTertiary
-                              : themeColors.error
-                          }
-                          strokeWidth={2.2}
-                        />
-                      </Pressable>
-                    </View>
-                  </View>
-                );
-              }}
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <AppText
-                    style={[
-                      styles.emptyText,
-                      { color: themeColors.textSecondary },
-                    ]}
-                  >
-                    {'No categories found'}
-                  </AppText>
-                </View>
-              }
+              renderItem={renderCategoryItem}
+              ListEmptyComponent={renderEmptyCategoryList}
             />
           </View>
         </View>
@@ -396,7 +394,7 @@ const styles = StyleSheet.create({
   addHeaderBtnText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.white,
   },
   listContent: {
     paddingHorizontal: space.md,
@@ -471,7 +469,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: radius.md,
-    backgroundColor: 'rgba(255, 107, 107, 0.14)',
+    backgroundColor: colors.debtLight,
     alignItems: 'center',
     justifyContent: 'center',
   },

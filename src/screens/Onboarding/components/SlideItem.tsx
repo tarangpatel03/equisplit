@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { AppText } from '@/components/ui/AppText';
+import { colors } from '@/theme/colors';
 
 import { styles } from '../styles';
 import { OnboardingSlide } from '../types';
@@ -22,7 +23,7 @@ export const SlideItem: FC<Props> = ({ slide }) => {
         end={{ x: 1, y: 1 }}
         style={styles.iconCard}
       >
-        <Icon size={44} color="#FFFFFF" strokeWidth={2.2} />
+        <Icon size={44} color={colors.white} strokeWidth={2.2} />
       </LinearGradient>
 
       <View style={styles.badge}>

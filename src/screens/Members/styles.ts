@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { colors, hexToRgba, radius, space } from '@/theme';
 
 export const styles = StyleSheet.create({
   flex1: {
@@ -206,12 +206,12 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(32, 217, 178, 0.12)',
+    backgroundColor: colors.primaryLight,
     paddingVertical: 5,
     paddingHorizontal: space.sm + 2,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: 'rgba(32, 217, 178, 0.35)',
+    borderColor: hexToRgba(colors.primary, 0.35),
   },
   settleUpHeaderBtnText: {
     fontSize: 12,

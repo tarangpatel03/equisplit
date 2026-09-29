@@ -20,7 +20,7 @@ import {
 
 import { AppButton } from '@/components/ui/AppButton';
 import { AppText } from '@/components/ui/AppText';
-import { radius, space, useAppTheme } from '@/theme';
+import { colors, hexToRgba, radius, space, useAppTheme } from '@/theme';
 import { ExportFormat, ExportScope, formatDate } from '@/utils';
 
 type Props = {
@@ -73,14 +73,14 @@ export const ExportDataModal: FC<Props> = ({
       title: 'Group Expenses',
       subtitle: 'Shared bills, split contributions and settlements',
       badge: `${groupCount} records`,
-      icon: <Users size={18} color="#38BDF8" />,
+      icon: <Users size={18} color={themeColors.blue} />,
     },
     {
       id: 'complete',
       title: 'Complete Backup',
       subtitle: 'All members, categories, and all transactions',
       badge: `${personalCount + groupCount} total`,
-      icon: <Database size={18} color="#A78BFA" />,
+      icon: <Database size={18} color={themeColors.purple} />,
     },
   ];
 
@@ -167,8 +167,8 @@ export const ExportDataModal: FC<Props> = ({
                           {
                             backgroundColor: isSelected
                               ? isDark
-                                ? 'rgba(99, 102, 241, 0.12)'
-                                : 'rgba(99, 102, 241, 0.08)'
+                                ? hexToRgba(themeColors.primary, 0.12)
+                                : hexToRgba(themeColors.primary, 0.08)
                               : themeColors.surfaceAlt,
                             borderColor: isSelected
                               ? themeColors.primary
@@ -202,8 +202,8 @@ export const ExportDataModal: FC<Props> = ({
                                     backgroundColor: isSelected
                                       ? themeColors.primaryLight
                                       : isDark
-                                      ? 'rgba(255, 255, 255, 0.06)'
-                                      : 'rgba(0, 0, 0, 0.04)',
+                                      ? hexToRgba(themeColors.white, 0.06)
+                                      : hexToRgba(themeColors.black, 0.04),
                                     borderColor: isSelected
                                       ? themeColors.primary
                                       : themeColors.border,
@@ -245,7 +245,9 @@ export const ExportDataModal: FC<Props> = ({
                             },
                           ]}
                         >
-                          {isSelected && <Check size={12} color="#FFFFFF" />}
+                          {isSelected && (
+                            <Check size={12} color={themeColors.white} />
+                          )}
                         </View>
                       </Pressable>
                     );
@@ -272,8 +274,8 @@ export const ExportDataModal: FC<Props> = ({
                         backgroundColor:
                           selectedFormat === 'csv'
                             ? isDark
-                              ? 'rgba(99, 102, 241, 0.12)'
-                              : 'rgba(99, 102, 241, 0.08)'
+                              ? hexToRgba(themeColors.primary, 0.12)
+                              : hexToRgba(themeColors.primary, 0.08)
                             : themeColors.surfaceAlt,
                         borderColor:
                           selectedFormat === 'csv'
@@ -302,7 +304,7 @@ export const ExportDataModal: FC<Props> = ({
                         ]}
                       >
                         {selectedFormat === 'csv' && (
-                          <Check size={10} color="#FFFFFF" />
+                          <Check size={10} color={themeColors.white} />
                         )}
                       </View>
                     </View>
@@ -333,8 +335,8 @@ export const ExportDataModal: FC<Props> = ({
                         backgroundColor:
                           selectedFormat === 'json'
                             ? isDark
-                              ? 'rgba(99, 102, 241, 0.12)'
-                              : 'rgba(99, 102, 241, 0.08)'
+                              ? hexToRgba(themeColors.primary, 0.12)
+                              : hexToRgba(themeColors.primary, 0.08)
                             : themeColors.surfaceAlt,
                         borderColor:
                           selectedFormat === 'json'
@@ -363,7 +365,7 @@ export const ExportDataModal: FC<Props> = ({
                         ]}
                       >
                         {selectedFormat === 'json' && (
-                          <Check size={10} color="#FFFFFF" />
+                          <Check size={10} color={themeColors.white} />
                         )}
                       </View>
                     </View>
@@ -446,7 +448,7 @@ export const ExportDataModal: FC<Props> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: space.md,

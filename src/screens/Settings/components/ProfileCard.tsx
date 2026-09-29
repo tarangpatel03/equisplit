@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ArrowRightLeft, UserCheck } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space, useAppTheme } from '@/theme';
+import { colors, hexToRgba, radius, space, useAppTheme } from '@/theme';
 import { Member } from '@/types';
 
 type Props = {
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: radius.full,
-    backgroundColor: 'rgba(28, 194, 159, 0.15)',
+    backgroundColor: colors.primaryLight,
     borderWidth: 1.5,
     borderColor: colors.primary,
     alignItems: 'center',
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: 'rgba(28, 194, 159, 0.3)',
+    borderColor: hexToRgba(colors.primary, 0.3),
   },
   primaryBadgeText: {
     fontSize: 11,
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: 'rgba(28, 194, 159, 0.35)',
+    borderColor: hexToRgba(colors.primary, 0.35),
   },
   switchBtnPressed: {
     opacity: 0.8,

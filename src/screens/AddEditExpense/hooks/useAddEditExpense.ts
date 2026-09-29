@@ -598,6 +598,7 @@ export const useAddEditExpense = () => {
     date,
     dispatch,
     navigation,
+    currencySymbol,
   ]);
 
   return {

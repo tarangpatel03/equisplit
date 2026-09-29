@@ -1,3 +1,5 @@
+import { useNavigation } from '@react-navigation/native';
+import { Sparkles, Users, Wallet } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
 import {
   Dimensions,
@@ -9,8 +11,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { Sparkles, Users, Wallet } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppButton } from '@/components/ui/AppButton';
@@ -23,14 +23,16 @@ import {
 import { setOnboardingCompleted } from '@/services/onboarding';
 import { showSuccessToast } from '@/services/toast/toast.service';
 import { addMember, setPrimaryMemberId } from '@/store/memberSlice';
-import { RootState } from '@/store/store';
-import { Member } from '@/types';
 
 import { PaginationDots } from './components/PaginationDots';
 import { PrimaryUserSetupSlide } from './components/PrimaryUserSetupSlide';
 import { SlideItem } from './components/SlideItem';
 import { styles } from './styles';
-import { OnboardingSlide } from './types';
+
+import type { RootState } from '@/store/store';
+import type { Member } from '@/types';
+import type { OnboardingSlide } from './types';
+import { colors } from '@/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -42,7 +44,7 @@ const INTRO_SLIDES: OnboardingSlide[] = [
     description:
       'Record your daily solo spending with custom categories and notes in an offline-first, private ledger.',
     Icon: Wallet,
-    gradientColors: ['#10B981', '#059669'],
+    gradientColors: [colors.credit, colors.primaryDark],
   },
   {
     id: 'group',
@@ -51,7 +53,7 @@ const INTRO_SLIDES: OnboardingSlide[] = [
     description:
       'Divide dining, trips, and utilities seamlessly with equal, exact, shares, or itemized receipt splitting.',
     Icon: Users,
-    gradientColors: ['#1CC29F', '#0D9488'],
+    gradientColors: [colors.primary, colors.primaryDark],
   },
   {
     id: 'debts',
@@ -60,7 +62,7 @@ const INTRO_SLIDES: OnboardingSlide[] = [
     description:
       'EquiSplit calculates who owes whom and simplifies the debts to reduce the number of payments needed.',
     Icon: Sparkles,
-    gradientColors: ['#6366F1', '#4F46E5'],
+    gradientColors: [colors.indigo, colors.purple],
   },
 ];
 
@@ -174,6 +176,32 @@ export const OnboardingScreen = () => {
     }
   }, [name, selectedMemberId, members, dispatch, navigation]);
 
+  const renderSlideItem = useCallback(
+    ({ item, index }: { item: any; index: number }) => {
+      if (index === SETUP_INDEX) {
+        return (
+          <PrimaryUserSetupSlide
+            name={name}
+            onChangeName={handleChangeName}
+            members={members}
+            selectedMemberId={selectedMemberId}
+            onSelectMember={handleSelectMember}
+            error={error}
+          />
+        );
+      }
+      return <SlideItem slide={item as OnboardingSlide} />;
+    },
+    [
+      name,
+      handleChangeName,
+      members,
+      selectedMemberId,
+      handleSelectMember,
+      error,
+    ],
+  );
+
   const isSetupSlide = currentIndex === SETUP_INDEX;
 
   return (
@@ -217,21 +245,7 @@ export const OnboardingScreen = () => {
           offset: SCREEN_WIDTH * index,
           index,
         })}
-        renderItem={({ item, index }) => {
-          if (index === SETUP_INDEX) {
-            return (
-              <PrimaryUserSetupSlide
-                name={name}
-                onChangeName={handleChangeName}
-                members={members}
-                selectedMemberId={selectedMemberId}
-                onSelectMember={handleSelectMember}
-                error={error}
-              />
-            );
-          }
-          return <SlideItem slide={item as OnboardingSlide} />;
-        }}
+        renderItem={renderSlideItem}
       />
 
       {/* Footer with Dots and Action Controls */}

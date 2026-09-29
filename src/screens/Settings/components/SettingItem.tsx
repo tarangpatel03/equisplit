@@ -10,7 +10,7 @@ import type { ViewInstance } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space, useAppTheme } from '@/theme';
+import { colors, hexToRgba, radius, space, useAppTheme } from '@/theme';
 
 export type TouchCoordinates = { cx: number; cy: number };
 
@@ -111,7 +111,7 @@ export const SettingItem: FC<Props> = ({
             <Switch
               value={switchValue}
               trackColor={{
-                false: isDark ? themeColors.border : '#CBD5E1',
+                false: themeColors.switchTrackOff,
                 true: themeColors.primary,
               }}
               thumbColor={themeColors.textOnPrimary}
@@ -163,8 +163,8 @@ export const SettingItem: FC<Props> = ({
             styles.itemPressable,
             pressed && {
               backgroundColor: isDark
-                ? 'rgba(255, 255, 255, 0.04)'
-                : 'rgba(0, 0, 0, 0.03)',
+                ? hexToRgba(themeColors.white, 0.04)
+                : hexToRgba(themeColors.black, 0.03),
             },
           ]}
           accessibilityRole={type === 'switch' ? 'switch' : 'button'}

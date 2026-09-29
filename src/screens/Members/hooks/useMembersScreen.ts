@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Share } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useCurrency } from '@/hooks';
@@ -11,15 +10,19 @@ import {
 } from '@/services/database';
 import { showSuccessToast } from '@/services/toast/toast.service';
 import { addExpense } from '@/store/expenseSlice';
-import { addMember, removeMember, setPrimaryMemberId } from '@/store/memberSlice';
-import { RootState } from '@/store/store';
-import { Expense, Member } from '@/types';
+import {
+  addMember,
+  removeMember,
+  setPrimaryMemberId,
+} from '@/store/memberSlice';
 import {
   computeBalances,
   computePairwiseBalances,
-  generateBalanceSummaryText,
-  MemberBalanceDetail,
 } from '@/utils';
+
+import type { RootState } from '@/store/store';
+import type { Expense, Member } from '@/types';
+import type { MemberBalanceDetail } from '@/utils';
 
 export function useMembersScreen() {
   const dispatch = useDispatch();
@@ -155,15 +158,18 @@ export function useMembersScreen() {
     [primaryMemberToDelete, members, dispatch],
   );
 
-  const handleSetPrimary = useCallback(async (memberId: string) => {
-    try {
-      await setPrimaryMemberDb(memberId);
-      dispatch(setPrimaryMemberId(memberId));
-      showSuccessToast('Primary profile set as "You"');
-    } catch (err) {
-      console.error('[Members] Failed to set primary member:', err);
-    }
-  }, [dispatch]);
+  const handleSetPrimary = useCallback(
+    async (memberId: string) => {
+      try {
+        await setPrimaryMemberDb(memberId);
+        dispatch(setPrimaryMemberId(memberId));
+        showSuccessToast('Primary profile set as "You"');
+      } catch (err) {
+        console.error('[Members] Failed to set primary member:', err);
+      }
+    },
+    [dispatch],
+  );
 
   const handleOpenSettleUp = useCallback(
     (payer?: Member, receiver?: Member, amount?: number) => {
@@ -209,7 +215,9 @@ export function useMembersScreen() {
         dispatch(addExpense(settlementExpense));
 
         showSuccessToast(
-          `Settlement recorded: ${payerName} paid ${currencySymbol}${data.amount.toFixed(2)} to ${receiverName}`,
+          `Settlement recorded: ${payerName} paid ${currencySymbol}${data.amount.toFixed(
+            2,
+          )} to ${receiverName}`,
         );
         setSettleModalVisible(false);
         setSettleTarget(null);
@@ -217,25 +225,8 @@ export function useMembersScreen() {
         setSavingSettlement(false);
       }
     },
-    [members, dispatch],
+    [currencySymbol, dispatch, members],
   );
-
-  const handleShareSummary = useCallback(async () => {
-    try {
-      const summaryText = generateBalanceSummaryText(
-        members,
-        expenses,
-        new Date(),
-        currencySymbol,
-      );
-      await Share.share({
-        message: summaryText,
-        title: 'EquiSplit Group Balances',
-      });
-    } catch {
-      // User cancelled or dismissed share dialog
-    }
-  }, [members, expenses, currencySymbol]);
 
   return {
     members,
@@ -263,6 +254,5 @@ export function useMembersScreen() {
     handleOpenSettleUp,
     handleCloseSettleUp,
     handleRecordSettlement,
-    handleShareSummary,
   };
 }

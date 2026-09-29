@@ -7,6 +7,7 @@ import {
 import Papa from 'papaparse';
 
 import { INITIAL_CATEGORIES } from '@/config';
+import { colors } from '@/theme/colors';
 import {
   Expense,
   ExpenseCategory,
@@ -132,7 +133,7 @@ export function parseJsonBackup(
         id: String(c.id),
         name: String(c.name || 'Category'),
         iconKey: String(c.iconKey || 'more-horizontal'),
-        color: String(c.color || '#94A3B8'),
+        color: String(c.color || colors.neutral),
       }))
     : [];
 

@@ -1,6 +1,6 @@
 import { Dimensions, StyleSheet } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { colors, hexToRgba, radius, space } from '@/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: space.lg,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: hexToRgba(colors.white, 0.1),
   },
   badge: {
     backgroundColor: colors.primaryLight,

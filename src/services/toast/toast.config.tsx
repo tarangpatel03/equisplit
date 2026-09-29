@@ -3,7 +3,7 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { CircleAlert, CircleCheck, Info } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors, radius, space } from '@/theme';
+import { colors, hexToRgba, radius, space } from '@/theme';
 import { normalize } from '@/utils';
 
 type ToastType = 'success' | 'error' | 'info';
@@ -19,19 +19,19 @@ const VARIANT_CONFIG: Record<ToastType, ToastVariantConfig> = {
   success: {
     accent: colors.credit,
     badgeBg: colors.primaryLight,
-    borderColor: 'rgba(32, 217, 178, 0.28)',
+    borderColor: hexToRgba(colors.credit, 0.28),
     Icon: CircleCheck,
   },
   error: {
     accent: colors.error,
     badgeBg: colors.debtLight,
-    borderColor: 'rgba(255, 107, 107, 0.28)',
+    borderColor: hexToRgba(colors.error, 0.28),
     Icon: CircleAlert,
   },
   info: {
-    accent: '#38BDF8',
-    badgeBg: 'rgba(56, 189, 248, 0.15)',
-    borderColor: 'rgba(56, 189, 248, 0.28)',
+    accent: colors.blue,
+    badgeBg: colors.blueLight,
+    borderColor: hexToRgba(colors.blue, 0.28),
     Icon: Info,
   },
 };
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     elevation: 8,
 
     // iOS shadow
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.35,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
