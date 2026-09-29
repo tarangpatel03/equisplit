@@ -14,8 +14,11 @@ export type PersonalAnalyticsResult = {
   totalOutflow: number;
   netBalance: number;
   totalSpending: number;
+  totalIncome: number;
   categoryBreakdown: PersonalCategorySpending[];
+  incomeBreakdown: PersonalCategorySpending[];
   hasExpenses: boolean;
+  hasIncome: boolean;
 };
 
 export function getTimePeriodBounds(
@@ -82,13 +85,20 @@ export function computePersonalAnalytics(
   let totalInflow = 0;
   let totalOutflow = 0;
   const categoryMap: Record<string, { amount: number; count: number }> = {};
+  const incomeCategoryMap: Record<string, { amount: number; count: number }> = {};
 
   for (const item of filtered) {
     if (item.type === "income") {
       totalInflow += item.amount;
+      const catId = item.categoryId || "others";
+      if (!incomeCategoryMap[catId]) {
+        incomeCategoryMap[catId] = { amount: 0, count: 0 };
+      }
+      incomeCategoryMap[catId].amount += item.amount;
+      incomeCategoryMap[catId].count += 1;
     } else {
       totalOutflow += item.amount;
-      const catId = item.categoryId || "other";
+      const catId = item.categoryId || "others";
       if (!categoryMap[catId]) {
         categoryMap[catId] = { amount: 0, count: 0 };
       }
@@ -115,12 +125,30 @@ export function computePersonalAnalytics(
     })
     .sort((a, b) => b.amount - a.amount);
 
+  const incomeBreakdown: PersonalCategorySpending[] = Object.entries(incomeCategoryMap)
+    .filter(([_, data]) => data.amount > 0)
+    .map(([catId, data]) => {
+      const category = resolveCategory(catId, categories);
+      const percentage =
+        totalInflow > 0 ? (data.amount / totalInflow) * 100 : 0;
+      return {
+        category,
+        amount: Math.round(data.amount * 100) / 100,
+        percentage: Math.round(percentage * 10) / 10,
+        transactionCount: data.count,
+      };
+    })
+    .sort((a, b) => b.amount - a.amount);
+
   return {
     totalInflow,
     totalOutflow,
     netBalance: Math.round((totalInflow - totalOutflow) * 100) / 100,
     totalSpending: totalOutflow,
+    totalIncome: totalInflow,
     categoryBreakdown,
+    incomeBreakdown,
     hasExpenses: filtered.some(e => e.type === "expense"),
+    hasIncome: filtered.some(e => e.type === "income"),
   };
 }

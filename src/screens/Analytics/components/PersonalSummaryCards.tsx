@@ -1,21 +1,27 @@
 import { FC } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { ArrowDownLeft, ArrowUpRight, Scale } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { useCurrency } from '@/hooks';
 import { colors, radius, space, useAppTheme } from '@/theme';
 
+import { PersonalAnalyticsType } from '../hooks/useAnalytics';
+
 type Props = {
   totalInflow: number;
   totalOutflow: number;
   netBalance: number;
+  activeType?: PersonalAnalyticsType;
+  onSelectType?: (type: PersonalAnalyticsType) => void;
 };
 
 export const PersonalSummaryCards: FC<Props> = ({
   totalInflow,
   totalOutflow,
   netBalance,
+  activeType,
+  onSelectType,
 }) => {
   const { colors: themeColors, isDark } = useAppTheme();
   const { currencySymbol } = useCurrency();
@@ -28,12 +34,17 @@ export const PersonalSummaryCards: FC<Props> = ({
       ? themeColors.debt
       : themeColors.textPrimary;
 
+  const isIncomeActive = activeType === 'income';
+  const isExpenseActive = activeType === 'expense';
+
   return (
     <View style={styles.container}>
       {/* Side-by-Side Inflow & Outflow Cards */}
       <View style={styles.cardsRow}>
         {/* Total Inflow Card */}
-        <View
+        <Pressable
+          disabled={!onSelectType}
+          onPress={() => onSelectType?.('income')}
           style={[
             styles.card,
             styles.inflowCard,
@@ -41,8 +52,12 @@ export const PersonalSummaryCards: FC<Props> = ({
               backgroundColor: isDark
                 ? 'rgba(32, 217, 178, 0.06)'
                 : 'rgba(32, 217, 178, 0.09)',
-              borderWidth: isDark ? 1 : 0,
-              borderColor: isDark ? 'rgba(32, 217, 178, 0.2)' : 'transparent',
+              borderWidth: isIncomeActive ? 1.5 : isDark ? 1 : 0,
+              borderColor: isIncomeActive
+                ? themeColors.credit
+                : isDark
+                ? 'rgba(32, 217, 178, 0.2)'
+                : 'transparent',
             },
           ]}
         >
@@ -60,7 +75,11 @@ export const PersonalSummaryCards: FC<Props> = ({
               />
             </View>
             <AppText
-              style={[styles.label, { color: themeColors.textSecondary }]}
+              style={[
+                styles.label,
+                { color: themeColors.textSecondary },
+                isIncomeActive && { color: themeColors.credit, fontWeight: '800' },
+              ]}
               numberOfLines={1}
             >
               {'Total Inflow'}
@@ -72,10 +91,12 @@ export const PersonalSummaryCards: FC<Props> = ({
           >
             {`+${currencySymbol}${totalInflow.toFixed(2)}`}
           </AppText>
-        </View>
+        </Pressable>
 
         {/* Total Outflow Card */}
-        <View
+        <Pressable
+          disabled={!onSelectType}
+          onPress={() => onSelectType?.('expense')}
           style={[
             styles.card,
             styles.outflowCard,
@@ -83,8 +104,12 @@ export const PersonalSummaryCards: FC<Props> = ({
               backgroundColor: isDark
                 ? 'rgba(255, 107, 107, 0.06)'
                 : 'rgba(255, 107, 107, 0.09)',
-              borderWidth: isDark ? 1 : 0,
-              borderColor: isDark ? 'rgba(255, 107, 107, 0.2)' : 'transparent',
+              borderWidth: isExpenseActive ? 1.5 : isDark ? 1 : 0,
+              borderColor: isExpenseActive
+                ? themeColors.debt
+                : isDark
+                ? 'rgba(255, 107, 107, 0.2)'
+                : 'transparent',
             },
           ]}
         >
@@ -102,7 +127,11 @@ export const PersonalSummaryCards: FC<Props> = ({
               />
             </View>
             <AppText
-              style={[styles.label, { color: themeColors.textSecondary }]}
+              style={[
+                styles.label,
+                { color: themeColors.textSecondary },
+                isExpenseActive && { color: themeColors.debt, fontWeight: '800' },
+              ]}
               numberOfLines={1}
             >
               {'Total Outflow'}
@@ -114,7 +143,7 @@ export const PersonalSummaryCards: FC<Props> = ({
           >
             {`-${currencySymbol}${totalOutflow.toFixed(2)}`}
           </AppText>
-        </View>
+        </Pressable>
       </View>
 
       {/* Net Balance Footer */}

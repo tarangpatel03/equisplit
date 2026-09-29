@@ -15,6 +15,8 @@ export type CategorySpending = {
   percentage: number;
 };
 
+export type PersonalAnalyticsType = 'expense' | 'income';
+
 export const useAnalytics = () => {
   const expenses = useSelector((state: RootState) => state.expenses.expenses);
   const members = useSelector((state: RootState) => state.members.members);
@@ -119,6 +121,7 @@ export const useAnalytics = () => {
   }, [personalExpenses, expenses, primaryMember, trackOutOfPocket]);
 
   const [activeTab, setActiveTab] = useState<"personal" | "group">("personal");
+  const [personalType, setPersonalType] = useState<PersonalAnalyticsType>("expense");
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("this_month");
   const [selectedMemberId, setSelectedMemberId] = useState<string>("group");
 
@@ -202,6 +205,8 @@ export const useAnalytics = () => {
   return {
     activeTab,
     setActiveTab,
+    personalType,
+    setPersonalType,
     selectedPeriod,
     setSelectedPeriod,
     personalAnalytics,

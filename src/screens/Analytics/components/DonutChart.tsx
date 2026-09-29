@@ -13,6 +13,8 @@ type Props = {
   totalSpending: number;
   radius?: number;
   innerRadius?: number;
+  totalLabel?: string;
+  totalColor?: string;
 };
 
 export const DonutChart: FC<Props> = ({
@@ -20,6 +22,8 @@ export const DonutChart: FC<Props> = ({
   totalSpending,
   radius = 115,
   innerRadius = 72,
+  totalLabel = 'Total',
+  totalColor,
 }) => {
   const { colors: themeColors } = useAppTheme();
   const { currencySymbol } = useCurrency();
@@ -39,6 +43,8 @@ export const DonutChart: FC<Props> = ({
     }));
   }, [data, totalSpending, themeColors]);
 
+  const resolvedAmountColor = totalColor ?? themeColors.textPrimary;
+
   return (
     <View style={styles.container}>
       <PieChart
@@ -52,7 +58,7 @@ export const DonutChart: FC<Props> = ({
         centerLabelComponent={() => (
           <View style={styles.centerContainer}>
             <AppText
-              style={[styles.totalAmount, { color: themeColors.textPrimary }]}
+              style={[styles.totalAmount, { color: resolvedAmountColor }]}
               numberOfLines={1}
             >
               {`${currencySymbol}${totalSpending.toFixed(2)}`}
@@ -60,7 +66,7 @@ export const DonutChart: FC<Props> = ({
             <AppText
               style={[styles.totalLabel, { color: themeColors.textSecondary }]}
             >
-              {'Total'}
+              {totalLabel}
             </AppText>
           </View>
         )}

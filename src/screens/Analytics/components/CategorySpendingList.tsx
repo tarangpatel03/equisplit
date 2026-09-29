@@ -11,9 +11,10 @@ import { CategorySpending } from '../hooks/useAnalytics';
 
 type Props = {
   data: CategorySpending[];
+  isIncome?: boolean;
 };
 
-export const CategorySpendingList: FC<Props> = ({ data }) => {
+export const CategorySpendingList: FC<Props> = ({ data, isIncome = false }) => {
   const { colors: themeColors } = useAppTheme();
   const { currencySymbol } = useCurrency();
   if (data.length === 0) return null;
@@ -58,10 +59,13 @@ export const CategorySpendingList: FC<Props> = ({ data }) => {
             {/* Amount & Percentage */}
             <View style={styles.right}>
               <AppText
-                style={[styles.amount, { color: themeColors.textPrimary }]}
+                style={[
+                  styles.amount,
+                  { color: isIncome ? themeColors.credit : themeColors.textPrimary },
+                ]}
                 numberOfLines={1}
               >
-                {`${currencySymbol}${item.amount.toFixed(2)}`}
+                {`${isIncome ? '+' : ''}${currencySymbol}${item.amount.toFixed(2)}`}
               </AppText>
               <AppText
                 style={[

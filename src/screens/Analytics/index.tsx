@@ -12,6 +12,7 @@ import { CategorySpendingList } from './components/CategorySpendingList';
 import { DonutChart } from './components/DonutChart';
 import { MemberSelector } from './components/MemberSelector';
 import { PersonalSummaryCards } from './components/PersonalSummaryCards';
+import { PersonalTypeSelector } from './components/PersonalTypeSelector';
 import { TimePeriodSelector } from './components/TimePeriodSelector';
 import { useAnalytics } from './hooks/useAnalytics';
 import { styles } from './styles';
@@ -22,6 +23,8 @@ export const AnalyticsScreen: FC = () => {
   const {
     activeTab,
     setActiveTab,
+    personalType,
+    setPersonalType,
     selectedPeriod,
     setSelectedPeriod,
     personalAnalytics,
@@ -37,6 +40,17 @@ export const AnalyticsScreen: FC = () => {
   } = useAnalytics();
 
   const isPersonal = activeTab === 'personal';
+  const isIncome = personalType === 'income';
+
+  const personalBreakdown = isIncome
+    ? personalAnalytics.incomeBreakdown
+    : personalAnalytics.categoryBreakdown;
+  const personalTotal = isIncome
+    ? personalAnalytics.totalIncome
+    : personalAnalytics.totalSpending;
+  const hasPersonalData = isIncome
+    ? personalAnalytics.hasIncome
+    : personalAnalytics.hasExpenses;
 
   return (
     <AppScreen
@@ -66,9 +80,17 @@ export const AnalyticsScreen: FC = () => {
             totalInflow={personalAnalytics.totalInflow}
             totalOutflow={personalAnalytics.totalOutflow}
             netBalance={personalAnalytics.netBalance}
+            activeType={personalType}
+            onSelectType={setPersonalType}
           />
 
-          {!personalAnalytics.hasExpenses ? (
+          {/* Type Selector: Expenses vs Income */}
+          <PersonalTypeSelector
+            activeType={personalType}
+            onSelectType={setPersonalType}
+          />
+
+          {!hasPersonalData ? (
             <View style={styles.emptyContainer}>
               <Image
                 source={assets.icons.ic_analysis}
@@ -78,7 +100,9 @@ export const AnalyticsScreen: FC = () => {
               <AppText
                 style={[styles.emptyTitle, { color: themeColors.textPrimary }]}
               >
-                {'No Expenses in this Period'}
+                {isIncome
+                  ? 'No Income in this Period'
+                  : 'No Expenses in this Period'}
               </AppText>
               <AppText
                 style={[
@@ -86,9 +110,9 @@ export const AnalyticsScreen: FC = () => {
                   { color: themeColors.textSecondary },
                 ]}
               >
-                {
-                  'Add personal expenses on the Dashboard to see your category breakdown and insights.'
-                }
+                {isIncome
+                  ? 'Add income or record received settlements on the Dashboard to see your income breakdown.'
+                  : 'Add personal expenses on the Dashboard to see your category breakdown and insights.'}
               </AppText>
             </View>
           ) : (
@@ -115,18 +139,20 @@ export const AnalyticsScreen: FC = () => {
                       { color: themeColors.textPrimary },
                     ]}
                   >
-                    {'Category Breakdown'}
+                    {isIncome ? 'Income by Category' : 'Expense Breakdown'}
                   </AppText>
                 </View>
 
                 <DonutChart
-                  data={personalAnalytics.categoryBreakdown}
-                  totalSpending={personalAnalytics.totalSpending}
+                  data={personalBreakdown}
+                  totalSpending={personalTotal}
+                  totalLabel={isIncome ? 'Total Income' : 'Total Spending'}
+                  totalColor={isIncome ? themeColors.credit : themeColors.textPrimary}
                 />
               </View>
 
-              {/* Category Spending List Cards */}
-              {personalAnalytics.categoryBreakdown.length > 0 ? (
+              {/* Category Spending / Income List Cards */}
+              {personalBreakdown.length > 0 ? (
                 <View style={styles.sectionTitleRow}>
                   <AppText
                     style={[
@@ -134,13 +160,14 @@ export const AnalyticsScreen: FC = () => {
                       { color: themeColors.textPrimary },
                     ]}
                   >
-                    {'Top Spending Categories'}
+                    {isIncome ? 'Top Income Sources' : 'Top Spending Categories'}
                   </AppText>
                 </View>
               ) : null}
 
               <CategorySpendingList
-                data={personalAnalytics.categoryBreakdown}
+                data={personalBreakdown}
+                isIncome={isIncome}
               />
             </>
           )}
