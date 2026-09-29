@@ -4,4 +4,3 @@ export * from './CategoryFormModal';
 export * from './CategoryIcon';
 export * from './CategoryManagerModal';
 export * from './CategoryModal';
-export * from './ThemeTransitionOverlay';
