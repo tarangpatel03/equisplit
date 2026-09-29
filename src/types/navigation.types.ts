@@ -16,11 +16,13 @@ export type BottomTabRouteParams = {
 // ---------------------------------------------------------------------------
 
 export type RootRouteParams = {
+  [RootRoutes.Onboarding]: undefined;
   [RootRoutes.MainTabs]:
     | NavigatorScreenParams<BottomTabRouteParams>
     | undefined;
   [RootRoutes.Home]: undefined;
   [RootRoutes.AddEditExpense]: { expenseId?: string } | undefined;
+  [RootRoutes.AddEditPersonalExpense]: { personalExpenseId?: string } | undefined;
   [RootRoutes.SplitDetails]: { expenseId: string };
 };
 

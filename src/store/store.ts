@@ -3,12 +3,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import categoryReducer from './categorySlice';
 import expenseReducer from './expenseSlice';
 import memberReducer from './memberSlice';
+import personalExpenseReducer from './personalExpenseSlice';
 
 export const store = configureStore({
   reducer: {
     categories: categoryReducer,
     expenses: expenseReducer,
     members: memberReducer,
+    personalExpenses: personalExpenseReducer,
   },
 });
 

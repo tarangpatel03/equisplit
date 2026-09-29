@@ -9,6 +9,7 @@ export type SplitMode = 'equally' | 'shares' | 'perItem' | 'amount';
 export type Member = {
   id: string;
   name: string;
+  isPrimary?: boolean;
 };
 
 /** One person's payment contribution toward an expense. */
@@ -63,6 +64,22 @@ export type Expense = {
   participants: ParticipantShare[];
   /** Only present when splitMode === 'perItem'. */
   items?: ExpenseItem[];
+  createdAt: number;
+  updatedAt: number;
+};
+
+export type PersonalExpenseType = 'expense' | 'income';
+
+/** An individual, non-split personal expense or income for the primary user. */
+export type PersonalExpense = {
+  id: string;
+  title: string;
+  amount: number;
+  type?: PersonalExpenseType;
+  /** Category identifier (e.g. 'general', 'food', 'transport'). Defaults to 'general'. */
+  categoryId: string;
+  date: number;
+  note?: string;
   createdAt: number;
   updatedAt: number;
 };

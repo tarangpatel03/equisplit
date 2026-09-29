@@ -27,6 +27,7 @@ export const MembersScreen: FC = () => {
     deleting,
     handleAddMember,
     handleConfirmDelete,
+    handleSetPrimary,
   } = useMembersScreen();
 
   return (
@@ -105,19 +106,38 @@ export const MembersScreen: FC = () => {
                     <AppText style={styles.memberChipName} numberOfLines={1}>
                       {m.name}
                     </AppText>
+                    {m.isPrimary && (
+                      <View style={styles.primaryBadge}>
+                        <AppText style={styles.primaryBadgeText}>{'You'}</AppText>
+                      </View>
+                    )}
                   </View>
 
-                  <Pressable
-                    hitSlop={8}
-                    style={styles.deleteMemberBtn}
-                    onPress={() => setMemberToDelete(m)}
-                  >
-                    <Image
-                      source={assets.icons.ic_delete}
-                      style={styles.deleteIcon}
-                      resizeMode="contain"
-                    />
-                  </Pressable>
+                  <View style={styles.memberActionsRight}>
+                    {!m.isPrimary && (
+                      <Pressable
+                        style={styles.setPrimaryBtn}
+                        onPress={() => handleSetPrimary(m.id)}
+                        hitSlop={4}
+                      >
+                        <AppText style={styles.setPrimaryBtnText}>
+                          {'Set as Me'}
+                        </AppText>
+                      </Pressable>
+                    )}
+
+                    <Pressable
+                      hitSlop={8}
+                      style={styles.deleteMemberBtn}
+                      onPress={() => setMemberToDelete(m)}
+                    >
+                      <Image
+                        source={assets.icons.ic_delete}
+                        style={styles.deleteIcon}
+                        resizeMode="contain"
+                      />
+                    </Pressable>
+                  </View>
                 </View>
               );
             })}

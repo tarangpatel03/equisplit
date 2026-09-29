@@ -3,21 +3,28 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import {
   addMember as addMemberDb,
+  deletePersonalExpense as deletePersonalExpenseDb,
   getCategories,
   getExpenses,
   getMembers,
+  getPersonalExpenses,
   removeMember as removeMemberDb,
 } from '@/services/database';
+import { showSuccessToast } from '@/services/toast/toast.service';
 import { setCategories } from '@/store/categorySlice';
+import { setExpenses } from '@/store/expenseSlice';
 import {
   addMember,
   removeMember,
   setMembers,
 } from '@/store/memberSlice';
-import { setExpenses } from '@/store/expenseSlice';
+import {
+  deletePersonalExpense,
+  setPersonalExpenses,
+} from '@/store/personalExpenseSlice';
 import { RootState } from '@/store/store';
-import { computeBalances, BalanceMap } from '@/utils';
 import { Member } from '@/types';
+import { BalanceMap, computeBalances } from '@/utils';
 
 type LoadState = 'idle' | 'loading' | 'error';
 
@@ -25,6 +32,9 @@ export function useHomeScreen() {
   const dispatch = useDispatch();
   const members = useSelector((s: RootState) => s.members.members);
   const expenses = useSelector((s: RootState) => s.expenses.expenses);
+  const personalExpenses = useSelector(
+    (s: RootState) => s.personalExpenses.personalExpenses,
+  );
 
   const [loadState, setLoadState] = useState<LoadState>('idle');
   const [membersModalVisible, setMembersModalVisible] = useState(false);
@@ -35,14 +45,17 @@ export function useHomeScreen() {
   const loadData = useCallback(async () => {
     setLoadState('loading');
     try {
-      const [dbMembers, dbExpenses, dbCategories] = await Promise.all([
-        getMembers(),
-        getExpenses(),
-        getCategories(),
-      ]);
+      const [dbMembers, dbExpenses, dbCategories, dbPersonalExpenses] =
+        await Promise.all([
+          getMembers(),
+          getExpenses(),
+          getCategories(),
+          getPersonalExpenses(),
+        ]);
       dispatch(setMembers(dbMembers));
       dispatch(setExpenses(dbExpenses));
       dispatch(setCategories(dbCategories));
+      dispatch(setPersonalExpenses(dbPersonalExpenses));
       setLoadState('idle');
     } catch {
       setLoadState('error');
@@ -75,6 +88,18 @@ export function useHomeScreen() {
   );
 
   // ---------------------------------------------------------------------------
+  // Personal expense management
+  // ---------------------------------------------------------------------------
+  const handleDeletePersonalExpense = useCallback(
+    async (id: string) => {
+      await deletePersonalExpenseDb(id);
+      dispatch(deletePersonalExpense(id));
+      showSuccessToast('Personal expense deleted');
+    },
+    [dispatch],
+  );
+
+  // ---------------------------------------------------------------------------
   // Derived state
   // ---------------------------------------------------------------------------
   const balances: BalanceMap = computeBalances(members, expenses);
@@ -82,12 +107,14 @@ export function useHomeScreen() {
   return {
     members,
     expenses,
+    personalExpenses,
     balances,
     loadState,
     membersModalVisible,
     setMembersModalVisible,
     handleAddMember,
     handleRemoveMember,
+    handleDeletePersonalExpense,
     retry: loadData,
   };
 }

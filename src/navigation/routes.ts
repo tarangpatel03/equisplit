@@ -13,9 +13,11 @@ export const BottomTabRoutes = {
 
 // Root stack routes
 export const RootRoutes = {
+  Onboarding: 'Onboarding',
   MainTabs: 'MainTabs',
   Home: 'Home',
   AddEditExpense: 'AddEditExpense',
+  AddEditPersonalExpense: 'AddEditPersonalExpense',
   SplitDetails: 'SplitDetails',
 } as const;
 

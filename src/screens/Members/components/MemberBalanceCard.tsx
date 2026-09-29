@@ -54,9 +54,16 @@ export const MemberBalanceCard = memo(
             </View>
 
             <View style={styles.nameCol}>
-              <AppText style={styles.memberName} numberOfLines={1}>
-                {member.name}
-              </AppText>
+              <View style={styles.nameRow}>
+                <AppText style={styles.memberName} numberOfLines={1}>
+                  {member.name}
+                </AppText>
+                {member.isPrimary && (
+                  <View style={styles.youBadge}>
+                    <AppText style={styles.youBadgeText}>{'You'}</AppText>
+                  </View>
+                )}
+              </View>
               <AppText style={[styles.statusText, { color: statusColor }]}>
                 {statusLabel}
               </AppText>
@@ -162,11 +169,28 @@ const styles = StyleSheet.create({
   nameCol: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 2,
+  },
   memberName: {
     fontSize: 15,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: 2,
+  },
+  youBadge: {
+    backgroundColor: colors.primaryLight,
+    paddingVertical: 1,
+    paddingHorizontal: 6,
+    borderRadius: radius.full,
+  },
+  youBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primary,
+    textTransform: 'uppercase',
   },
   statusText: {
     fontSize: 12,

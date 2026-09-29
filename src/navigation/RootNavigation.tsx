@@ -1,9 +1,14 @@
+import { useEffect, useState, memo } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { memo } from 'react';
 
 import { AddEditExpenseScreen } from '@/screens/AddEditExpense';
+import { AddEditPersonalExpenseScreen } from '@/screens/AddEditPersonalExpense';
+import { OnboardingScreen } from '@/screens/Onboarding';
 import { SplitDetailsScreen } from '@/screens/SplitDetails';
+import { getPrimaryMemberId } from '@/services/database';
+import { hasCompletedOnboarding } from '@/services/onboarding';
 import { colors } from '@/theme';
 import { RootRouteParams } from '@/types/navigation.types';
 
@@ -26,15 +31,75 @@ const navigationTheme = {
 };
 
 const RootNavigation = () => {
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [initialRoute, setInitialRoute] = useState<keyof RootRouteParams>(
+    RootRoutes.MainTabs,
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function checkInitialFlow() {
+      try {
+        const [completed, primaryMemberId] = await Promise.all([
+          hasCompletedOnboarding(),
+          getPrimaryMemberId(),
+        ]);
+
+        if (isMounted) {
+          if (!completed || !primaryMemberId) {
+            setInitialRoute(RootRoutes.Onboarding);
+          } else {
+            setInitialRoute(RootRoutes.MainTabs);
+          }
+        }
+      } catch (err) {
+        console.warn('[RootNavigation] Initial flow check error:', err);
+        if (isMounted) {
+          setInitialRoute(RootRoutes.Onboarding);
+        }
+      } finally {
+        if (isMounted) {
+          setCheckingAuth(false);
+        }
+      }
+    }
+
+    checkInitialFlow();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (checkingAuth) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer ref={navigationRef} theme={navigationTheme}>
       <Stack.Navigator
-        initialRouteName={RootRoutes.MainTabs}
+        initialRouteName={initialRoute}
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.background },
         }}
       >
+        <Stack.Screen
+          name={RootRoutes.Onboarding}
+          component={OnboardingScreen}
+        />
         <Stack.Screen
           name={RootRoutes.MainTabs}
           component={BottomTabNavigation}
@@ -42,6 +107,10 @@ const RootNavigation = () => {
         <Stack.Screen
           name={RootRoutes.AddEditExpense}
           component={AddEditExpenseScreen}
+        />
+        <Stack.Screen
+          name={RootRoutes.AddEditPersonalExpense}
+          component={AddEditPersonalExpenseScreen}
         />
         <Stack.Screen
           name={RootRoutes.SplitDetails}

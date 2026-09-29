@@ -4,9 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   addMember as addMemberDb,
   removeMember as removeMemberDb,
+  setPrimaryMember as setPrimaryMemberDb,
 } from '@/services/database';
 import { showSuccessToast } from '@/services/toast/toast.service';
-import { addMember, removeMember } from '@/store/memberSlice';
+import { addMember, removeMember, setPrimaryMemberId } from '@/store/memberSlice';
 import { RootState } from '@/store/store';
 import { Member } from '@/types';
 import {
@@ -44,15 +45,21 @@ export function useMembersScreen() {
     setAdding(true);
     try {
       const id = Date.now().toString();
-      const member: Member = { id, name: trimmed };
+      // If this is the very first member, automatically mark them as primary
+      const isPrimary = members.length === 0;
+      const member: Member = { id, name: trimmed, isPrimary };
       await addMemberDb(member);
       dispatch(addMember(member));
+      if (isPrimary) {
+        await setPrimaryMemberDb(id);
+        dispatch(setPrimaryMemberId(id));
+      }
       showSuccessToast(`Added member ${trimmed}`);
       setNewName('');
     } finally {
       setAdding(false);
     }
-  }, [newName, dispatch]);
+  }, [newName, members.length, dispatch]);
 
   const handleConfirmDelete = useCallback(async () => {
     if (!memberToDelete) return;
@@ -68,6 +75,16 @@ export function useMembersScreen() {
     }
   }, [memberToDelete, dispatch]);
 
+  const handleSetPrimary = useCallback(async (memberId: string) => {
+    try {
+      await setPrimaryMemberDb(memberId);
+      dispatch(setPrimaryMemberId(memberId));
+      showSuccessToast('Primary profile set as "You"');
+    } catch (err) {
+      console.error('[Members] Failed to set primary member:', err);
+    }
+  }, [dispatch]);
+
   return {
     members,
     expenses,
@@ -81,5 +98,6 @@ export function useMembersScreen() {
     deleting,
     handleAddMember,
     handleConfirmDelete,
+    handleSetPrimary,
   };
 }

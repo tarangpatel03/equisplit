@@ -129,7 +129,37 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: colors.textPrimary,
-    flex: 1,
+  },
+  primaryBadge: {
+    backgroundColor: colors.primaryLight,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: radius.full,
+    marginLeft: 6,
+  },
+  primaryBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primary,
+    textTransform: 'uppercase',
+  },
+  memberActionsRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  setPrimaryBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  setPrimaryBtnText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: colors.textSecondary,
   },
   deleteMemberBtn: {
     padding: 4,

@@ -23,9 +23,14 @@ const memberSlice = createSlice({
     removeMember(state, action: PayloadAction<string>) {
       state.members = state.members.filter(m => m.id !== action.payload);
     },
+    setPrimaryMemberId(state, action: PayloadAction<string>) {
+      state.members.forEach(m => {
+        m.isPrimary = m.id === action.payload;
+      });
+    },
   },
 });
 
-export const { setMembers, addMember, removeMember } = memberSlice.actions;
+export const { setMembers, addMember, removeMember, setPrimaryMemberId } = memberSlice.actions;
 
 export default memberSlice.reducer;
