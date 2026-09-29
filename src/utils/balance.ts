@@ -166,12 +166,14 @@ export function computePairwiseBalances(
 }
 
 /**
- * Formats a clean, readable text summary of all member balances and simplified
- * pairwise debts suitable for sharing via WhatsApp, SMS, or copying to clipboard.
+ * Formats a clean, readable text summary of all member balances, simplified
+ * settlements, and trip overview suitable for sharing via WhatsApp, SMS, or other platforms.
  */
 export function generateBalanceSummaryText(
   members: Member[],
   expenses: Expense[],
+  date: Date = new Date(),
+  currencySymbol: string = '₹',
 ): string {
   if (members.length === 0) {
     return 'EquiSplit: No members in group.';
@@ -184,24 +186,34 @@ export function generateBalanceSummaryText(
     memberMap.set(m.id, m);
   }
 
-  const lines: string[] = [
-    '📊 EquiSplit - Group Balance Summary',
-    '────────────────────────────────',
-    '',
-    '👥 Member Net Balances:',
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
+  const dateStr = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 
-  for (const m of members) {
-    const net = Math.round((balances[m.id] ?? 0) * 100) / 100;
-    const sign = net > 0 ? '+' : '';
-    const status =
-      net > 0.005 ? '(gets back)' : net < -0.005 ? '(owes)' : '(settled)';
-    const tag = m.isPrimary ? ' (You)' : '';
-    lines.push(`• ${m.name}${tag}: ${sign}₹${net.toFixed(2)} ${status}`);
-  }
+  const formatAmount = (num: number) =>
+    num.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
 
-  lines.push('');
-  lines.push('🤝 Who Owes Whom (Simplified):');
+  const lines: string[] = [
+    '📊 *EquiSplit · Group Balance Summary*',
+    `📅 ${dateStr}`,
+    '',
+    '💸 *Settlement Summary*',
+  ];
 
   if (settlements.length === 0) {
     lines.push('• All settled up! No outstanding balances.');
@@ -209,14 +221,37 @@ export function generateBalanceSummaryText(
     for (const s of settlements) {
       const fromMember = memberMap.get(s.from);
       const toMember = memberMap.get(s.to);
-      const fromName = fromMember ? (fromMember.isPrimary ? 'You' : fromMember.name) : 'Unknown';
-      const toName = toMember ? (toMember.isPrimary ? 'You' : toMember.name) : 'Unknown';
-      lines.push(`• ${fromName} owes ${toName} ₹${s.amount.toFixed(2)}`);
+      const fromName = fromMember ? fromMember.name : 'Unknown';
+      const toName = toMember ? toMember.name : 'Unknown';
+      lines.push(`• ${fromName} → ${toName}: ${currencySymbol}${formatAmount(s.amount)}`);
     }
   }
 
   lines.push('');
-  lines.push('Shared via EquiSplit');
+  lines.push('👥 *Final Balances*');
+
+  for (const m of members) {
+    const net = Math.round((balances[m.id] ?? 0) * 100) / 100;
+    if (net > 0.005) {
+      lines.push(`• ${m.name}: +${currencySymbol}${formatAmount(net)} · gets back`);
+    } else if (net < -0.005) {
+      lines.push(`• ${m.name}: -${currencySymbol}${formatAmount(Math.abs(net))} · owes`);
+    } else {
+      lines.push(`• ${m.name}: ${currencySymbol}0.00 · settled`);
+    }
+  }
+
+  const actualExpenses = expenses.filter(e => e.splitMode !== 'settlement');
+  const totalAmount = actualExpenses.reduce((sum, e) => sum + e.totalAmount, 0);
+
+  lines.push('');
+  lines.push('📈 *Trip Overview*');
+  lines.push(`• Total Expenses: ${currencySymbol}${formatAmount(totalAmount)}`);
+  lines.push(`• Number of Expenses: ${actualExpenses.length}`);
+  lines.push(`• Members: ${members.length}`);
+
+  lines.push('');
+  lines.push('📲 Shared via EquiSplit');
 
   return lines.join('\n');
 }

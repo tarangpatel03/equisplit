@@ -6,6 +6,7 @@ import { ChevronRight, Users } from 'lucide-react-native';
 import { CategoryIcon } from '@/components/common';
 import { AppText } from '@/components/ui/AppText';
 import { getCategoryBgColor, getCategoryById } from '@/config';
+import { useCurrency } from '@/hooks';
 import { RootState } from '@/store/store';
 import { colors, radius, space, useAppTheme } from '@/theme';
 import { Expense } from '@/types';
@@ -14,12 +15,20 @@ type Props = {
   expense: Expense;
   userShare: number;
   payerLabel: string;
+  amountSubtext?: string;
   onPress: () => void;
 };
 
 export const PersonalGroupExpenseCard = memo(
-  ({ expense, userShare, payerLabel, onPress }: Props) => {
+  ({
+    expense,
+    userShare,
+    payerLabel,
+    amountSubtext = 'Your share',
+    onPress,
+  }: Props) => {
     const { colors: themeColors } = useAppTheme();
+    const { currencySymbol } = useCurrency();
     const categories = useSelector((s: RootState) => s.categories.categories);
     const category = getCategoryById(expense.categoryId, categories);
 
@@ -95,10 +104,7 @@ export const PersonalGroupExpenseCard = memo(
             >
               <Users size={10} color={themeColors.primary} strokeWidth={2.4} />
               <AppText
-                style={[
-                  styles.groupBadgeText,
-                  { color: themeColors.primary },
-                ]}
+                style={[styles.groupBadgeText, { color: themeColors.primary }]}
               >
                 {'Group'}
               </AppText>
@@ -108,7 +114,7 @@ export const PersonalGroupExpenseCard = memo(
 
         <View style={styles.right}>
           <AppText style={[styles.amount, { color: themeColors.debt }]}>
-            {`-₹${userShare.toFixed(2)}`}
+            {`-${currencySymbol}${userShare.toFixed(2)}`}
           </AppText>
           <View style={styles.shareRow}>
             <AppText
@@ -117,7 +123,7 @@ export const PersonalGroupExpenseCard = memo(
                 { color: themeColors.textSecondary },
               ]}
             >
-              {'Your share'}
+              {amountSubtext}
             </AppText>
             <ChevronRight size={14} color={themeColors.textSecondary} />
           </View>

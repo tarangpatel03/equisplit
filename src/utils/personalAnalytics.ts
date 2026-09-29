@@ -46,6 +46,14 @@ export function resolveCategory(
   id: string | undefined,
   categories: ExpenseCategory[],
 ): ExpenseCategory {
+  if (id === 'settlement') {
+    return {
+      id: 'settlement',
+      name: 'Settlement',
+      iconKey: 'handshake',
+      color: '#10B981',
+    };
+  }
   const fallback =
     categories.find(c => c.id === "other" || c.id === "others") ??
     categories[0] ?? {

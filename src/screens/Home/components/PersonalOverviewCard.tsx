@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { ArrowDownLeft, ArrowUpRight, Scale } from 'lucide-react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { useCurrency, usePreferences } from '@/hooks';
 import { colors, radius, space, useAppTheme } from '@/theme';
 import { Expense, Member, PersonalExpense } from '@/types';
 
@@ -15,6 +16,8 @@ type Props = {
 export const PersonalOverviewCard = memo(
   ({ personalExpenses, expenses, members }: Props) => {
     const { colors: themeColors } = useAppTheme();
+    const { currencySymbol } = useCurrency();
+    const { trackOutOfPocket } = usePreferences();
 
     const {
       totalInflow,
@@ -23,6 +26,8 @@ export const PersonalOverviewCard = memo(
       personalIncome,
       personalSpend,
       groupSpend,
+      groupExpenseOutflow,
+      settlementsReceived,
     } = useMemo(() => {
       let income = 0;
       let spend = 0;
@@ -37,21 +42,49 @@ export const PersonalOverviewCard = memo(
 
       const primaryMember = members.find(m => m.isPrimary);
       let gSpend = 0;
+      let gExpenseOutflow = 0;
+      let sReceived = 0;
 
       if (primaryMember) {
         for (const exp of expenses) {
-          if (exp.splitMode === 'settlement') continue;
-          const participant = exp.participants.find(
-            p => p.memberId === primaryMember.id,
-          );
-          if (participant && participant.share > 0) {
-            gSpend += participant.share;
+          if (exp.splitMode === 'settlement') {
+            const receiverId = exp.participants?.[0]?.memberId;
+            if (receiverId === primaryMember.id) {
+              sReceived += exp.totalAmount;
+            }
+          } else {
+            const participant = exp.participants?.find(
+              p => p.memberId === primaryMember.id,
+            );
+            if (participant && participant.share > 0) {
+              gSpend += participant.share;
+            }
+
+            const userPayer = exp.payers?.find(
+              p => p.memberId === primaryMember.id,
+            );
+            if (userPayer && userPayer.amount > 0) {
+              // Primary user paid out of pocket (Scenarios 1 & 3)
+              gExpenseOutflow += userPayer.amount;
+            } else if (participant && participant.share > 0) {
+              // Another member paid; primary user's consumed share is counted (Scenarios 2 & 4)
+              gExpenseOutflow += participant.share;
+            }
           }
         }
       }
 
-      const inflow = income;
-      const outflow = spend + gSpend;
+      let inflow: number;
+      let outflow: number;
+
+      if (trackOutOfPocket) {
+        inflow = income + sReceived;
+        outflow = spend + gExpenseOutflow;
+      } else {
+        inflow = income;
+        outflow = spend + gSpend;
+      }
+
       const netResult = inflow - outflow;
 
       return {
@@ -61,8 +94,10 @@ export const PersonalOverviewCard = memo(
         personalIncome: income,
         personalSpend: spend,
         groupSpend: gSpend,
+        groupExpenseOutflow: gExpenseOutflow,
+        settlementsReceived: sReceived,
       };
-    }, [personalExpenses, expenses, members]);
+    }, [personalExpenses, expenses, members, trackOutOfPocket]);
 
     const netSign = finalNet > 0 ? '+' : finalNet < 0 ? '-' : '';
     const absNet = Math.abs(finalNet);
@@ -107,7 +142,7 @@ export const PersonalOverviewCard = memo(
               style={[styles.flowAmount, { color: themeColors.credit }]}
               numberOfLines={1}
             >
-              {`+₹${totalInflow.toFixed(2)}`}
+              {`+${currencySymbol}${totalInflow.toFixed(2)}`}
             </AppText>
 
             <AppText
@@ -115,7 +150,13 @@ export const PersonalOverviewCard = memo(
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {'Personal Income'}
+              {trackOutOfPocket && settlementsReceived > 0
+                ? `Income ${currencySymbol}${personalIncome.toFixed(
+                    0,
+                  )} · Settle ${currencySymbol}${settlementsReceived.toFixed(
+                    0,
+                  )}`
+                : 'Personal Income'}
             </AppText>
           </View>
 
@@ -141,7 +182,7 @@ export const PersonalOverviewCard = memo(
               style={[styles.flowAmount, { color: themeColors.debt }]}
               numberOfLines={1}
             >
-              {`-₹${totalOutflow.toFixed(2)}`}
+              {`-${currencySymbol}${totalOutflow.toFixed(2)}`}
             </AppText>
 
             <AppText
@@ -149,10 +190,18 @@ export const PersonalOverviewCard = memo(
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {groupSpend > 0
-                ? `Personal ₹${personalSpend.toFixed(
+              {trackOutOfPocket
+                ? groupExpenseOutflow > 0
+                  ? `Personal ${currencySymbol}${personalSpend.toFixed(
+                      0,
+                    )} · Group ${currencySymbol}${groupExpenseOutflow.toFixed(
+                      0,
+                    )}`
+                  : 'Personal Spent'
+                : groupSpend > 0
+                ? `Personal ${currencySymbol}${personalSpend.toFixed(
                     0,
-                  )} · Group ₹${groupSpend.toFixed(0)}`
+                  )} · Group ${currencySymbol}${groupSpend.toFixed(0)}`
                 : 'Personal Spent'}
             </AppText>
           </View>
@@ -163,7 +212,11 @@ export const PersonalOverviewCard = memo(
           style={[styles.netFooter, { borderTopColor: themeColors.border }]}
         >
           <View style={styles.netLeft}>
-            <Scale size={14} color={themeColors.textSecondary} strokeWidth={2} />
+            <Scale
+              size={14}
+              color={themeColors.textSecondary}
+              strokeWidth={2}
+            />
             <AppText
               style={[styles.netLabel, { color: themeColors.textSecondary }]}
             >
@@ -173,7 +226,7 @@ export const PersonalOverviewCard = memo(
 
           <View style={styles.netRight}>
             <AppText style={[styles.netAmount, { color: netColor }]}>
-              {`${netSign}₹${absNet.toFixed(2)}`}
+              {`${netSign}${currencySymbol}${absNet.toFixed(2)}`}
             </AppText>
           </View>
         </View>
